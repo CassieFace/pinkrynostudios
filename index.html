@@ -128,6 +128,14 @@
 
   .hero-art { display: flex; justify-content: center; }
   .hero-art svg { width: 100%; max-width: 360px; height: auto; }
+
+  /* image mascot + overlaid twinkles */
+  .mascot-stage { position: relative; width: 100%; max-width: 360px; }
+  .mascot-img { display: block; width: 100%; height: auto; }
+  .twinkles {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 2;
+  }
   .bob { animation: bob 4.5s ease-in-out infinite; transform-origin: center bottom; }
   @keyframes bob {
     0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -194,7 +202,7 @@
   @media (max-width: 760px) {
     .hero { grid-template-columns: 1fr; text-align: center; padding-top: 10px; }
     .hero-art { order: -1; }
-    .hero-art svg { max-width: 240px; }
+    .hero-art svg, .mascot-stage { max-width: 240px; }
     .hero p.lede { margin-left: auto; margin-right: auto; }
     .cta-row { justify-content: center; }
     nav { display: none; }
@@ -218,20 +226,7 @@
 
 <header>
   <a class="brand" href="#top" aria-label="PinkRyno Studios home">
-    <!-- mini rhino mark -->
-    <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
-      <path d="M22 24 Q16 10 28 15 Q30 22 26 28 Z" fill="#FF8FC7"/>
-      <path d="M42 24 Q48 10 36 15 Q34 22 38 28 Z" fill="#FF8FC7"/>
-      <ellipse cx="32" cy="36" rx="22" ry="20" fill="#FF8FC7"/>
-      <circle cx="18" cy="42" r="4" fill="#FF4FA3" opacity="0.25"/>
-      <circle cx="46" cy="42" r="4" fill="#FF4FA3" opacity="0.25"/>
-      <circle cx="24" cy="34" r="3.6" fill="#50214B"/>
-      <circle cx="40" cy="34" r="3.6" fill="#50214B"/>
-      <circle cx="25.4" cy="32.6" r="1.2" fill="#fff"/>
-      <circle cx="41.4" cy="32.6" r="1.2" fill="#fff"/>
-      <path d="M29 44 Q31 16 32 10 Q33 16 35 44 Z" fill="#FF4FA3"/>
-      <path d="M26 45 Q32 50 38 45" fill="none" stroke="#50214B" stroke-width="2.4" stroke-linecap="round"/>
-    </svg>
+    <img class="mark" src="pinkrynostudios-head.png" alt="" width="219" height="219">
     <span class="name">Pink<span>Ryno</span> Studios</span>
   </a>
   <nav aria-label="Primary">
@@ -252,56 +247,17 @@
       </div>
     </div>
     <div class="hero-art">
-      <!-- big friendly rhino mascot -->
-      <svg viewBox="0 0 300 300" role="img" aria-label="Bubbles, a happy round pink rhino mascot">
-        <!-- twinkles -->
-        <g class="twinkle t1"><path d="M250 56 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z" fill="#FFD166"/></g>
-        <g class="twinkle t2"><path d="M44 80 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" fill="#8B7CFF"/></g>
-        <g class="twinkle t3"><path d="M252 228 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" fill="#56D6C4"/></g>
-
-        <g class="bob">
-          <!-- shadow -->
-          <ellipse cx="150" cy="274" rx="66" ry="11" fill="#FF4FA3" opacity="0.12"/>
-          <!-- feet -->
-          <ellipse cx="132" cy="258" rx="18" ry="14" fill="#FF6FB5"/>
-          <ellipse cx="172" cy="258" rx="18" ry="14" fill="#FF6FB5"/>
-          <circle cx="126" cy="262" r="1.8" fill="#FF4FA3" opacity="0.45"/>
-          <circle cx="135" cy="263" r="1.8" fill="#FF4FA3" opacity="0.45"/>
-          <circle cx="165" cy="263" r="1.8" fill="#FF4FA3" opacity="0.45"/>
-          <circle cx="174" cy="262" r="1.8" fill="#FF4FA3" opacity="0.45"/>
-          <!-- body -->
-          <ellipse cx="150" cy="206" rx="62" ry="54" fill="#FF8FC7"/>
-          <ellipse cx="150" cy="214" rx="40" ry="38" fill="#FFD0E6" opacity="0.6"/>
-          <ellipse cx="126" cy="188" rx="13" ry="19" fill="#ffffff" opacity="0.18"/>
-          <!-- hands -->
-          <ellipse cx="110" cy="228" rx="13" ry="12" fill="#FF8FC7"/>
-          <ellipse cx="190" cy="228" rx="13" ry="12" fill="#FF8FC7"/>
-          <!-- ears -->
-          <path d="M110 86 Q94 52 122 60 Q126 76 116 92 Z" fill="#FF8FC7"/>
-          <path d="M113 84 Q104 64 120 67 Q122 77 115 87 Z" fill="#FF4FA3" opacity="0.4"/>
-          <path d="M190 86 Q206 52 178 60 Q174 76 184 92 Z" fill="#FF8FC7"/>
-          <path d="M187 84 Q196 64 180 67 Q178 77 185 87 Z" fill="#FF4FA3" opacity="0.4"/>
-          <!-- head -->
-          <ellipse cx="150" cy="120" rx="70" ry="62" fill="#FF8FC7"/>
-          <!-- cheeks -->
-          <circle cx="104" cy="138" r="13" fill="#FF4FA3" opacity="0.25"/>
-          <circle cx="196" cy="138" r="13" fill="#FF4FA3" opacity="0.25"/>
-          <!-- eyes -->
-          <circle cx="122" cy="110" r="13" fill="#50214B"/>
-          <circle cx="178" cy="110" r="13" fill="#50214B"/>
-          <circle cx="126" cy="105" r="4.5" fill="#ffffff"/>
-          <circle cx="117" cy="114" r="2" fill="#ffffff"/>
-          <circle cx="182" cy="105" r="4.5" fill="#ffffff"/>
-          <circle cx="173" cy="114" r="2" fill="#ffffff"/>
-          <!-- horn -->
-          <path d="M142 156 Q146 96 150 68 Q154 96 158 156 Z" fill="#FF4FA3"/>
-          <path d="M149 154 Q150 100 151 74 Q152 100 153 154 Z" fill="#FF8FC7" opacity="0.5"/>
-          <!-- nose + smile -->
-          <ellipse cx="138" cy="160" rx="2.4" ry="1.8" fill="#FF4FA3" opacity="0.4"/>
-          <ellipse cx="162" cy="160" rx="2.4" ry="1.8" fill="#FF4FA3" opacity="0.4"/>
-          <path d="M128 168 Q150 188 172 168" fill="none" stroke="#50214B" stroke-width="5" stroke-linecap="round"/>
-        </g>
-      </svg>
+      <!-- big friendly rhino mascot (Bubbles) -->
+      <div class="mascot-stage">
+        <!-- floating twinkles around the mascot -->
+        <svg class="twinkles" viewBox="0 0 300 300" aria-hidden="true">
+          <g class="twinkle t1"><path d="M250 56 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z" fill="#FFD166"/></g>
+          <g class="twinkle t2"><path d="M44 80 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" fill="#8B7CFF"/></g>
+          <g class="twinkle t3"><path d="M252 228 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" fill="#56D6C4"/></g>
+        </svg>
+        <img class="bob mascot-img" src="pinkrynostudios-mascot.png"
+             alt="Bubbles, a happy pink rhino mascot" width="500" height="500">
+      </div>
     </div>
   </section>
 
@@ -331,7 +287,7 @@
         </div>
         <div class="game-body">
           <h3>Tiny Trails: Space</h3>
-          <p>Guide your little astronaut through a starry maze and find the way back home.</p>
+          <p>Guide your little explorer through colorful planet mazes with a fingertip, tracing the path to reach the star at the end.</p>
           <a class="play ready" href="games/space-maze/">Play now ✨</a>
         </div>
       </article>
@@ -376,19 +332,7 @@
 </main>
 
 <footer>
-  <svg class="footer-rhino" viewBox="0 0 64 64" aria-hidden="true">
-    <path d="M22 24 Q16 10 28 15 Q30 22 26 28 Z" fill="#FF8FC7"/>
-    <path d="M42 24 Q48 10 36 15 Q34 22 38 28 Z" fill="#FF8FC7"/>
-    <ellipse cx="32" cy="36" rx="22" ry="20" fill="#FF8FC7"/>
-    <circle cx="18" cy="42" r="4" fill="#FF4FA3" opacity="0.25"/>
-    <circle cx="46" cy="42" r="4" fill="#FF4FA3" opacity="0.25"/>
-    <circle cx="24" cy="34" r="3.6" fill="#50214B"/>
-    <circle cx="40" cy="34" r="3.6" fill="#50214B"/>
-    <circle cx="25.4" cy="32.6" r="1.2" fill="#fff"/>
-    <circle cx="41.4" cy="32.6" r="1.2" fill="#fff"/>
-    <path d="M29 44 Q31 16 32 10 Q33 16 35 44 Z" fill="#FF4FA3"/>
-    <path d="M26 45 Q32 50 38 45" fill="none" stroke="#50214B" stroke-width="2.4" stroke-linecap="round"/>
-  </svg>
+  <img class="footer-rhino" src="pinkrynostudios-head.png" alt="" width="219" height="219">
   <div class="tag">PinkRyno Studios</div>
   <div class="fine">Made with 💖 in Florida · © 2026</div>
 </footer>
