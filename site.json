@@ -1,0 +1,40 @@
+{
+  "mascot": {
+    "name": "Rosie",
+    "fullName": "Rosie Ryno",
+    "pronouns": {
+      "subject": "She",
+      "object": "her",
+      "possessive": "her"
+    },
+    "species": "pink rhino",
+    "alt": "the pink rhino, PinkRyno Studios mascot",
+    "full": {
+      "webp": "/assets/mascot/rosie-full.webp",
+      "png": "/assets/mascot/rosie-full.png",
+      "width": 370,
+      "height": 500
+    },
+    "head": {
+      "webp": "/assets/mascot/rosie-head.webp",
+      "png": "/assets/mascot/rosie-head.png",
+      "width": 256,
+      "height": 256
+    },
+    "favicon": "/assets/mascot/favicon.png",
+    "appleTouch": "/assets/mascot/apple-touch-icon.png",
+    "social": {
+      "webp": "/assets/mascot/rosie-social.webp",
+      "png": "/assets/mascot/rosie-social.png",
+      "width": 1200,
+      "height": 630
+    },
+    "hero": {
+      "webp": "/assets/mascot/rosie-wave.webp",
+      "stillWebp": "/assets/mascot/rosie-wave-still.webp",
+      "png": "/assets/mascot/rosie-wave.png",
+      "width": 386,
+      "height": 500
+    }
+  }
+}

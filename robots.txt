@@ -1,0 +1,8 @@
+# PinkRyno Studios — https://pinkrynostudios.com
+# Staging builds under /games/tiny-trails-beta/ are excluded from crawling.
+# They are also left out of sitemap.xml and are not linked from the site.
+
+User-agent: *
+Disallow: /games/tiny-trails-beta/
+
+Sitemap: https://pinkrynostudios.com/sitemap.xml

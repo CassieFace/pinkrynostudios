@@ -1,0 +1,51 @@
+[
+  {
+    "id": "tiny-trails-space",
+    "title": "Tiny Trails: Space",
+    "tagline": "Trace a twinkly trail through ten cosmic worlds.",
+    "summary": "A calm tracing game for ages 3 to 6. Follow a glowing path across little planets and meet the star at the end.",
+    "description": "Trace a glowing trail through cosmic worlds. A calm game for ages 3 to 6 with no ads and no accounts.",
+    "status": "live",
+    "ages": "3–6",
+    "page": "/games/tiny-trails-space/",
+    "play_url": "/games/space-maze/",
+    "play_label": "Play in browser",
+    "stores": {
+      "ios": null,
+      "android": null
+    },
+    "art": {
+      "card": "/assets/games/tiny-trails-space/card.webp",
+      "hero": "/assets/games/tiny-trails-space/hero.webp",
+      "screens": [
+        "/assets/games/tiny-trails-space/scene-play.webp",
+        "/assets/games/tiny-trails-space/scene-worlds.webp",
+        "/assets/games/tiny-trails-space/scene-done.webp"
+      ]
+    },
+    "art_alt": {
+      "card": "Tiny Trails: Space, a glowing stardust path across a soft lavender moon",
+      "hero": "Astro, a chibi astronaut with pink curly hair, standing on a small mint planet beside a smiling butter-yellow star and a trail of sparkles",
+      "screens": [
+        "A small astronaut tracing a glowing trail across a moon path",
+        "Three tiny planets: a butter-yellow sun, a mint Earth, and a teal moon",
+        "A chibi astronaut hugging a smiling butter-yellow star"
+      ]
+    },
+    "art_slots": {
+      "card": "TT-CARD",
+      "hero": "TT-HERO",
+      "screens": ["TT-SCENE-PLAY", "TT-SCENE-WORLDS", "TT-SCENE-DONE"]
+    },
+    "free_content": "Free Play, the Sun, Earth, and Moon worlds, and the explorers Astro and Zog.",
+    "unlock": "Every explorer and all 10 worlds. No subscription.",
+    "accent": "#8B7CFF",
+    "order": 1,
+    "highlights": [
+      "Trace the path with a finger. The trail lights up as the explorer moves.",
+      "Free Play plus the Sun, Earth, and Moon worlds are included from the start.",
+      "Astro and Zog are free. The other explorers are part of the one-time unlock.",
+      "Play again whenever you like. The path is the whole adventure."
+    ]
+  }
+]
