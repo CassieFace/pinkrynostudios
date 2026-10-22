@@ -10,9 +10,11 @@ The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhin
 
 A new pose is still only a `site.json` path change, then `node scripts/render-site.mjs`.
 
-The home hero is one `<picture>`. `mascot.hero.webp` is what visitors see when they allow motion. `mascot.hero.png` is the still, and it is what shows under `prefers-reduced-motion` and in browsers without WebP. Both paths currently point at the static cut-out (`rosie-full`). When the frame-by-frame animation is ready, put a transparent animated WebP at the hero size (370×500) and point `mascot.hero.webp` at it. Leave `mascot.hero.png` on the still.
+The home hero is one `<picture>`. `mascot.hero.webp` plays when the visitor allows motion. `mascot.hero.stillWebp` is the still for `prefers-reduced-motion`. `mascot.hero.png` is the same still for browsers without WebP.
 
-The eye and body cut layers in `assets/mascot/source/` (`rosie-body-no-eyes.png`, `rosie-eyes.png`) are not used by the site. Do not build a CSS blink or a separate arm on top of them.
+Those three files are the approved wave loop. The source movie is `assets/mascot/source/rosie-wave-loop.mp4` (4 seconds, 720×720, 24 fps). It was generated from the approved Midjourney Rosie image, `assets/mascot/source/rosie-ryno-original.png`. In the loop she waves, happy-squints, hops, and comes back to the start pose. The flat lavender field was removed, so the WebP has a real transparent background. The site version keeps every other frame (12 fps, 386×500) so the file stays about 1.3 MB. The page does not play the movie's audio. `rosie-wave.png` and `rosie-wave-still.webp` are the first frame.
+
+The older full-body cut-out, `rosie-full`, is still the picture on About, Support, and the 404. The eye and body cut layers in `assets/mascot/source/` (`rosie-body-no-eyes.png`, `rosie-eyes.png`) are not used. Do not build a CSS blink or a separate arm on top of them.
 
 ## How to prompt
 

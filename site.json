@@ -30,9 +30,10 @@
       "height": 630
     },
     "hero": {
-      "webp": "/assets/mascot/rosie-full.webp",
-      "png": "/assets/mascot/rosie-full.png",
-      "width": 370,
+      "webp": "/assets/mascot/rosie-wave.webp",
+      "stillWebp": "/assets/mascot/rosie-wave-still.webp",
+      "png": "/assets/mascot/rosie-wave.png",
+      "width": 386,
       "height": 500
     }
   }

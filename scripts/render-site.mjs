@@ -136,9 +136,11 @@ function loadMascot() {
   must(publicFileExists(next.appleTouch), "Missing mascot file " + next.appleTouch);
   const hero = next.hero;
   must(hero && typeof hero.webp === "string" && hero.webp.startsWith("/"), "site.json mascot.hero.webp");
+  must(typeof hero.stillWebp === "string" && hero.stillWebp.startsWith("/"), "site.json mascot.hero.stillWebp");
   must(typeof hero.png === "string" && hero.png.startsWith("/"), "site.json mascot.hero.png");
   must(Number.isFinite(hero.width) && Number.isFinite(hero.height), "site.json mascot.hero size");
   must(publicFileExists(hero.webp), "Missing mascot file " + hero.webp);
+  must(publicFileExists(hero.stillWebp), "Missing mascot file " + hero.stillWebp);
   must(publicFileExists(hero.png), "Missing mascot file " + hero.png);
   mascot = next;
 }
@@ -177,6 +179,7 @@ function heroPicture() {
   const hero = mascot.hero;
   return `<picture>
           <source srcset="${esc(hero.webp)}" type="image/webp" media="(prefers-reduced-motion: no-preference)">
+          <source srcset="${esc(hero.stillWebp)}" type="image/webp">
           <img src="${esc(hero.png)}" alt="${esc(mascotAlt())}" width="${hero.width}" height="${hero.height}" fetchpriority="high">
         </picture>`;
 }
@@ -455,7 +458,7 @@ function pageHome(visible) {
     path: "/",
     current: "home",
     main,
-    preloads: `<link rel="preload" href="${esc(mascot.hero.webp)}" as="image" type="image/webp" media="(prefers-reduced-motion: no-preference)">\n<link rel="preload" href="${esc(mascot.hero.png)}" as="image" type="image/png" media="(prefers-reduced-motion: reduce)">\n`,
+    preloads: `<link rel="preload" href="${esc(mascot.hero.webp)}" as="image" type="image/webp" media="(prefers-reduced-motion: no-preference)">\n<link rel="preload" href="${esc(mascot.hero.stillWebp)}" as="image" type="image/webp" media="(prefers-reduced-motion: reduce)">\n`,
     structured: {
       "@context": "https://schema.org",
       "@type": "Organization",
