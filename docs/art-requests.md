@@ -1,0 +1,84 @@
+# Art requests — PinkRyno Studios site
+
+For the Art Director. The website rewrite does **not** invent final illustrations in code. Where a picture is missing, the page shows a labeled slot (a candy-colored frame with the slot id on a sticker). Drop the finished file at the path below, then run `node scripts/render-site.mjs`. The slot becomes the image. No page redesign.
+
+Do not draw these as pixel art, and do not trace or restyle another studio's characters, mazes, or UI. This is our cosmic sticker look: smooth flat shapes, one deep plum outline, one soft shadow down and to the right, cosmic candy colors.
+
+Bubbles already exists (`pinkrynostudios-mascot.png` and `pinkrynostudios-head.png`). Use her for the slots that include her: round pink rhinoceros, tiny horn, closed smiling eyes, small smile, rosy cheeks, no clothes.
+
+## How to prompt
+
+1. Generate **prompt 0** first and pick the best image as the style anchor.
+2. Add `--sref <anchor url> --sw 300` to every prompt after that.
+3. Keep words out of the pictures. The website sets the titles.
+4. Plain cream background (`#F7F2FF` family) is easier to cut out than a busy scene. Transparent is welcome when the tool can do it cleanly.
+5. Export the sizes below as WebP (quality around 80). PNG is fine as the working file; the site paths are `.webp`.
+
+Shared ending, already included in each prompt where it matters:
+
+> consistent medium-weight deep plum (#2B1E4A) outlines on every shape, flat two-tone cel shading, one soft violet drop shadow offset down and to the right, cosmic candy palette of lavender, peach, mint, butter yellow, and sky teal, navy-violet only in a space background, rounded friendly shapes, kawaii faces with blush, clean and uncluttered, children's art for ages 3–6
+
+Negative prompt used throughout: `--no text, letters, watermark, logo, photorealism, pixel art, gradients on characters, scary, sharp teeth, black outlines`
+
+## Slot list
+
+| Slot | File to deliver | Where it shows | Size |
+| --- | --- | --- | --- |
+| TT-HERO | `assets/games/tiny-trails-space/hero.webp` | Tiny Trails: Space page, large frame | 1600×900 (16:9) |
+| TT-CARD | `assets/games/tiny-trails-space/card.webp` | Home and games index card | 1280×800 (16:10) |
+| TT-SCENE-PLAY | `assets/games/tiny-trails-space/scene-play.webp` | Game page, first scene | 1200×900 (4:3) |
+| TT-SCENE-WORLDS | `assets/games/tiny-trails-space/scene-worlds.webp` | Game page, second scene | 1200×900 (4:3) |
+| TT-SCENE-DONE | `assets/games/tiny-trails-space/scene-done.webp` | Game page, third scene | 1200×900 (4:3) |
+| ABOUT-SCENE | `assets/images/about-scene.webp` | About page | 1600×900 (16:9) |
+
+Optional, not slotted on the page yet. Say if you want them wired in:
+
+| Slot | Suggested file | Notes |
+| --- | --- | --- |
+| OG-SHARE | `assets/images/og.webp` | Social share image, 1200×630. The site currently uses the Bubbles mascot. |
+| BUBBLES-LOST | `assets/images/bubbles-lost.webp` | A puzzled Bubbles for the 404 page. The page uses the existing mascot until this exists. |
+| TT-TRAILER | `assets/games/tiny-trails-space/trailer.webp` | A short silent trailer still or looping WebP. Prefer a real capture from the game once the cosmic sticker build exists. |
+
+## Prompts (Midjourney v7)
+
+### 0. Style anchor (also the TT-HERO key art)
+
+`flat vector cartoon sticker illustration of a cute chibi kid astronaut with a round glass helmet and pink curly hair floating beside a glowing raised peach stardust path on a soft lavender moon, a chubby smiling butter-yellow star with rounded points waiting ahead, a small mint planet and a sky-teal moon in a deep navy-violet sky, consistent medium-weight deep plum outlines on every shape, flat two-tone cel shading, one soft violet drop shadow offset down and to the right, cosmic candy palette of lavender peach mint butter-yellow and sky teal, rounded friendly shapes, kawaii faces with blush, clean and uncluttered, children's game art for ages 3-6 --ar 16:9 --v 7 --style raw --stylize 150 --no text, letters, watermark, photorealism, pixel art, gradients on characters, scary, sharp teeth, black outlines`
+
+Save the chosen anchor. Deliver the cropped 1600×900 file as `hero.webp`.
+
+### 1. TT-CARD
+
+`flat vector cartoon sticker illustration, a cute top-down glimpse of a rounded glowing stardust path on a lavender moon, a tiny chibi astronaut near a start ring and a smiling butter-yellow star at the end of the path, the path slightly raised with one soft violet drop shadow, thick consistent deep plum outline, cosmic candy palette, lots of calm empty moon around the path, children's game art for ages 3-6 --ar 8:5 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, perspective horizon, scary`
+
+### 2. TT-SCENE-PLAY
+
+`flat vector cartoon sticker, a chibi astronaut in a peach and white suit with a round glass helmet tracing along a raised glowing moon path, soft sparkles locked to the path behind them, lavender moon ground with a few round craters, deep plum outlines, flat two-tone shading, one soft drop shadow down-right, kawaii blush, plain calm background, children's game art --ar 4:3 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary`
+
+### 3. TT-SCENE-WORLDS
+
+`flat vector cartoon sticker of three cute planets in a row for a preschool game: a butter-yellow sun with a gentle smile and soft coral glow, a mint world with tiny round flowers, a sky-teal moon with smooth craters, same size, consistent deep plum outlines, flat two-tone shading, one soft drop shadow, kawaii, plain cream background, children's game art --ar 4:3 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary, sharp teeth`
+
+### 4. TT-SCENE-DONE
+
+`flat vector cartoon sticker of a chibi astronaut hugging a chubby five-point star with rounded tips, the star butter-yellow with a peach shadow side and a kawaii smile, both with deep plum outlines and blush, a few soft peach and lavender dots around them, flat two-tone shading, one soft drop shadow, plain cream background, children's game art --ar 4:3 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, sharp points, scary`
+
+### 5. ABOUT-SCENE
+
+`flat vector cartoon sticker illustration of Bubbles the pink rhinoceros, round body, tiny horn, closed smiling eyes, small smile, rosy cheeks, no clothes, sitting beside a small smiling lavender planet and a little chibi astronaut, kawaii, consistent deep plum outlines, flat two-tone cel shading, one soft violet drop shadow down-right, cosmic candy palette, plain cream background, children's studio art for ages 3-6 --ar 16:9 --v 7 --style raw --stylize 150 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary, sharp teeth, clothing on the rhino`
+
+### 6. Optional OG-SHARE
+
+`flat vector cartoon sticker of Bubbles the pink rhinoceros waving, tiny horn, closed smiling eyes, rosy cheeks, a small butter-yellow star and a mint planet nearby, deep navy-violet space with soft lavender and teal nebula shapes, lots of empty calm space on the right, deep plum outlines, flat shading, one soft drop shadow, no words anywhere --ar 16:9 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art`
+
+Crop to 1200×630 if this is used as the share image.
+
+### 7. Optional BUBBLES-LOST
+
+`flat vector cartoon sticker of Bubbles the pink rhinoceros, round, tiny horn, rosy cheeks, looking gently puzzled with a small open smile, one hoof raised, a tiny butter-yellow star beside her, deep plum outline, flat two-tone shading, one soft drop shadow, plain cream background, children's mascot art --ar 1:1 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary, tears`
+
+## After the files land
+
+1. Put the WebP files at the paths in the table. Keep the file names.
+2. From the repo root, run `node scripts/render-site.mjs`.
+3. Check the games index, the Tiny Trails: Space page, and About. The slot stickers for those files should be gone, and each image should have its alt text from `games.json` (or the about-scene alt in the render script).
