@@ -28,6 +28,20 @@
       "png": "/assets/mascot/rosie-social.png",
       "width": 1200,
       "height": 630
+    },
+    "live": {
+      "body": {
+        "webp": "/assets/mascot/rosie-body.webp",
+        "png": "/assets/mascot/rosie-body.png",
+        "width": 370,
+        "height": 500
+      },
+      "eyes": {
+        "webp": "/assets/mascot/rosie-eyes.webp",
+        "png": "/assets/mascot/rosie-eyes.png",
+        "width": 370,
+        "height": 500
+      }
     }
   }
 }

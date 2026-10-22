@@ -10,6 +10,14 @@ The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhin
 
 A new pose is still only a `site.json` path change, then `node scripts/render-site.mjs`.
 
+The home page gives Rosie a breathing squash, a blink, and a whole-body tilt. The raised arm (on the viewer's right) shares one outline with the ear and the shoulder, so it is not a separate layer yet. For a real wave, supply these aligned to the hero canvas:
+
+| Layer | File | Notes |
+| --- | --- | --- |
+| Body, shoulder closed | `assets/mascot/source/rosie-body-no-arm.png` | Same crop as `rosie-full.png`. Close the outline where the raised arm came off. |
+| Raised arm | `assets/mascot/source/rosie-arm.png` | Transparent. Close the outline at the shoulder cut. The pivot is the shoulder joint. |
+| Open eyes | `assets/mascot/source/rosie-eyes-open.png` | Optional. The current eyes are already happy closed arcs (`rosie-eyes.png` over `rosie-body-no-eyes.png`). An open layer in the same place would make the blink a true lid. |
+
 ## How to prompt
 
 1. Generate **prompt 0** first and pick the best image as the style anchor.
