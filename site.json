@@ -1,0 +1,20 @@
+{
+  "mascot": {
+    "name": "Bubbles",
+    "species": "pink rhinoceros",
+    "alt": "a smiling pink rhinoceros with a tiny horn and rosy cheeks",
+    "full": {
+      "webp": "/assets/images/bubbles-mascot.webp",
+      "png": "/pinkrynostudios-mascot.png",
+      "width": 500,
+      "height": 500
+    },
+    "head": {
+      "webp": "/assets/images/bubbles-head.webp",
+      "png": "/pinkrynostudios-head.png",
+      "width": 219,
+      "height": 219
+    },
+    "favicon": "/assets/images/favicon.png"
+  }
+}

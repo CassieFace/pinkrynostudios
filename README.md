@@ -4,6 +4,16 @@ Static website for [pinkrynostudios.com](https://pinkrynostudios.com). GitHub Pa
 
 The live browser game stays at `games/space-maze/`. Do not edit that folder, `games/tiny-trails-beta/`, or `CNAME` from the website work.
 
+## Swap the mascot
+
+The mascot name and pictures live in [`site.json`](site.json) only. Page templates do not name the mascot. The files there now are temporary: the current pink rhinoceros art, under the current name. When the new baby rhino art is ready, change `mascot.name` and the `full`, `head`, and `favicon` paths, then run:
+
+```bash
+node scripts/render-site.mjs
+```
+
+Commit `site.json`, the new images, and the regenerated pages. Leave the old image files in place until that swap, so the site still has a picture.
+
 ## Add a new game
 
 Adding a game is one entry in [`games.json`](games.json), plus its images. You do not redesign the pages.
