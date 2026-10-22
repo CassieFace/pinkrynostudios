@@ -61,6 +61,19 @@ function publicFileExists(src) {
   return existsSync(join(root, src.slice(1)));
 }
 
+function webpSize(src) {
+  const buf = readFileSync(join(root, src.slice(1)));
+  must(buf.toString("ascii", 0, 4) === "RIFF" && buf.toString("ascii", 8, 12) === "WEBP", "Not a WebP: " + src);
+  const chunk = buf.toString("ascii", 12, 16);
+  if (chunk === "VP8X") return [1 + buf.readUIntLE(24, 3), 1 + buf.readUIntLE(27, 3)];
+  if (chunk === "VP8 ") return [buf.readUInt16LE(26) & 0x3fff, buf.readUInt16LE(28) & 0x3fff];
+  if (chunk === "VP8L") {
+    const b0 = buf[21], b1 = buf[22], b2 = buf[23], b3 = buf[24];
+    return [1 + (((b1 & 0x3f) << 8) | b0), 1 + (((b3 & 0x0f) << 10) | (b2 << 2) | ((b1 & 0xc0) >> 6))];
+  }
+  throw new Error("Unknown WebP layout: " + src);
+}
+
 function httpsOrNull(value, label) {
   if (value == null || value === "") return null;
   must(typeof value === "string" && /^https:\/\/[^\s]+$/.test(value), label + " must be an https URL or null");
@@ -191,9 +204,11 @@ function mascotHero() {
       </div>`;
 }
 
-function spotlightArt(game) {
+function spotlightArt(game, eager) {
   if (!publicFileExists(game.art.hero)) return "";
-  return `<img class="spotlight-art" src="${esc(game.art.hero)}" alt="${esc(game.art_alt.hero)}" width="1600" height="900">`;
+  const [width, height] = webpSize(game.art.hero);
+  const extra = eager ? ' fetchpriority="high"' : ' loading="lazy"';
+  return `<img class="spotlight-art" src="${esc(game.art.hero)}" alt="${esc(game.art_alt.hero)}" width="${width}" height="${height}"${extra}>`;
 }
 
 function media({ src, alt, slotId, slotLabel, width, height, frameClass, eager }) {
@@ -514,10 +529,11 @@ function pageGame(game) {
     ? `<p class="missing-note">The frames below are marked slots for our art director. They are not the finished pictures.</p>`
     : "";
   const scenes = game.art.screens.map((_, index) => gameMedia(game, "screen", "frame-scene", false, index)).join("\n");
+  const hero = spotlightArt(game, true);
   const main = `<article class="wrap section game-${esc(game.id)}">
     <p class="crumbs"><a href="/games/">Games</a> / ${esc(game.title)}</p>
-    <div class="card spotlight">
-      ${gameMedia(game, "hero", "frame-wide", true)}
+    <div class="card spotlight${hero ? "" : " spotlight-open"}">
+      ${hero}
       <div class="card-body">
         ${chips(game)}
         <h1>${esc(game.title)}</h1>

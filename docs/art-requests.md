@@ -12,7 +12,9 @@ A new pose is still only a `site.json` path change, then `node scripts/render-si
 
 The home hero is one `<picture>`. `mascot.hero.webp` plays when the visitor allows motion. `mascot.hero.stillWebp` is the still for `prefers-reduced-motion`. `mascot.hero.png` is the same still for browsers without WebP.
 
-Those three files are the approved wave loop. The source movie is `assets/mascot/source/rosie-wave-loop.mp4` (4 seconds, 720×720, 24 fps). It was generated from the approved Midjourney Rosie image, `assets/mascot/source/rosie-ryno-original.png`. In the loop she waves, happy-squints, hops, and comes back to the start pose. The flat lavender field was removed, so the WebP has a real transparent background. The site version keeps every other frame (12 fps, 386×500) so the file stays about 1.3 MB. The page does not play the movie's audio. `rosie-wave.png` and `rosie-wave-still.webp` are the first frame.
+Those three files are the approved wave loop. The source movie is `assets/mascot/source/rosie-wave-loop.mp4` (4 seconds, 720×720, 24 fps). It was generated from the approved Midjourney Rosie image, `assets/mascot/source/rosie-ryno-original.png`. In the loop she waves, happy-squints, hops, and comes back to the start pose. The flat lavender field was removed, so the WebP has a real transparent background. The site version keeps every other frame (12 fps, 49 frames, 84 ms each, 386×500, looping). The page does not play the movie's audio. `rosie-wave.png` and `rosie-wave-still.webp` are the first frame.
+
+The keyed frames had a blurry green smudge beside both ears: a larger one just to the viewer's right of her head, level with the top of her eyes, and a smaller one on the viewer's left. They were half-transparent keying leftovers, and they sat on every frame. Those pixels are now transparent in all 49 frames of `rosie-wave.webp`, and in the still WebP and PNG. The crisp star by her horn, her outline, the contact shadow, the timing, and the loop were left as they were. The source movie was not edited.
 
 The older full-body cut-out, `rosie-full`, is still the picture on About, Support, and the 404. The eye and body cut layers in `assets/mascot/source/` (`rosie-body-no-eyes.png`, `rosie-eyes.png`) are not used. Do not build a CSS blink or a separate arm on top of them.
 
@@ -34,7 +36,7 @@ Negative prompt used throughout: `--no text, letters, watermark, logo, photoreal
 
 | Slot | File to deliver | Where it shows | Size |
 | --- | --- | --- | --- |
-| TT-HERO | `assets/games/tiny-trails-space/hero.webp` | Tiny Trails: Space page, and the home Now playing spot with no frame. Until this file exists, Now playing is just the text. | 1600×900 (16:9) |
+| TT-HERO | `assets/games/tiny-trails-space/hero.webp` | Home Now playing and the Tiny Trails: Space page, with no frame. This file is in place. | 713×656 (keyed crop of the chosen art) |
 | TT-CARD | `assets/games/tiny-trails-space/card.webp` | Home and games index card | 1280×800 (16:10) |
 | TT-SCENE-PLAY | `assets/games/tiny-trails-space/scene-play.webp` | Game page, first scene | 1200×900 (4:3) |
 | TT-SCENE-WORLDS | `assets/games/tiny-trails-space/scene-worlds.webp` | Game page, second scene | 1200×900 (4:3) |
@@ -55,7 +57,7 @@ Optional, not slotted on the page yet. Say if you want them wired in:
 
 `flat vector cartoon sticker illustration of a cute chibi kid astronaut with a round glass helmet and pink curly hair floating beside a glowing raised peach stardust path on a soft lavender moon, a chubby smiling butter-yellow star with rounded points waiting ahead, a small mint planet and a sky-teal moon in a deep navy-violet sky, consistent medium-weight deep plum outlines on every shape, flat two-tone cel shading, one soft violet drop shadow offset down and to the right, cosmic candy palette of lavender peach mint butter-yellow and sky teal, rounded friendly shapes, kawaii faces with blush, clean and uncluttered, children's game art for ages 3-6 --ar 16:9 --v 7 --style raw --stylize 150 --no text, letters, watermark, photorealism, pixel art, gradients on characters, scary, sharp teeth, black outlines`
 
-Save the chosen anchor. Deliver the cropped 1600×900 file as `hero.webp`.
+Cassie picked this anchor: Midjourney job `8e26e821-8670-4c90-b69c-a6674459051a`, index 3 (bottom-left), file `tt-hero-astro-3`. Astro #2 was the image prompt, with the cosmic-sticker style reference. The original PNG is `assets/games/tiny-trails-space/source/tt-hero-astro-3.png` (1456×816). The flat lavender field was removed, and `hero.webp` is that cut-out at 713×656. It sits on the page with no frame, card, or border, on the home Now playing spot and at the top of the Tiny Trails: Space page. The alt text is in `games.json` under `art_alt.hero`.
 
 ### 1. TT-CARD
 
