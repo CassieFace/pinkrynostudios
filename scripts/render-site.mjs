@@ -134,14 +134,12 @@ function loadMascot() {
   must(publicFileExists(next.favicon), "Missing mascot file " + next.favicon);
   must(typeof next.appleTouch === "string" && next.appleTouch.startsWith("/"), "site.json needs mascot.appleTouch");
   must(publicFileExists(next.appleTouch), "Missing mascot file " + next.appleTouch);
-  must(next.live && next.live.body && next.live.eyes, "site.json needs mascot.live body and eyes");
-  for (const key of ["body", "eyes"]) {
-    const image = next.live[key];
-    must(typeof image.webp === "string" && image.webp.startsWith("/"), "site.json mascot.live." + key + ".webp");
-    must(typeof image.png === "string" && image.png.startsWith("/"), "site.json mascot.live." + key + ".png");
-    must(publicFileExists(image.webp), "Missing mascot file " + image.webp);
-    must(publicFileExists(image.png), "Missing mascot file " + image.png);
-  }
+  const hero = next.hero;
+  must(hero && typeof hero.webp === "string" && hero.webp.startsWith("/"), "site.json mascot.hero.webp");
+  must(typeof hero.png === "string" && hero.png.startsWith("/"), "site.json mascot.hero.png");
+  must(Number.isFinite(hero.width) && Number.isFinite(hero.height), "site.json mascot.hero size");
+  must(publicFileExists(hero.webp), "Missing mascot file " + hero.webp);
+  must(publicFileExists(hero.png), "Missing mascot file " + hero.png);
   mascot = next;
 }
 
@@ -175,34 +173,19 @@ function mascotStage(detail, eager) {
       </div>`;
 }
 
-function livePicture(image, alt, eager, className) {
-  const extra = eager ? ' fetchpriority="high"' : "";
-  const hidden = alt ? "" : ' aria-hidden="true"';
-  return `<picture class="${className}"${hidden}>
-          <source srcset="${esc(image.webp)}" type="image/webp">
-          <img src="${esc(image.png)}" alt="${esc(alt)}" width="${image.width}" height="${image.height}"${extra}>
+function heroPicture() {
+  const hero = mascot.hero;
+  return `<picture>
+          <source srcset="${esc(hero.webp)}" type="image/webp" media="(prefers-reduced-motion: no-preference)">
+          <img src="${esc(hero.png)}" alt="${esc(mascotAlt())}" width="${hero.width}" height="${hero.height}" fetchpriority="high">
         </picture>`;
 }
 
-function burstStars() {
-  const fills = ["#FFE7A3", "#FFD0BE", "#C8F6EA", "#E4DBFF", "#FFE7A3", "#FFD0BE"];
-  return fills.map((fill, index) => {
-    return `<svg class="burst burst-${index + 1}" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="${fill}" stroke="#2B1E4A" stroke-width="1.7" stroke-linejoin="round" d="M12 1.6 14.5 8.2 21.6 8.9 16.2 13.6 17.9 20.6 12 16.9 6.1 20.6 7.8 13.6 2.4 8.9 9.5 8.2Z"/></svg>`;
-  }).join("\n");
-}
-
-function mascotLive() {
-  const live = mascot.live;
-  return `<div class="mascot-stage mascot-live">
+function mascotHero() {
+  return `<div class="mascot-stage">
         ${SPARK}
-        <div class="spark-burst" aria-hidden="true">${burstStars()}</div>
         <div class="ground-shadow" aria-hidden="true"></div>
-        <div class="life is-greeting">
-          <div class="breathe">
-            ${livePicture(live.body, mascotAlt(), true, "rosie-body")}
-            ${livePicture(live.eyes, "", false, "rosie-eyes")}
-          </div>
-        </div>
+        <div class="mascot-still">${heroPicture()}</div>
       </div>`;
 }
 
@@ -298,7 +281,7 @@ function jsonLd(data) {
   return `<script type="application/ld+json">${json}</script>`;
 }
 
-function layout({ title, description, path, current, robots, main, structured, preloadImage }) {
+function layout({ title, description, path, current, robots, main, structured, preloadImage, preloads }) {
   const canonical = SITE + path;
   const nav = [
     ["games", "Games", "/games/"],
@@ -308,9 +291,11 @@ function layout({ title, description, path, current, robots, main, structured, p
     const here = key === current ? ' aria-current="page"' : "";
     return `<a href="${href}"${here}>${label}</a>`;
   }).join("\n        ");
-  const preload = preloadImage
-    ? `<link rel="preload" href="${esc(preloadImage)}" as="image" type="image/webp">\n`
-    : "";
+  const preload = preloads
+    ? preloads
+    : preloadImage
+      ? `<link rel="preload" href="${esc(preloadImage)}" as="image" type="image/webp">\n`
+      : "";
   const robotsMeta = robots || "index,follow";
   const ld = structured ? jsonLd(structured) + "\n" : "";
   return `<!DOCTYPE html>
@@ -451,7 +436,7 @@ function pageHome(visible) {
       ${heroCta}
     </div>
     <div class="hero-art">
-      ${mascotLive()}
+      ${mascotHero()}
     </div>
   </section>
   ${CLOUD}
@@ -470,7 +455,7 @@ function pageHome(visible) {
     path: "/",
     current: "home",
     main,
-    preloadImage: mascot.live.body.webp,
+    preloads: `<link rel="preload" href="${esc(mascot.hero.webp)}" as="image" type="image/webp" media="(prefers-reduced-motion: no-preference)">\n<link rel="preload" href="${esc(mascot.hero.png)}" as="image" type="image/png" media="(prefers-reduced-motion: reduce)">\n`,
     structured: {
       "@context": "https://schema.org",
       "@type": "Organization",

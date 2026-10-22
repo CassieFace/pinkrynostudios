@@ -1,5 +1,5 @@
 /* PinkRyno Studios
-   Menu close behavior, the parental gate, and Rosie's home-page tap.
+   Menu close behavior and the parental gate.
    This file does not fetch anything and does not write cookies or storage. */
 (function () {
   "use strict";
@@ -45,40 +45,6 @@
       if (!navCheck.checked) return;
       if (event.target.closest && event.target.closest(".header-inner")) return;
       navCheck.checked = false;
-    });
-  }
-
-  var live = document.querySelector(".mascot-live");
-  if (live) {
-    var life = live.querySelector(".life");
-    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    function replay(el, className) {
-      el.classList.remove(className);
-      void el.offsetWidth;
-      el.classList.add(className);
-    }
-    function wiggle() {
-      if (!life) return;
-      life.classList.remove("is-greeting");
-      replay(life, "is-wiggle");
-    }
-    live.addEventListener("animationend", function (event) {
-      if (event.animationName === "greet" && life) {
-        life.classList.remove("is-greeting");
-        life.classList.remove("is-wiggle");
-      }
-      if (event.animationName === "hop") live.classList.remove("is-hopping");
-    });
-    if (!reduceMotion && life && finePointer) {
-      live.addEventListener("pointerenter", function () {
-        wiggle();
-      });
-    }
-    live.addEventListener("pointerdown", function () {
-      if (reduceMotion) return;
-      replay(live, "is-hopping");
-      wiggle();
     });
   }
 

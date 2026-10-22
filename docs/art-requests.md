@@ -10,13 +10,9 @@ The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhin
 
 A new pose is still only a `site.json` path change, then `node scripts/render-site.mjs`.
 
-The home page gives Rosie a breathing squash, a blink, and a whole-body tilt. The raised arm (on the viewer's right) shares one outline with the ear and the shoulder, so it is not a separate layer yet. For a real wave, supply these aligned to the hero canvas:
+The home hero is one `<picture>`. `mascot.hero.webp` is what visitors see when they allow motion. `mascot.hero.png` is the still, and it is what shows under `prefers-reduced-motion` and in browsers without WebP. Both paths currently point at the static cut-out (`rosie-full`). When the frame-by-frame animation is ready, put a transparent animated WebP at the hero size (370×500) and point `mascot.hero.webp` at it. Leave `mascot.hero.png` on the still.
 
-| Layer | File | Notes |
-| --- | --- | --- |
-| Body, shoulder closed | `assets/mascot/source/rosie-body-no-arm.png` | Same crop as `rosie-full.png`. Close the outline where the raised arm came off. |
-| Raised arm | `assets/mascot/source/rosie-arm.png` | Transparent. Close the outline at the shoulder cut. The pivot is the shoulder joint. |
-| Open eyes | `assets/mascot/source/rosie-eyes-open.png` | Optional. The current eyes are already happy closed arcs (`rosie-eyes.png` over `rosie-body-no-eyes.png`). An open layer in the same place would make the blink a true lid. |
+The eye and body cut layers in `assets/mascot/source/` (`rosie-body-no-eyes.png`, `rosie-eyes.png`) are not used by the site. Do not build a CSS blink or a separate arm on top of them.
 
 ## How to prompt
 
