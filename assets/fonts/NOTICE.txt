@@ -1,0 +1,15 @@
+Font software in this folder
+
+Baloo 2
+Copyright 2019 The Baloo 2 Project Authors (https://github.com/EkType/Baloo2)
+
+Nunito
+Copyright 2014 The Nunito Project Authors (https://github.com/googlefonts/nunito)
+
+Both fonts are licensed under the SIL Open Font License, Version 1.1.
+The full license text is in OFL.txt (shipped with these files).
+
+These are Latin-subset WOFF2 files taken from the Fontsource packages
+@fontsource/baloo-2 and @fontsource/nunito, version 5.3.0.
+The website loads them from this folder. It does not request Google Fonts
+or any other font host.
