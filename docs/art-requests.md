@@ -6,16 +6,9 @@ Do not draw these as pixel art, and do not trace or restyle another studio's cha
 
 ## Mascot: Rosie Ryno
 
-The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhino. `site.json` holds `name`, `fullName`, and the image paths. The pictures in the repo today (`pinkrynostudios-mascot.png`, `pinkrynostudios-head.png`, and the WebP copies) are still the older rhinoceros and stay until the new files replace those paths. Do not draw more of that older character.
+The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhino. `site.json` holds `name`, `fullName`, and the image paths. The approved original is `assets/mascot/source/rosie-ryno-original.png`. The site uses the cut-outs beside it: `rosie-full` (hero), `rosie-head` (header and footer), `favicon.png`, `apple-touch-icon.png`, and `rosie-social` (share image). The older rhinoceros files (`pinkrynostudios-mascot.png`, `pinkrynostudios-head.png`, and the WebP copies) stay in the repo and are not linked. Do not draw more of that older character.
 
-When the baby rhino files are ready, deliver a full-body pose and a head, then the website change is only `site.json`:
-
-| What | Suggested file | Notes |
-| --- | --- | --- |
-| Full body | `assets/images/pinkryno-mascot.webp` (and a PNG fallback) | Square, about 1000×1000, plain cream or transparent. Point `mascot.full` at these files. The name stays in `site.json`. |
-| Head | `assets/images/pinkryno-head.webp` (and a PNG fallback) | Square head for the logo and favicon. Set `mascot.head` and `mascot.favicon`. |
-
-Then run `node scripts/render-site.mjs`. Home, about, support, the 404, and the social image all follow that file.
+A new pose is still only a `site.json` path change, then `node scripts/render-site.mjs`.
 
 ## How to prompt
 
@@ -46,7 +39,7 @@ Optional, not slotted on the page yet. Say if you want them wired in:
 
 | Slot | Suggested file | Notes |
 | --- | --- | --- |
-| OG-SHARE | `assets/images/og.webp` | Social share image, 1200×630. Until this exists, the site uses the mascot picture from `site.json`. |
+| OG-SHARE | `assets/mascot/rosie-social.webp` | Social share image, 1200×630. This file is already the mascot on the site mist color. A future illustrated card can replace `mascot.social` in `site.json`. |
 | MASCOT-LOST | `assets/images/mascot-lost.webp` | Optional puzzled Rosie for the 404 page. Until this exists, that page uses the main mascot picture. |
 | TT-TRAILER | `assets/games/tiny-trails-space/trailer.webp` | A short silent trailer still or looping WebP. Prefer a real capture from the game once the cosmic sticker build exists. |
 

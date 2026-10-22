@@ -118,7 +118,7 @@ function loadMascot() {
   must(next.pronouns && typeof next.pronouns.subject === "string" && next.pronouns.subject.trim(), "site.json needs mascot.pronouns.subject");
   must(typeof next.species === "string" && next.species.trim(), "site.json needs mascot.species");
   must(typeof next.alt === "string" && next.alt.trim(), "site.json needs mascot.alt");
-  for (const key of ["full", "head"]) {
+  for (const key of ["full", "head", "social"]) {
     const image = next[key];
     must(image && typeof image.webp === "string" && image.webp.startsWith("/"), "site.json mascot." + key + ".webp");
     must(typeof image.png === "string" && image.png.startsWith("/"), "site.json mascot." + key + ".png");
@@ -128,6 +128,8 @@ function loadMascot() {
   }
   must(typeof next.favicon === "string" && next.favicon.startsWith("/"), "site.json needs mascot.favicon");
   must(publicFileExists(next.favicon), "Missing mascot file " + next.favicon);
+  must(typeof next.appleTouch === "string" && next.appleTouch.startsWith("/"), "site.json needs mascot.appleTouch");
+  must(publicFileExists(next.appleTouch), "Missing mascot file " + next.appleTouch);
   mascot = next;
 }
 
@@ -279,15 +281,17 @@ function layout({ title, description, path, current, robots, main, structured, p
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${canonical}">
-<meta property="og:image" content="${SITE}${esc(mascot.full.webp)}">
+<meta property="og:image" content="${SITE}${esc(mascot.social.webp)}">
 <meta property="og:image:alt" content="${esc(mascotAlt())}">
-<meta name="twitter:card" content="summary">
+<meta property="og:image:width" content="${mascot.social.width}">
+<meta property="og:image:height" content="${mascot.social.height}">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
-<meta name="twitter:image" content="${SITE}${esc(mascot.full.webp)}">
+<meta name="twitter:image" content="${SITE}${esc(mascot.social.webp)}">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <link rel="icon" href="${esc(mascot.favicon)}" type="image/png">
-<link rel="apple-touch-icon" href="${esc(mascot.head.png)}">
+<link rel="apple-touch-icon" href="${esc(mascot.appleTouch)}">
 <link rel="preload" href="/assets/fonts/baloo-2-latin-800.woff2" as="font" type="font/woff2" crossorigin>
 ${preload}<link rel="stylesheet" href="/assets/css/site.css">
 <link rel="stylesheet" href="/assets/css/themes.css">

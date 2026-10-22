@@ -212,6 +212,8 @@ a:hover { text-decoration-thickness: 2px; }
   min-height: 48px;
 }
 
+.brand picture { flex: 0 0 auto; width: 52px; height: 52px; }
+
 .brand img {
   width: 52px;
   height: 52px;
@@ -724,6 +726,8 @@ body.gate-open { overflow: hidden; }
   align-items: center;
   gap: 12px;
 }
+
+.footer-brand picture { flex: 0 0 auto; width: 72px; height: 72px; }
 
 .footer-brand img { width: 72px; height: 72px; display: block; }
 

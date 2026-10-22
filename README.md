@@ -6,7 +6,7 @@ The live browser game stays at `games/space-maze/`. Do not edit that folder, `ga
 
 ## Swap the mascot
 
-The mascot name and pictures live in [`site.json`](site.json) only. `name` is the short name used in most sentences. `fullName` is used on the About introduction and in image alt text. When the art files change, update the `full`, `head`, and `favicon` paths, then run:
+The mascot name and pictures live in [`site.json`](site.json) only. `name` is the short name used in most sentences. `fullName` is used on the About introduction and in image alt text. `full` is the hero portrait, `head` is the header and footer icon, `favicon` and `appleTouch` are the small icons, and `social` is the share image. The approved original is `assets/mascot/source/rosie-ryno-original.png`. The older rhinoceros files stay in the repo and are not linked. When the art files change, update those paths, then run:
 
 ```bash
 node scripts/render-site.mjs
