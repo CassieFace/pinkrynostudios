@@ -34,7 +34,7 @@ Negative prompt used throughout: `--no text, letters, watermark, logo, photoreal
 
 | Slot | File to deliver | Where it shows | Size |
 | --- | --- | --- | --- |
-| TT-HERO | `assets/games/tiny-trails-space/hero.webp` | Tiny Trails: Space page, large frame | 1600×900 (16:9) |
+| TT-HERO | `assets/games/tiny-trails-space/hero.webp` | Tiny Trails: Space page, and the home Now playing spot with no frame. Until this file exists, Now playing is just the text. | 1600×900 (16:9) |
 | TT-CARD | `assets/games/tiny-trails-space/card.webp` | Home and games index card | 1280×800 (16:10) |
 | TT-SCENE-PLAY | `assets/games/tiny-trails-space/scene-play.webp` | Game page, first scene | 1200×900 (4:3) |
 | TT-SCENE-WORLDS | `assets/games/tiny-trails-space/scene-worlds.webp` | Game page, second scene | 1200×900 (4:3) |

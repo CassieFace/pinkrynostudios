@@ -360,7 +360,17 @@ a:hover { text-decoration-thickness: 2px; }
   z-index: 1;
 }
 
-.hero-art .ground-shadow { animation: none; }
+.spotlight.spotlight-open { grid-template-columns: 1fr; }
+
+.spotlight-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
 
 .spark {
   position: absolute;

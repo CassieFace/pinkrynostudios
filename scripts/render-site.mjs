@@ -187,9 +187,13 @@ function heroPicture() {
 function mascotHero() {
   return `<div class="mascot-stage">
         ${SPARK}
-        <div class="ground-shadow" aria-hidden="true"></div>
         <div class="mascot-still">${heroPicture()}</div>
       </div>`;
+}
+
+function spotlightArt(game) {
+  if (!publicFileExists(game.art.hero)) return "";
+  return `<img class="spotlight-art" src="${esc(game.art.hero)}" alt="${esc(game.art_alt.hero)}" width="1600" height="900">`;
 }
 
 function media({ src, alt, slotId, slotLabel, width, height, frameClass, eager }) {
@@ -416,8 +420,9 @@ function pageHome(visible) {
   }
   let nowPlaying = `<p>New games will be listed here as they are ready. <a href="/games/">Visit the games page</a>.</p>`;
   if (featured) {
-    nowPlaying = `<article class="card spotlight game-${esc(featured.id)}">
-        ${gameMedia(featured, "hero", "frame-wide", false)}
+    const art = spotlightArt(featured);
+    nowPlaying = `<article class="card spotlight game-${esc(featured.id)}${art ? "" : " spotlight-open"}">
+        ${art}
         <div class="card-body">
           ${chips(featured)}
           <h3 class="card-title"><a href="${esc(featured.page)}">${esc(featured.title)}</a></h3>
