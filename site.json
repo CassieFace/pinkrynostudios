@@ -1,8 +1,14 @@
 {
   "mascot": {
-    "name": "Bubbles",
-    "species": "pink rhinoceros",
-    "alt": "a smiling pink rhinoceros with a tiny horn and rosy cheeks",
+    "name": "Rosie",
+    "fullName": "Rosie Ryno",
+    "pronouns": {
+      "subject": "She",
+      "object": "her",
+      "possessive": "her"
+    },
+    "species": "pink rhino",
+    "alt": "the pink rhino, PinkRyno Studios mascot",
     "full": {
       "webp": "/assets/images/bubbles-mascot.webp",
       "png": "/pinkrynostudios-mascot.png",

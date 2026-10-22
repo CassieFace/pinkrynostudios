@@ -114,6 +114,8 @@ function loadMascot() {
   const site = JSON.parse(readFileSync(join(root, "site.json"), "utf8"));
   const next = site && site.mascot;
   must(next && typeof next.name === "string" && next.name.trim(), "site.json needs mascot.name");
+  must(typeof next.fullName === "string" && next.fullName.trim(), "site.json needs mascot.fullName");
+  must(next.pronouns && typeof next.pronouns.subject === "string" && next.pronouns.subject.trim(), "site.json needs mascot.pronouns.subject");
   must(typeof next.species === "string" && next.species.trim(), "site.json needs mascot.species");
   must(typeof next.alt === "string" && next.alt.trim(), "site.json needs mascot.alt");
   for (const key of ["full", "head"]) {
@@ -130,8 +132,8 @@ function loadMascot() {
 }
 
 function mascotAlt(detail) {
-  const base = mascot.name + ", " + mascot.alt;
-  return detail ? base + ", " + detail : base + ", the PinkRyno Studios mascot";
+  const base = mascot.fullName + " " + mascot.alt;
+  return detail ? base + ", " + detail : base;
 }
 
 function headPicture() {
@@ -389,6 +391,7 @@ function pageHome(visible) {
       <p class="eyebrow">Ages 3–6</p>
       <h1>Calm games for little kids.</h1>
       <p class="lede">PinkRyno Studios makes gentle games a grown-up can hand over. No ads. No tracking. No accounts.</p>
+      <p class="mascot-hello">Meet ${esc(mascot.name)}, our baby ${esc(mascot.species)}.</p>
       <ul class="promise-row">
         <li class="chip">No ads</li>
         <li class="chip chip-mint">No tracking</li>
@@ -558,7 +561,7 @@ function pageGame(game) {
 function pageAbout() {
   const scene = media({
     src: "/assets/images/about-scene.webp",
-    alt: mascot.name + " the " + mascot.species + " beside a small smiling planet and a little astronaut",
+    alt: mascot.fullName + " the " + mascot.species + " beside a small smiling planet and a little astronaut",
     slotId: "ABOUT-SCENE",
     slotLabel: "About page scene",
     width: 1600,
@@ -572,13 +575,13 @@ function pageAbout() {
   const main = `<section class="section wrap">
     <div class="about-grid">
       <div class="portrait sticker">
-        ${mascotPicture("mascot of PinkRyno Studios", true)}
+        ${mascotPicture("", true)}
       </div>
       <div class="prose">
         <p class="eyebrow">The studio</p>
         <h1>About PinkRyno Studios</h1>
         <p>PinkRyno Studios is a tiny independent studio in Florida. We make games for children ages 3 to 6: short, colorful, and calm enough to hand over.</p>
-        <p>${esc(mascot.name)}, our ${esc(mascot.species)}, is the studio mascot. ${esc(mascot.name)} is here to wave, not to collect anything.</p>
+        <p>${esc(mascot.fullName)}, our ${esc(mascot.species)}, is the studio mascot. ${esc(mascot.pronouns.subject)} is here to wave, not to collect anything.</p>
       </div>
     </div>
     <div class="prose">

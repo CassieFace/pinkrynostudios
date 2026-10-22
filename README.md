@@ -6,7 +6,7 @@ The live browser game stays at `games/space-maze/`. Do not edit that folder, `ga
 
 ## Swap the mascot
 
-The mascot name and pictures live in [`site.json`](site.json) only. Page templates do not name the mascot. The files there now are temporary: the current pink rhinoceros art, under the current name. When the new baby rhino art is ready, change `mascot.name` and the `full`, `head`, and `favicon` paths, then run:
+The mascot name and pictures live in [`site.json`](site.json) only. `name` is the short name used in most sentences. `fullName` is used on the About introduction and in image alt text. When the art files change, update the `full`, `head`, and `favicon` paths, then run:
 
 ```bash
 node scripts/render-site.mjs

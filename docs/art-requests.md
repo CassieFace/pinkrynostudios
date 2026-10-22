@@ -4,15 +4,15 @@ For the Art Director. The website rewrite does **not** invent final illustration
 
 Do not draw these as pixel art, and do not trace or restyle another studio's characters, mazes, or UI. This is our cosmic sticker look: smooth flat shapes, one deep plum outline, one soft shadow down and to the right, cosmic candy colors.
 
-## New mascot: PinkRyno
+## Mascot: Rosie Ryno
 
-Cassie is replacing the studio mascot. The new character is **PinkRyno**, a cute baby pink rhino. The site does not write that name into page templates. `site.json` holds the mascot name and the image paths. The pictures in the repo today (`pinkrynostudios-mascot.png`, `pinkrynostudios-head.png`, and the WebP copies) are temporary placeholders. Do not draw more of that older rhinoceros.
+The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhino. `site.json` holds `name`, `fullName`, and the image paths. The pictures in the repo today (`pinkrynostudios-mascot.png`, `pinkrynostudios-head.png`, and the WebP copies) are still the older rhinoceros and stay until the new files replace those paths. Do not draw more of that older character.
 
 When the baby rhino files are ready, deliver a full-body pose and a head, then the website change is only `site.json`:
 
 | What | Suggested file | Notes |
 | --- | --- | --- |
-| Full body | `assets/images/pinkryno-mascot.webp` (and a PNG fallback) | Square, about 1000×1000, plain cream or transparent. Set `mascot.full` and `mascot.name` to PinkRyno. |
+| Full body | `assets/images/pinkryno-mascot.webp` (and a PNG fallback) | Square, about 1000×1000, plain cream or transparent. Point `mascot.full` at these files. The name stays in `site.json`. |
 | Head | `assets/images/pinkryno-head.webp` (and a PNG fallback) | Square head for the logo and favicon. Set `mascot.head` and `mascot.favicon`. |
 
 Then run `node scripts/render-site.mjs`. Home, about, support, the 404, and the social image all follow that file.
@@ -47,7 +47,7 @@ Optional, not slotted on the page yet. Say if you want them wired in:
 | Slot | Suggested file | Notes |
 | --- | --- | --- |
 | OG-SHARE | `assets/images/og.webp` | Social share image, 1200×630. Until this exists, the site uses the mascot picture from `site.json`. |
-| MASCOT-LOST | `assets/images/mascot-lost.webp` | Optional puzzled PinkRyno for the 404 page. Until this exists, that page uses the main mascot picture. |
+| MASCOT-LOST | `assets/images/mascot-lost.webp` | Optional puzzled Rosie for the 404 page. Until this exists, that page uses the main mascot picture. |
 | TT-TRAILER | `assets/games/tiny-trails-space/trailer.webp` | A short silent trailer still or looping WebP. Prefer a real capture from the game once the cosmic sticker build exists. |
 
 ## Prompts (Midjourney v7)
@@ -76,21 +76,21 @@ Save the chosen anchor. Deliver the cropped 1600×900 file as `hero.webp`.
 
 ### 5. ABOUT-SCENE
 
-`flat vector cartoon sticker illustration of PinkRyno, a cute baby pink rhinoceros, big head, small round body, tiny horn, closed smiling eyes, rosy cheeks, chubby baby proportions, no clothes, sitting beside a small smiling lavender planet and a little chibi astronaut, kawaii, consistent deep plum outlines, flat two-tone cel shading, one soft violet drop shadow down-right, cosmic candy palette, plain cream background, children's studio art for ages 3-6 --ar 16:9 --v 7 --style raw --stylize 150 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary, sharp teeth, clothing on the rhino`
+`flat vector cartoon sticker illustration of Rosie Ryno, a cute baby pink rhinoceros, big head, small round body, tiny horn, closed smiling eyes, rosy cheeks, chubby baby proportions, no clothes, sitting beside a small smiling lavender planet and a little chibi astronaut, kawaii, consistent deep plum outlines, flat two-tone cel shading, one soft violet drop shadow down-right, cosmic candy palette, plain cream background, children's studio art for ages 3-6 --ar 16:9 --v 7 --style raw --stylize 150 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary, sharp teeth, clothing on the rhino`
 
 ### 6. Optional OG-SHARE
 
-`flat vector cartoon sticker of PinkRyno, a cute baby pink rhinoceros waving, big head, tiny horn, closed smiling eyes, rosy cheeks, chubby baby proportions, a small butter-yellow star and a mint planet nearby, deep navy-violet space with soft lavender and teal nebula shapes, lots of empty calm space on the right, deep plum outlines, flat shading, one soft drop shadow, no words anywhere --ar 16:9 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art`
+`flat vector cartoon sticker of Rosie Ryno, a cute baby pink rhinoceros waving, big head, tiny horn, closed smiling eyes, rosy cheeks, chubby baby proportions, a small butter-yellow star and a mint planet nearby, deep navy-violet space with soft lavender and teal nebula shapes, lots of empty calm space on the right, deep plum outlines, flat shading, one soft drop shadow, no words anywhere --ar 16:9 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art`
 
 Crop to 1200×630 if this is used as the share image.
 
 ### 7. Optional MASCOT-LOST
 
-`flat vector cartoon sticker of PinkRyno, a cute baby pink rhinoceros, big head, tiny horn, rosy cheeks, chubby baby proportions, looking gently puzzled with a small open smile, one hoof raised, a tiny butter-yellow star beside them, deep plum outline, flat two-tone shading, one soft drop shadow, plain cream background, children's mascot art --ar 1:1 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary, tears`
+`flat vector cartoon sticker of Rosie Ryno, a cute baby pink rhinoceros, big head, tiny horn, rosy cheeks, chubby baby proportions, looking gently puzzled with a small open smile, one hoof raised, a tiny butter-yellow star beside them, deep plum outline, flat two-tone shading, one soft drop shadow, plain cream background, children's mascot art --ar 1:1 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary, tears`
 
-### 8. PinkRyno turnaround (the files site.json will point at)
+### 8. Rosie Ryno turnaround (the files site.json will point at)
 
-`character sheet of PinkRyno, a cute baby pink rhinoceros, big head, small round body, tiny horn, closed smiling eyes, rosy cheeks, chubby baby proportions, no clothes, front view and a waving pose and a head-only portrait, consistent deep plum outline, flat two-tone cel shading, kawaii, plain cream background, children's mascot --ar 3:2 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary, sharp teeth, clothing`
+`character sheet of Rosie Ryno, a cute baby pink rhinoceros, big head, small round body, tiny horn, closed smiling eyes, rosy cheeks, chubby baby proportions, no clothes, front view and a waving pose and a head-only portrait, consistent deep plum outline, flat two-tone cel shading, kawaii, plain cream background, children's mascot --ar 3:2 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary, sharp teeth, clothing`
 
 ## After the files land
 
