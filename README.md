@@ -14,12 +14,14 @@ node scripts/render-site.mjs --release    # store-launch build
 - **Normal build** (no flag, or `--preview`, which means the same thing): renders every page. Anything that needs a studio field that is still `null` in `site.json` is left out cleanly. Today that is the legal name and mailing address on the privacy page.
 - **`--release`**: use this for the build that goes with the App Store and Google Play launch. It refuses to run, exits with an error that lists the missing fields, and writes nothing until `studio.legalName`, `studio.address`, and `studio.supportEmail` are all set.
 - **`--lastmod=YYYY-MM-DD`**: the date written to `sitemap.xml`. It defaults to the day you run the script.
+- **`--site=FILE`** and **`--games=FILE`**: read the data from another copy of `site.json` or `games.json`, for example a copy in a temp folder with some art set to `null`, to preview a page without that art. The pages are still written into this repo, so run the plain build again afterwards.
 
-The script writes the pages, `assets/css/themes.css`, and `sitemap.xml`. It overwrites the generated HTML, so edit `games.json`, `site.json`, or the script, then run it again. Do not hand-edit the generated pages.
+The script writes the pages, `assets/css/themes.css`, and `sitemap.xml`. It overwrites the generated HTML, so edit `games.json`, `site.json`, or the script, then run it again. Do not hand-edit the generated pages. After a build it prints a warning that lists the [art slots](#art-slots-swapping-art) that are empty.
 
 Before it writes anything, the script checks its own output. If any check fails, it stops with a list of problems and writes nothing:
 
-- Every site path in `site.json` and `games.json` (images, `play_url`) is either `null` or points to a file that exists.
+- Every entry in the art maps (`site.json` `art` and each game's `art` in `games.json`), and `play_url`, is either `null` or points to a file that exists. This check runs in every mode, `--release` included.
+- `assets/css/site.css` loads only fonts. Pictures come from the art maps and render as markup.
 - Every link, image, stylesheet, and share-image URL in the generated pages points to a local file, and uses an absolute path such as `/assets/...`. GitHub Pages serves `404.html` at any missing URL, at any depth, so a relative path would break there.
 - Links that leave the site (email and app stores) carry `data-parent-gate`, so nothing loads from another site.
 - Every `<use href="/assets/.../sprite.svg#id">` points to a `<symbol>` that exists in that sprite.
@@ -41,41 +43,72 @@ Commit the data files, any new images, and the regenerated files together.
 
 `privacyLine` is the one sentence about privacy in the site's marketing copy. It sits in the footer next to the "Privacy policy" link. Keep privacy and no-ads claims out of `games.json`. The script stops with an error if it finds them there. The full policy is `/privacy/`.
 
-## Rosie, the mascot
+## Art slots: swapping art
 
-The mascot name and pictures live in `site.json` only. `name` is the short name used in most sentences. `fullName` is used on the About introduction and in image alt text. The approved original is `assets/mascot/source/rosie-ryno-original.png`.
+Every picture on the site comes from one of two art maps, and nothing else in the site build names an image file:
 
-| Field | Used for |
-| --- | --- |
-| `mascot.hero.large` | Home hero on wider screens: `anim` (animated wave) and `still` (for reduced motion), 386×500 |
-| `mascot.hero.small` | Home hero on phones: `anim` and `still`, 260×337 |
-| `mascot.full` | About and 404 |
-| `mascot.head.webp` | Every small Rosie head: header (48 px), footer and home studio line (64 px), support title (88 px, 64 px on phones). A map of pixel size to file (`64`, `128`, `256`). Each page offers only the files that cover 1× and 2× at that spot. |
-| `mascot.head.png` | The Organization `logo` in the home page's structured data (256×256) |
-| `mascot.favicon` | Browser tab icons, one `<link rel="icon" sizes>` per entry (`32`, `48`) |
-| `mascot.appleTouch` | Home-screen icon (`180`, opaque) |
-| `mascot.social` | Share image for pages without their own (`png` is used) |
+- **`site.json` → `art`**: site-wide art (Rosie, her small head, favicons, the logo, the default share image, the hero backdrop, the About scene, stars, and icons).
+- **`games.json` → each game's `art`**: that game's hero art, games index card, icon, share image, and screenshots.
 
-The `head`, `favicon`, and `appleTouch` entries map a pixel size to a file, for example `"64": "/assets/mascot/head/rosie-head-64.webp"`. The build checks that each file exists and really is that size. These files are the Art Director's approved ROSIE-HEAD export, kept as delivered in `assets/mascot/head/`. The 256 WebP was encoded from the delivered 256 PNG at the same settings (quality 90, alpha 100). Don't use the 512 export: it's an upscale and looks soft.
+`scripts/render-site.mjs` reads only these maps, and `site.css` loads only fonts. Swapping art never means editing code or CSS. `site.json` `mascot` holds only Rosie's text: `name` (used in most sentences), `fullName` (the About introduction), `pronouns`, and `species`.
 
-The hero files come from the approved wave loop, `assets/mascot/rosie-wave.webp`, which stays in the repo unchanged. To re-export them, run:
+**Temporary art.** The owner wants a new Rosie (static and animated) and all site art redone in a new sticker style. Until then, the current Rosie wave re-export (`rosie-wave-386/260*.webp`) and the head export in `assets/mascot/head/` (the small heads, favicons, apple-touch icon, and logo) are **temporary placeholders pending the new Rosie**. The static Rosie (`rosie-full.webp`), the share image (`rosie-social.png`), the icons, and the stars are the current art and will be redone in the new style too.
 
-```bash
-python3 scripts/export-rosie.py
-```
+### Swap a picture
 
-It needs Python 3 with Pillow and numpy. The script header explains each step and the encoder settings. It writes only the four wave files. The build (`render-site.mjs`) checks that the sizes in `site.json` match the files.
+1. Export the new files at the sizes in the tables below and drop them in `assets/` (for example `assets/mascot/` for Rosie, `assets/icons/`, `assets/twinkle/`, `assets/og/`, or `assets/games/<id>/` for a game). Use new file names. Leave the old files where they are until the new ones are live.
+2. Point the slot's entry at the new files: `site.json` `art` for site-wide art, or the game's `art` in `games.json`. Update `alt` when the picture changes.
+3. Run `node scripts/render-site.mjs`. The build checks every file and lists the slots that are still empty.
+4. Look at the pages, then commit the new files, the JSON, and the regenerated pages together.
 
-## Icons and stars
+Rules the build enforces:
 
-Both come from the Art Director's approved sprites, used as delivered:
+- **`null` (or a missing key) means the slot is empty.** Its element or section is left out completely, with no placeholder, no empty box, and no gap. The build lists every empty slot in a warning.
+- **A slot that is set must point to a real file**, in every mode, or the build stops and writes nothing. Paths start with `/`, like `/assets/mascot/rosie-new.webp`.
+- `width` and `height` are optional. When they are set, they must match the file, and the error message shows the real size. `src2x` must be twice the size of `src`.
+- `alt` is required wherever the picture means something (Rosie, game hero, screenshots, share images, About scene). Heads, icons, stars, cards, game icons, and the hero backdrop are decorative.
+- Unknown keys stop the build, so a typo like `srcsmall` can't empty a slot without anyone noticing.
+- `art.retired` lists files that stay in the repo but no entry may use. Today that is the off-model `tt-hero-astro-3` art (`assets/games/tiny-trails-space/hero.webp` and its source PNG).
 
-- **`assets/icons/icons-sprite.svg`** (ICON-SET): the sticker icons beside the home "For grown-ups" facts and the game page's "How it plays" and free/unlock lines. They show at 56 px (48 px on phones) with no box or tint behind them, and they're decorative (`aria-hidden`), because the text next to them carries the meaning.
-- **`assets/twinkle/twinkle-sprite.svg`** (TWINKLE-SET): the background stars on the home hero band and a few faint ones in the footer.
+### Site-wide slots (`site.json` `art`)
 
-Pages point at a symbol with `<svg><use href="/assets/icons/icons-sprite.svg#icon-gift"/></svg>`, so each sprite is one request for the whole site. Don't inline a sprite inside a `display: none` element, because some browsers then drop the glow filters.
+Display sizes are CSS pixels.
 
-The star list is `HERO_STARS` and `FOOTER_STARS` in `scripts/render-site.mjs`. Each star gets a class (`.s1`, `.s2`, ... and `.f1`, ...), and `site.css` positions it, with separate rules for phones. The CSP forbids `style` attributes, so positions can't go in the HTML. Hero stars must stay clear of Rosie's column at every width. On phones she stands at the top centre, so phone stars sit around the copy below her. Stars drift out and back over 60–120 s and stop under reduced motion.
+| Slot | Shows on | Display size | Deliver | Current file |
+| --- | --- | --- | --- | --- |
+| `rosie.animated` | Home hero, beside the headline (above it on phones) | Up to 386×500 on desktop (`min(386px, 32vw)` wide); 240 px tall on phones (185×240 today) | Animated WebP `src` plus a same-size still WebP `still` for reduced motion. Optional phone pair: `srcSmall` + `stillSmall`. `width`/`height` and `widthSmall`/`heightSmall` are optional and checked. `alt` | **Temporary:** `assets/mascot/rosie-wave-386.webp` + `-386-still.webp` (386×500), `rosie-wave-260.webp` + `-260-still.webp` (260×337) |
+| `rosie.static` | About (300 px wide, about 218 on phones) and 404 (240 px wide). Also the home hero when `animated` is empty | Up to 386×500 | Transparent WebP or PNG `src` at 1x, optional `src2x` at 2x, `alt` | `assets/mascot/rosie-full.webp` (370×500), old Rosie art |
+| `rosie.head` | Header 48 px (44 on phones), footer and home studio line 64 px, support title 88 px (64 on phones) | 44–88 px square | Square WebP or PNG files keyed by pixel size: `64`, `128`, `256`. Each spot loads only the files that cover 1x and 2x | **Temporary:** `assets/mascot/head/rosie-head-64.webp`, `-128.webp`, `-256.webp` |
+| `favicon32`, `favicon48` | Browser tab icon | 32 and 48 px | PNG, exactly 32×32 and 48×48 | **Temporary:** `assets/mascot/head/favicon-32.png`, `favicon-48.png` |
+| `appleTouch` | Home-screen icon on phones | 180 px | PNG, exactly 180×180, opaque | **Temporary:** `assets/mascot/head/apple-touch-icon-180.png` |
+| `logo` | Organization `logo` in the home page's structured data (not shown on the page) | n/a | PNG, JPEG, or WebP, at least 112×112 | **Temporary:** `assets/mascot/head/rosie-head-256.png` |
+| `og.default` | Share image for every page without its own | 1200×630 | PNG or JPEG, `alt`. When empty, pages have no `og:image` tags | `assets/mascot/rosie-social.png` (OG-HOME pending) |
+| `hero` | Backdrop behind the home hero band, under the stars, Rosie, and text (decorative) | Cropped to cover the band: 540 px tall on desktop at any width, about 390×675 on phones | WebP, PNG, or JPEG `src` (about 2880×1080), optional `srcSmall` crop for phones (about 780×1350). Keep the area behind the headline calm | Empty |
+| `aboutScene` | Full-width picture below the About text | Up to 1120 px wide | WebP, PNG, or JPEG `src` (for example 1120×630), optional `src2x`, `alt` | Empty (ABOUT-SCENE pending) |
+| `stars` | Home hero background stars and a few faint footer stars | 6–78 px, set per kind in `STAR_SIZES` | One entry per star kind: `"/sprite.svg#symbol-id"` or a plain SVG, WebP, or PNG file | `assets/twinkle/twinkle-sprite.svg` (TWINKLE-SET) |
+| `icons` | Sticker icons beside the home "For grown-ups" facts (`gift`, `key`, `hand`) and the game page lines (`trace`, `planet`, `helmet`, `replay`, `gift`, `key`) | 56 px (48 on phones) | One entry per name: `"/sprite.svg#symbol-id"` or a plain SVG file (or WebP/PNG at 112 px or more) | `assets/icons/icons-sprite.svg` (ICON-SET) |
+
+Rosie in the home hero: if `rosie.animated` is set, the page uses it, with `still` under `prefers-reduced-motion`. If it is empty, the page uses `rosie.static`. If both are empty, the hero has no Rosie and the text spans the band. An empty `rosie.head` removes the small heads from the header, footer, studio line, and support title, and the text closes up. Keep at least one favicon set: with no `<link rel="icon">`, browsers ask for `/favicon.ico`, which does not exist.
+
+A sprite entry draws the symbol with `<svg><use href="/assets/icons/icons-sprite.svg#icon-gift"/></svg>`, so a sprite is one request for the whole site. Don't inline a sprite inside a `display: none` element, because some browsers then drop the glow filters. The build checks that the symbol exists in the sprite.
+
+The star layout is `HERO_STARS` and `FOOTER_STARS` in `scripts/render-site.mjs`. Each star gets a class (`.s1`, `.s2`, ... and `.f1`, ...), and `site.css` positions it, with separate rules for phones and for a hero without Rosie. The CSP forbids `style` attributes, so positions can't go in the HTML. Hero stars stay clear of Rosie's column at every width. On phones she stands at the top centre, so phone stars sit around the copy below her. Stars drift out and back over 60–120 s and stop under reduced motion. An empty star kind drops those stars and leaves the rest in place.
+
+`scripts/export-rosie.py` made the temporary wave files from the original loop, `assets/mascot/rosie-wave.webp` (it needs Python 3 with Pillow and numpy, and the script header explains each step). Retire it when the new Rosie arrives: the new files are exported at the sizes above and set in `art.rosie`.
+
+### Game slots (`games.json` `art`)
+
+Each entry is `null` or an object like `{ "src": "/assets/games/<id>/hero.webp", "alt": "..." }`. `screenshots` is a list of those objects.
+
+| Slot | Shows on | Display size | Deliver |
+| --- | --- | --- | --- |
+| `hero` | Beside the title in the home game section and on the game page. Also the games index row when there is no `card` | Up to 460 px wide | Cut-out WebP or PNG, about 800×700, optional `src2x`, `alt` |
+| `card` | Games index row picture | Half the row, up to 536 px wide | WebP, PNG, or JPEG, 1280×800 (16:10). Decorative |
+| `icon` | Above the game title in the home game section, on the game page, and in the games index row | 72 px | Square WebP or PNG, `src` 72×72 and `src2x` 144×144. Decorative |
+| `og` | Share image for the game page | 1200×630 | PNG or JPEG, `alt`. Without it, the page uses `og.default` |
+| `screenshots` | "A look inside" strip on the game page. It appears only when the list has at least one picture | 400 px wide each | WebP, PNG, or JPEG, 1200×750 (16:10), `alt` each |
+
+Tiny Trails: Space has every game slot empty today. TT-HERO (Astro design #2), TT-CARD, OG-TINY-TRAILS, and the sticker build's screenshots are pending.
 
 ## Add a new game
 
@@ -87,16 +120,12 @@ Adding a game is one entry in [`games.json`](games.json), plus its images. You d
    - `live` and `coming-soon` get a page, a row on the games index, and a sitemap entry.
    - `hidden` is left out of the site and the sitemap.
 4. Write the copy for parents: `tagline`, `summary`, `description` (the meta description), `ages` (like `3–6`), `free_content`, `unlock`, `trial`, and `web_note`. `price` is the one-time unlock price, like `$0.99`, or `null`.
-5. `highlights` are the "How it plays" lines. Each one has `text` and an `icon`: `trace`, `planet`, `helmet`, `replay`, `gift`, `key`, or `hand` (the symbols in `assets/icons/icons-sprite.svg`).
+5. `highlights` are the "How it plays" lines. Each one has `text` and an `icon`: `trace`, `planet`, `helmet`, `replay`, `gift`, `key`, or `hand` (the names in `site.json` `art.icons`). An icon whose entry is empty is left out and the text stays.
 6. Leave `stores.ios` and `stores.android` as `null` until the real listing exists. Use a plain `https://` URL with no tracking parameters. The store buttons stay off the page until then. A live game with no store link and no browser build shows a peach "Coming soon" tag and the line "Coming soon to phones and tablets."
 7. Set `play_url` to the browser build on this site, or `null` if there is none. **It is the single setting for every Play in browser button.** It must be a page on this site, such as `/games/space-maze/`. Tiny Trails: Space uses `/games/space-maze/`, the build the live site has always used. When the sticker-style rebuild's web build is ready, flip `play_url` to its folder and re-run the script. `play_size_note` (for example `about 24 MB, best on Wi-Fi`) shows under the button on the game page.
    - The Play in browser button renders only when `play_enabled` is `true` and `play_url` is set. With `false` (or missing), the button is hidden everywhere and `play_url` is kept so it can be switched back on. To turn it on, set `play_enabled` to `true` and re-run `node scripts/render-site.mjs`.
    - `play_enabled` must be `true`, `false`, or left out (which counts as `false`); the build stops on anything else. While it is off, everything that talks about playing in the browser is left out too: the home hero button reads "See Tiny Trails: Space" instead of "Play Tiny Trails", and the size note, `web_note`, the support page's "Playing in the browser" question, and the `Web Browser` platform in the structured data are all hidden. Tiny Trails: Space has `play_enabled: false` today.
-8. Point `art` at image files under `assets/games/<id>/`, with alt text in `art_alt`. Every picture is optional: set the field to `null` (or leave `screens` empty) and that picture is left out, with no placeholder. A path that is set must point to a real file, or the build stops. `assets/games/tiny-trails-space/hero.webp` and its source `tt-hero-astro-3.png` are off-model and retired, and the build refuses them:
-   - `hero`: cut-out key art beside the title on the home page and the game page.
-   - `card`: the games index picture. The index falls back to `hero`, and shows no picture if neither exists.
-   - `screens`: real in-game captures. The screenshot strip appears only when at least one exists.
-   - `og`: the share image for the game page (PNG or JPEG, 1200×630). Without it, the site share image is used.
+8. Fill in the game's `art` map (`hero`, `card`, `icon`, `og`, `screenshots`) with files under `assets/games/<id>/`. Each entry carries its own `alt`, like `"hero": { "src": "/assets/games/<id>/hero.webp", "alt": "..." }`. Every picture is optional: leave the entry `null` (or `screenshots` empty) and that picture is left out, with no placeholder. A path that is set must point to a real file, or the build stops. The slots, sizes, and formats are in [Game slots](#game-slots-gamesjson-art). `assets/games/tiny-trails-space/hero.webp` and its source `tt-hero-astro-3.png` are off-model and listed in `site.json` `art.retired`, so the build refuses them.
 9. Pick an `accent` color (`#RRGGBB`). It is the thin underline under the game's title.
 10. Run `node scripts/render-site.mjs`, then commit `games.json`, the new images, and the generated files (`games/<id>/index.html`, the home page, the games index, `assets/css/themes.css`, and `sitemap.xml`).
 

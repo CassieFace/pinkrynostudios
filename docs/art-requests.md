@@ -1,16 +1,16 @@
 # Art requests — PinkRyno Studios site
 
-For the Art Director. The website rewrite does **not** invent final illustrations in code. Where a picture is missing, the page leaves it out, with no placeholder. Drop the finished file at the path below (and set its path in `games.json` if it is not there yet), then run `node scripts/render-site.mjs`. The picture appears. No page redesign.
+For the Art Director. The website rewrite does **not** invent final illustrations in code. Where a picture is missing, the page leaves it out, with no placeholder. Drop the finished file at the path below, point its slot at it in the art map (`site.json` `art`, or the game's `art` in `games.json`), then run `node scripts/render-site.mjs`. The slots, sizes, and formats are in the README's [Art slots](../README.md#art-slots-swapping-art) section. The picture appears. No page redesign.
 
 Do not draw these as pixel art, and do not trace or restyle another studio's characters, mazes, or UI. This is our cosmic sticker look: smooth flat shapes, one deep plum outline, one soft shadow down and to the right, cosmic candy colors.
 
 ## Mascot: Rosie Ryno
 
-The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhino. `site.json` holds `name`, `fullName`, and the image paths. The approved original is `assets/mascot/source/rosie-ryno-original.png`. The site uses the cut-outs beside it: `rosie-full` (hero), `rosie-head` (header and footer), `favicon.png`, `apple-touch-icon.png`, and `rosie-social` (share image). The older rhinoceros files (`pinkrynostudios-mascot.png`, `pinkrynostudios-head.png`, and the WebP copies) stay in the repo and are not linked. Do not draw more of that older character.
+The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhino. `site.json` holds her `name` and `fullName` under `mascot`, and every image path under `art`. The approved original is `assets/mascot/source/rosie-ryno-original.png`. The site uses the cut-outs beside it: `rosie-full` (hero), `rosie-head` (header and footer), `favicon.png`, `apple-touch-icon.png`, and `rosie-social` (share image). The older rhinoceros files (`pinkrynostudios-mascot.png`, `pinkrynostudios-head.png`, and the WebP copies) stay in the repo and are not linked. Do not draw more of that older character.
 
-A new pose is still only a `site.json` path change, then `node scripts/render-site.mjs`.
+A new pose is only an `art` map change in `site.json`, then `node scripts/render-site.mjs`. The owner has asked for a new Rosie (static and animated): the current wave re-export and head export are temporary until she arrives.
 
-The home hero is one `<picture>`. `mascot.hero.large` (386×500) is used on wider screens and `mascot.hero.small` (260×337) on phones. Each has an `anim` file that plays when the visitor allows motion and a `still` for `prefers-reduced-motion`. `scripts/export-rosie.py` makes all four, plus the 128 px header icon, from `rosie-wave.webp` and `rosie-head.webp`. It does not change her drawing. It only makes her body opaque so she stays pink on the navy hero band, and folds the repeated hold frames at the end of the loop into one.
+The home hero is one `<picture>` from `art.rosie.animated`: `src` (386×500) is used on wider screens and `srcSmall` (260×337) on phones. Each has an animated file that plays when the visitor allows motion and a still (`still`, `stillSmall`) for `prefers-reduced-motion`. `scripts/export-rosie.py` makes all four from `rosie-wave.webp`. It does not change her drawing. It only makes her body opaque so she stays pink on the navy hero band, and folds the repeated hold frames at the end of the loop into one.
 
 `rosie-wave.webp` (with `rosie-wave-still.webp` and `rosie-wave.png`) is the approved wave loop and the source for those exports. It stays in the repo unchanged. The source movie is `assets/mascot/source/rosie-wave-loop.mp4` (4 seconds, 720×720, 24 fps). It was generated from the approved Midjourney Rosie image, `assets/mascot/source/rosie-ryno-original.png`. In the loop she waves, happy-squints, hops, and comes back to the start pose. The flat lavender field was removed, so the WebP has a real transparent background. The site version keeps every other frame (12 fps, 49 frames, 84 ms each, 386×500, looping). The page does not play the movie's audio. `rosie-wave.png` and `rosie-wave-still.webp` are the first frame.
 
@@ -43,13 +43,13 @@ Negative prompt used throughout: `--no text, letters, watermark, logo, photoreal
 | TT-SCENE-PLAY | `assets/games/tiny-trails-space/scene-play.webp` | Game page, first scene | 1200×900 (4:3) |
 | TT-SCENE-WORLDS | `assets/games/tiny-trails-space/scene-worlds.webp` | Game page, second scene | 1200×900 (4:3) |
 | TT-SCENE-DONE | `assets/games/tiny-trails-space/scene-done.webp` | Game page, third scene | 1200×900 (4:3) |
-| ABOUT-SCENE | `assets/images/about-scene.webp` | About page | 1600×900 (16:9) |
+| ABOUT-SCENE | `assets/images/about-scene.webp`, set as `art.aboutScene` in `site.json` | About page | 1600×900 (16:9) |
 
 Optional, not slotted on the page yet. Say if you want them wired in:
 
 | Slot | Suggested file | Notes |
 | --- | --- | --- |
-| OG-SHARE | `assets/mascot/rosie-social.webp` | Social share image, 1200×630. This file is already the mascot on the site mist color. A future illustrated card can replace `mascot.social` in `site.json`. |
+| OG-SHARE | `assets/mascot/rosie-social.webp` | Social share image, 1200×630. This file is already the mascot on the site mist color. A future illustrated card can replace `art.og.default` in `site.json`. |
 | MASCOT-LOST | n/a | Dropped. The 404 page keeps the main mascot picture. |
 | TT-TRAILER | `assets/games/tiny-trails-space/trailer.webp` | A short silent trailer still or looping WebP. Prefer a real capture from the game once the cosmic sticker build exists. |
 
@@ -97,6 +97,6 @@ Crop to 1200×630 if this is used as the share image.
 
 ## After the files land
 
-1. Put the WebP files at the paths in the table. Keep the file names.
+1. Put the WebP files at the paths in the table and set each slot in the art map, with its alt text.
 2. From the repo root, run `node scripts/render-site.mjs`.
-3. Check the home page, the games index, and the Tiny Trails: Space page. Each new picture should appear with its alt text from `games.json`.
+3. Check the home page, the games index, and the Tiny Trails: Space page. Each new picture should appear with the alt text from its art entry.

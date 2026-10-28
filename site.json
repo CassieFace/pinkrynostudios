@@ -13,50 +13,70 @@
       "object": "her",
       "possessive": "her"
     },
-    "species": "pink rhino",
-    "alt": "the pink rhino, PinkRyno Studios mascot",
-    "full": {
-      "webp": "/assets/mascot/rosie-full.webp",
-      "png": "/assets/mascot/rosie-full.png",
-      "width": 370,
-      "height": 500
-    },
-    "head": {
-      "webp": {
+    "species": "pink rhino"
+  },
+  "art": {
+    "rosie": {
+      "static": {
+        "src": "/assets/mascot/rosie-full.webp",
+        "src2x": null,
+        "width": 370,
+        "height": 500,
+        "alt": "Rosie Ryno, the studio's baby pink rhino, smiling and waving"
+      },
+      "animated": {
+        "src": "/assets/mascot/rosie-wave-386.webp",
+        "srcSmall": "/assets/mascot/rosie-wave-260.webp",
+        "still": "/assets/mascot/rosie-wave-386-still.webp",
+        "stillSmall": "/assets/mascot/rosie-wave-260-still.webp",
+        "width": 386,
+        "height": 500,
+        "widthSmall": 260,
+        "heightSmall": 337,
+        "alt": "Rosie Ryno, a baby pink rhino, waving hello"
+      },
+      "head": {
         "64": "/assets/mascot/head/rosie-head-64.webp",
         "128": "/assets/mascot/head/rosie-head-128.webp",
         "256": "/assets/mascot/head/rosie-head-256.webp"
-      },
-      "png": {
-        "256": "/assets/mascot/head/rosie-head-256.png"
       }
     },
-    "favicon": {
-      "32": "/assets/mascot/head/favicon-32.png",
-      "48": "/assets/mascot/head/favicon-48.png"
-    },
-    "appleTouch": {
-      "180": "/assets/mascot/head/apple-touch-icon-180.png"
-    },
-    "social": {
-      "webp": "/assets/mascot/rosie-social.webp",
-      "png": "/assets/mascot/rosie-social.png",
-      "width": 1200,
-      "height": 630
-    },
-    "hero": {
-      "large": {
-        "anim": "/assets/mascot/rosie-wave-386.webp",
-        "still": "/assets/mascot/rosie-wave-386-still.webp",
-        "width": 386,
-        "height": 500
-      },
-      "small": {
-        "anim": "/assets/mascot/rosie-wave-260.webp",
-        "still": "/assets/mascot/rosie-wave-260-still.webp",
-        "width": 260,
-        "height": 337
+    "favicon32": "/assets/mascot/head/favicon-32.png",
+    "favicon48": "/assets/mascot/head/favicon-48.png",
+    "appleTouch": "/assets/mascot/head/apple-touch-icon-180.png",
+    "logo": "/assets/mascot/head/rosie-head-256.png",
+    "og": {
+      "default": {
+        "src": "/assets/mascot/rosie-social.png",
+        "width": 1200,
+        "height": 630,
+        "alt": "Rosie Ryno the pink rhino, PinkRyno Studios mascot"
       }
-    }
+    },
+    "hero": null,
+    "aboutScene": null,
+    "stars": {
+      "twinkle-4pt-md": "/assets/twinkle/twinkle-sprite.svg#twinkle-4pt-md",
+      "twinkle-4pt-sm": "/assets/twinkle/twinkle-sprite.svg#twinkle-4pt-sm",
+      "dot-lg": "/assets/twinkle/twinkle-sprite.svg#dot-lg",
+      "dot-md": "/assets/twinkle/twinkle-sprite.svg#dot-md",
+      "dot-sm": "/assets/twinkle/twinkle-sprite.svg#dot-sm",
+      "twinkle-4pt-lg-glow": "/assets/twinkle/twinkle-sprite.svg#twinkle-4pt-lg-glow",
+      "twinkle-4pt-md-glow": "/assets/twinkle/twinkle-sprite.svg#twinkle-4pt-md-glow",
+      "dot-lg-glow": "/assets/twinkle/twinkle-sprite.svg#dot-lg-glow"
+    },
+    "icons": {
+      "trace": "/assets/icons/icons-sprite.svg#icon-trace",
+      "planet": "/assets/icons/icons-sprite.svg#icon-planet",
+      "helmet": "/assets/icons/icons-sprite.svg#icon-helmet",
+      "replay": "/assets/icons/icons-sprite.svg#icon-replay",
+      "gift": "/assets/icons/icons-sprite.svg#icon-gift",
+      "key": "/assets/icons/icons-sprite.svg#icon-key",
+      "hand": "/assets/icons/icons-sprite.svg#icon-hand"
+    },
+    "retired": [
+      "/assets/games/tiny-trails-space/hero.webp",
+      "/assets/games/tiny-trails-space/source/tt-hero-astro-3.png"
+    ]
   }
 }

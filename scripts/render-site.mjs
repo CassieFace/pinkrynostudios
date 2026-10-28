@@ -11,25 +11,30 @@
  *                                           studio.legalName, studio.address, and
  *                                           studio.supportEmail are all set.
  *   --lastmod=YYYY-MM-DD                    Date for sitemap.xml (default: today).
+ *   --site=path/to/site.json                Read site data from another file (art reviews,
+ *   --games=path/to/games.json              tests). Pages are still written to this repo.
  *
- * The mascot, studio details, and footer privacy line come only from site.json.
+ * The mascot text, studio details, and footer privacy line come only from site.json.
  * Games come only from games.json. A game's Play in browser button, and every
  * line that talks about playing in the browser, render only when its
- * play_enabled is true and play_url is set. Sticker icons and background stars come from
- * the Art Director's sprites, assets/icons/icons-sprite.svg and
- * assets/twinkle/twinkle-sprite.svg, referenced with <use href="...#id">.
+ * play_enabled is true and play_url is set.
  *
- * Every site path in site.json and games.json must be null or point to a file
- * that exists. The build stops on a missing file, and it also stops if a
- * rendered page links to a missing local file or uses a relative URL (404.html
- * is served at any depth, so every URL must be absolute).
+ * Every picture comes from an art map: site.json "art" for site-wide art (Rosie,
+ * favicons, logo, share image, hero, stars, icons) and each game's "art" in
+ * games.json. This script holds no image paths. An art entry that is null (or
+ * left out) is an empty slot: the element or section is left out, with no
+ * placeholder and no gap, and the build lists the empty slots as a warning.
+ * An entry that is set must point to a real file, in every build mode.
+ *
+ * The build also stops if a rendered page links to a missing local file or uses
+ * a relative URL (404.html is served at any depth, so every URL must be absolute).
  *
  * Writes pages, assets/css/themes.css, and sitemap.xml.
  * Never writes CNAME, games/space-maze/, or games/tiny-trails-beta/.
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -41,26 +46,23 @@ const RELEASE_FIELDS = ["legalName", "address", "supportEmail"];
 const PRIVACY_PITCH = /\bno ads\b|\bno tracking\b|\bno accounts?\b|nothing to sign up|\bad-free\b/i;
 // Update this date whenever the privacy policy text changes.
 const POLICY_EFFECTIVE = "October 27, 2026";
-// Off-model art (tt-hero-astro-3). The files stay in the repo, but no page may use them.
-const RETIRED_ART = new Set([
-  "/assets/games/tiny-trails-space/hero.webp",
-  "/assets/games/tiny-trails-space/source/tt-hero-astro-3.png"
-]);
 // Internal notes and placeholders that must never reach a public page.
 const INTERNAL_NOTES = /\bTODO\b|art director|\bslots?\b|\bmarked\b|placeholder|<h[1-6][^>]*>\s*Pictures\s*</i;
 
 let mascot;
+let art;
 let studio;
 let privacyLine;
 let year;
+// Paths from site.json art.retired: off-model art that stays in the repo but no page may use.
+let retired = new Set();
+// Empty art slots, reported as a warning after a successful build.
+const emptySlots = [];
 
-/* Sprites from the Art Director (ICON-SET, TWINKLE-SET). Pages point at a symbol
-   with <use href="/sprite.svg#id">, so each sprite is one request for the whole
-   site. External <use> also keeps the glow filters working, which a sprite
-   inlined inside display:none would drop. */
-const ICON_SPRITE = "/assets/icons/icons-sprite.svg";
-const STAR_SPRITE = "/assets/twinkle/twinkle-sprite.svg";
-
+/* Icons and stars are art map entries. "/file.svg#id" points at a <symbol> in a
+   sprite and renders as <svg><use href>, so a sprite is one request for the whole
+   site, and external <use> keeps glow filters working (a sprite inlined inside
+   display:none would drop them). A plain .svg, .webp, or .png file renders as <img>. */
 const spriteSymbols = new Map();
 // The symbol ids in a sprite, so a misspelled icon or star stops the build.
 function symbolIds(sprite) {
@@ -72,21 +74,24 @@ function symbolIds(sprite) {
   return spriteSymbols.get(sprite);
 }
 
-function iconNames() {
-  return [...symbolIds(ICON_SPRITE)].filter((id) => id.startsWith("icon-")).map((id) => id.slice(5));
-}
+// The sticker icons pages can ask for: the keys of site.json art.icons.
+const ICON_NAMES = ["trace", "planet", "helmet", "replay", "gift", "key", "hand"];
 
 // A sticker icon beside its text. Decorative: the text next to it carries the meaning.
+// An empty icon is left out, and site.css drops the offset that lines text up with it.
 const ICON_SIZE = 56;
 function icon(name) {
-  must(symbolIds(ICON_SPRITE).has("icon-" + name), `Unknown icon "${name}". Use one of ${iconNames().join(", ")}.`);
-  return `<svg class="icon" width="${ICON_SIZE}" height="${ICON_SIZE}" aria-hidden="true" focusable="false"><use href="${ICON_SPRITE}#icon-${name}"/></svg>`;
+  must(ICON_NAMES.includes(name), `Unknown icon "${name}". Use one of ${ICON_NAMES.join(", ")}.`);
+  const ref = art.icons[name];
+  if (!ref) return "";
+  if (ref.use) return `<svg class="icon" width="${ICON_SIZE}" height="${ICON_SIZE}" aria-hidden="true" focusable="false"><use href="${esc(ref.use)}"/></svg>`;
+  return `<img class="icon" src="${esc(ref.img)}" alt="" width="${ICON_SIZE}" height="${ICON_SIZE}">`;
 }
 
-/* Background stars. Each symbol's default size comes from twinkle/README.md
-   (the glow variants are drawn larger so the halo is not clipped). */
+/* Background stars. The keys are the star kinds in site.json art.stars, and each
+   size comes from twinkle/README.md (the glow variants are drawn larger so the
+   halo is not clipped). */
 const STAR_SIZES = {
-  "twinkle-4pt-lg": 48,
   "twinkle-4pt-md": 32,
   "twinkle-4pt-sm": 20,
   "dot-lg": 12,
@@ -130,14 +135,19 @@ const FOOTER_STARS = [
   ["dot-sm", "far"]
 ];
 
-// indent is the indentation of the opening tag in the page source.
+// indent is the indentation of the opening tag in the page source. A star whose
+// kind is empty in art.stars is left out; the others keep their position class.
 function starField(className, prefix, stars, indent) {
-  const items = stars.map(([id, depth, extra], index) => {
-    must(symbolIds(STAR_SPRITE).has(id) && STAR_SIZES[id], `Unknown star "${id}" in ${STAR_SPRITE}`);
-    const size = STAR_SIZES[id];
+  const items = stars.map(([kind, depth, extra], index) => {
+    must(STAR_SIZES[kind], `Unknown star kind "${kind}". Use one of ${Object.keys(STAR_SIZES).join(", ")}.`);
+    const ref = art.stars[kind];
+    if (!ref) return "";
+    const size = STAR_SIZES[kind];
     const cls = ["star", depth, prefix + (index + 1), extra].filter(Boolean).join(" ");
-    return `<svg class="${cls}" width="${size}" height="${size}" focusable="false"><use href="${STAR_SPRITE}#${id}"/></svg>`;
-  });
+    if (ref.use) return `<svg class="${cls}" width="${size}" height="${size}" focusable="false"><use href="${esc(ref.use)}"/></svg>`;
+    return `<img class="${cls}" src="${esc(ref.img)}" alt="" width="${size}" height="${size}">`;
+  }).filter(Boolean);
+  if (!items.length) return "";
   return `<div class="${className}" aria-hidden="true">
 ${indent}  ${items.join(`\n${indent}  `)}
 ${indent}</div>`;
@@ -201,12 +211,12 @@ function sitePathToRel(src) {
 function requireFile(src, label) {
   must(typeof src === "string" && /^\/(?!\/)/.test(src), label + " must be a site path that starts with / (or null)");
   must(!src.includes(".."), label + " cannot contain ..");
-  must(!RETIRED_ART.has(src), `${label} uses retired off-model art (${src}). Set it to null until approved art exists.`);
+  must(!retired.has(src.split("#")[0]), `${label} uses retired off-model art (${src}). Set it to null until approved art exists.`);
   must(existsSync(join(root, sitePathToRel(src))), `${label} points to ${src}, which does not exist. Add the file or set the field to null.`);
   return src;
 }
 
-// Every string in a JSON value that looks like a site path, with its key path ("art.screens[0]").
+// Every string in a JSON value that looks like a site path, with its key path ("art.screenshots[0]").
 function sitePaths(value, label = "", out = []) {
   if (typeof value === "string") {
     if (/^\/(?!\/)/.test(value)) out.push([value, label]);
@@ -280,13 +290,16 @@ function today() {
 }
 
 function parseArgs(argv) {
-  const options = { release: false, preview: false, lastmod: today() };
+  const options = { release: false, preview: false, lastmod: today(), site: join(root, "site.json"), games: join(root, "games.json") };
   for (const arg of argv) {
     if (arg === "--release") options.release = true;
     else if (arg === "--preview") options.preview = true;
     else if (arg.startsWith("--lastmod=")) options.lastmod = arg.slice("--lastmod=".length);
-    else throw new Error(`Unknown option ${arg}. Use --release, --preview, or --lastmod=YYYY-MM-DD.`);
+    else if (arg.startsWith("--site=")) options.site = resolve(arg.slice("--site=".length));
+    else if (arg.startsWith("--games=")) options.games = resolve(arg.slice("--games=".length));
+    else throw new Error(`Unknown option ${arg}. Use --release, --preview, --lastmod=YYYY-MM-DD, --site=FILE, or --games=FILE.`);
   }
+  for (const key of ["site", "games"]) must(existsSync(options[key]), `--${key}: ${options[key]} does not exist`);
   must(!(options.release && options.preview), "Use either --release or --preview, not both.");
   must(/^\d{4}-\d{2}-\d{2}$/.test(options.lastmod) && !Number.isNaN(Date.parse(options.lastmod)), "--lastmod must be a date like 2026-10-27");
   return options;
@@ -296,15 +309,18 @@ function parseArgs(argv) {
 
 const GAME_TEXT = ["title", "tagline", "summary", "description", "free_content", "unlock"];
 
-function loadGames() {
-  const games = JSON.parse(readFileSync(join(root, "games.json"), "utf8"));
+function loadGames(file) {
+  const games = JSON.parse(readFileSync(file, "utf8"));
   must(Array.isArray(games) && games.length > 0, "games.json must be a non-empty array");
   const ids = new Set();
   for (const game of games) {
     must(game && typeof game === "object", "Each game must be an object");
     // `page` is written by this script; every other path must already exist.
+    // Pictures belong in the game's art map, so no other field may hold a file path.
     for (const [src, label] of sitePaths(game)) {
-      if (label !== "page") requireFile(src, `games.json ${game.id} ${label}`);
+      if (label === "page") continue;
+      must(label === "play_url" || label.startsWith("art."), `games.json ${game.id} ${label}: pictures go in the game's "art" map`);
+      requireFile(src, `games.json ${game.id} ${label}`);
     }
     must(/^[a-z][a-z0-9-]*$/.test(game.id), "Bad id: " + game.id);
     must(!RESERVED.has(game.id), game.id + " is a reserved path");
@@ -329,7 +345,7 @@ function loadGames() {
     must(Array.isArray(game.highlights), game.id + " highlights must be an array");
     for (const item of game.highlights) {
       must(item && typeof item.text === "string" && item.text.trim(), game.id + " each highlight needs text");
-      must(iconNames().includes(item.icon), game.id + " highlight icon must be one of " + iconNames().join(", "));
+      must(ICON_NAMES.includes(item.icon), game.id + " highlight icon must be one of " + ICON_NAMES.join(", "));
     }
     const copy = [...GAME_TEXT.map((key) => game[key]), game.trial, game.web_note, ...game.highlights.map((item) => item.text)];
     for (const text of copy) {
@@ -349,82 +365,273 @@ function loadGames() {
     must(game.stores && typeof game.stores === "object", game.id + " needs stores");
     game.stores.ios = httpsOrNull(game.stores.ios, game.id + " stores.ios");
     game.stores.android = httpsOrNull(game.stores.android, game.id + " stores.android");
-    must(game.art && typeof game.art === "object", game.id + " needs art");
-    game.art_alt = game.art_alt || {};
-    game.art.screens = game.art.screens || [];
-    game.art_alt.screens = game.art_alt.screens || [];
-    must(Array.isArray(game.art.screens) && Array.isArray(game.art_alt.screens), game.id + " art.screens and art_alt.screens must be arrays");
-    must(game.art.screens.length === game.art_alt.screens.length, game.id + " needs one art_alt.screens entry per screen");
-    // Art is optional, but a path that is set must be a real image with alt text.
-    for (const key of ["hero", "card", "og"]) {
-      if (game.art[key] == null || game.art[key] === "") {
-        game.art[key] = null;
-        continue;
-      }
-      requireFile(game.art[key], `${game.id} art.${key}`);
-      imageSize(game.art[key]);
-      must(typeof game.art_alt[key] === "string" && game.art_alt[key].trim(), game.id + " needs art_alt." + key);
-    }
-    game.art.screens.forEach((src, index) => {
-      requireFile(src, `${game.id} art.screens[${index}]`);
-      imageSize(src);
-      must(typeof game.art_alt.screens[index] === "string" && game.art_alt.screens[index].trim(), `${game.id} needs art_alt.screens[${index}]`);
-    });
+    must(game.art_alt === undefined, `${game.id}: art_alt is gone. Put each picture's alt text inside its art entry, like "hero": { "src": "...", "alt": "..." }.`);
+    game.art = loadGameArt(game);
   }
   games.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
   return games;
 }
 
-/* site.json ------------------------------------------------------------- */
+/* Art maps -------------------------------------------------------------- */
 
-function checkImage(image, label, kinds = ["webp"]) {
-  must(image && typeof image === "object", "site.json needs " + label);
-  for (const kind of kinds) {
-    must(typeof image[kind] === "string" && image[kind].startsWith("/"), `site.json ${label}.${kind}`);
-    must(publicFileExists(image[kind]), "Missing mascot file " + image[kind]);
+function isEmpty(value) {
+  return value == null || value === "";
+}
+
+function isObject(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+// Stops on keys an entry does not use, so a typo like "srcsmall" cannot quietly empty a slot.
+function onlyKeys(value, keys, label) {
+  const extra = Object.keys(value).filter((key) => !keys.includes(key));
+  must(!extra.length, `${label} has unknown key(s) ${extra.join(", ")}. Use ${keys.join(", ")}.`);
+}
+
+// Records an empty slot for the end-of-build warning.
+function empty(label) {
+  emptySlots.push(label);
+  return null;
+}
+
+// True for an entry that leaves its slot empty: null, "", or an object whose src is empty.
+function emptyEntry(entry, label) {
+  if (isEmpty(entry)) return true;
+  if (isObject(entry) && isEmpty(entry.src)) {
+    must(!sitePaths(entry).length, `${label}.src is empty, so its other files would never show. Set src, or set ${label} to null.`);
+    return true;
   }
-  must(Number.isFinite(image.width) && Number.isFinite(image.height), `site.json ${label} needs width and height`);
+  return false;
+}
+
+const FORMAT_NAMES = { webp: "WebP", png: "PNG", jpg: "JPEG", svg: "SVG" };
+function checkFormat(src, label, formats) {
+  const ext = src.split(/[?#]/)[0].split(".").pop().toLowerCase().replace("jpeg", "jpg");
+  must(formats.includes(ext), `${label} must be ${formats.map((format) => FORMAT_NAMES[format]).join(" or ")}: ${src}`);
+  return src;
+}
+
+// A file entry that must exist and be one of formats. Returns [src, width, height].
+function sizedFile(src, label, formats) {
+  requireFile(src, label);
+  checkFormat(src, label, formats);
+  return [src, ...imageSize(src)];
+}
+
+// width and height in an entry are optional. When set, they must match the file.
+function checkStatedSize(entry, widthKey, heightKey, [src, width, height], label) {
+  if (entry[widthKey] == null && entry[heightKey] == null) return;
+  must(entry[widthKey] === width && entry[heightKey] === height,
+    `${label} says ${widthKey} ${entry[widthKey]} and ${heightKey} ${entry[heightKey]}, but ${src} is ${width}x${height}. Fix the numbers or remove them.`);
+}
+
+/* One picture: null (an empty slot) or { src, src2x, width, height, alt }. src2x,
+   when set, must be twice the size of src. alt is required unless the picture is
+   decorative. Extra keys (like srcSmall) are checked by the caller. */
+function picture(entry, label, { alt: needsAlt = true, formats = ["webp", "png", "jpg"], retina = true, keys = [] } = {}) {
+  if (emptyEntry(entry, label)) return empty(label);
+  must(isObject(entry), `${label} must be null or an object like { "src": "/assets/..." }`);
+  onlyKeys(entry, ["src", ...(retina ? ["src2x"] : []), "width", "height", "alt", ...keys], label);
+  const file = sizedFile(entry.src, label + ".src", formats);
+  checkStatedSize(entry, "width", "height", file, label);
+  const [src, width, height] = file;
+  let src2x = null;
+  if (!isEmpty(entry.src2x)) {
+    const [, w2, h2] = sizedFile(entry.src2x, label + ".src2x", formats);
+    must(Math.abs(w2 - 2 * width) <= 1 && Math.abs(h2 - 2 * height) <= 1, `${label}.src2x is ${w2}x${h2}, but it should be twice ${src} (${2 * width}x${2 * height})`);
+    src2x = entry.src2x;
+  }
+  const alt = textOrNull(entry.alt, label + ".alt");
+  if (needsAlt) must(alt, `${label} needs alt text that describes the picture`);
+  return { src, src2x, width, height, alt };
+}
+
+/* Rosie's animated hero: an animated WebP with a same-size still for reduced
+   motion, and optionally a smaller pair for phones (srcSmall + stillSmall). */
+function animatedPicture(entry, label) {
+  if (emptyEntry(entry, label)) return empty(label);
+  must(isObject(entry), `${label} must be null or an object like { "src": "/assets/....webp", "still": "/assets/....webp" }`);
+  onlyKeys(entry, ["src", "srcSmall", "still", "stillSmall", "width", "height", "widthSmall", "heightSmall", "alt"], label);
+  const pair = (animKey, stillKey, widthKey, heightKey) => {
+    must(!isEmpty(entry[stillKey]), `${label}.${stillKey} is needed with ${animKey}: a still frame for visitors who turn off motion`);
+    const anim = sizedFile(entry[animKey], `${label}.${animKey}`, ["webp"]);
+    const still = sizedFile(entry[stillKey], `${label}.${stillKey}`, ["webp"]);
+    must(still[1] === anim[1] && still[2] === anim[2], `${label}.${stillKey} is ${still[1]}x${still[2]}, but ${anim[0]} is ${anim[1]}x${anim[2]}. Export the still at the same size.`);
+    checkStatedSize(entry, widthKey, heightKey, anim, label);
+    return { anim: anim[0], still: still[0], width: anim[1], height: anim[2] };
+  };
+  const large = pair("src", "still", "width", "height");
+  let small = null;
+  if (!isEmpty(entry.srcSmall)) small = pair("srcSmall", "stillSmall", "widthSmall", "heightSmall");
+  else must(isEmpty(entry.stillSmall) && entry.widthSmall == null && entry.heightSmall == null, `${label}: stillSmall, widthSmall, and heightSmall go with srcSmall`);
+  const alt = textOrNull(entry.alt, label + ".alt");
+  must(alt, `${label} needs alt text that describes the picture`);
+  return { large, small, alt };
+}
+
+// The home hero backdrop: a picture with an optional phone crop (srcSmall).
+function heroArt(entry, label) {
+  const pic = picture(entry, label, { alt: false, keys: ["srcSmall"] });
+  if (pic && !isEmpty(entry.srcSmall)) {
+    [pic.srcSmall, pic.widthSmall, pic.heightSmall] = sizedFile(entry.srcSmall, label + ".srcSmall", ["webp", "png", "jpg"]);
+  }
+  return pic;
+}
+
+// A share image (og:image): PNG or JPEG, so every app that shows link previews can read it.
+function sharePicture(entry, label) {
+  const pic = picture(entry, label, { formats: ["png", "jpg"], retina: false });
+  if (!pic) return null;
+  const type = pic.src.endsWith(".png") ? "image/png" : "image/jpeg";
+  return { url: SITE + pic.src, width: pic.width, height: pic.height, type, alt: pic.alt };
+}
+
+// A file that must be exactly size x size pixels (favicons, apple-touch icon).
+function squareFile(value, label, size, formats) {
+  if (isEmpty(value)) return empty(label);
+  const [src, width, height] = sizedFile(value, label, formats);
+  must(width === size && height === size, `${label} is ${width}x${height}, expected ${size}x${size}: ${src}`);
+  return src;
+}
+
+// The Organization logo in the home page's JSON-LD. Search engines want at least 112x112.
+function logoFile(value, label) {
+  if (isEmpty(value)) return empty(label);
+  const [src, width, height] = sizedFile(value, label, ["png", "jpg", "webp"]);
+  must(width >= 112 && height >= 112, `${label} is ${width}x${height}; use at least 112x112: ${src}`);
+  return src;
 }
 
 // A map of square images keyed by pixel size, like { "64": "/a-64.webp", "128": "/a-128.webp" }.
 // Every file must exist and really be that size. Returns [[64, "/a-64.webp"], ...], smallest first.
-function sizedSet(value, label, ext) {
-  must(value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length, `site.json ${label} must map pixel sizes to ${ext} files, like { "64": "/path-64.${ext}" }`);
-  const list = Object.entries(value).map(([key, src]) => {
-    must(/^[1-9]\d*$/.test(key), `site.json ${label} key "${key}" must be a pixel size`);
-    must(typeof src === "string" && src.endsWith("." + ext), `site.json ${label}.${key} must be a .${ext} file`);
+function sizedSet(value, label, formats) {
+  if (isEmpty(value)) return empty(label);
+  must(isObject(value), `${label} must be null or map pixel sizes to files, like { "64": "/path-64.webp" }`);
+  const list = Object.entries(value).filter(([, src]) => !isEmpty(src)).map(([key, src]) => {
+    must(/^[1-9]\d*$/.test(key), `${label} key "${key}" must be a pixel size`);
+    const [, width, height] = sizedFile(src, `${label}.${key}`, formats);
     const size = Number(key);
-    const [w, h] = imageSize(src);
-    must(w === size && h === size, `site.json ${label}.${key} is ${w}x${h}, expected ${size}x${size}: ${src}`);
+    must(width === size && height === size, `${label}.${key} is ${width}x${height}, expected ${size}x${size}: ${src}`);
     return [size, src];
   });
+  if (!list.length) return empty(label);
   return list.sort((a, b) => a[0] - b[0]);
 }
 
-function loadSite() {
-  const site = JSON.parse(readFileSync(join(root, "site.json"), "utf8"));
-  for (const [src, label] of sitePaths(site)) requireFile(src, "site.json " + label);
-  const next = site && site.mascot;
-  must(next && typeof next.name === "string" && next.name.trim(), "site.json needs mascot.name");
+// An icon or star: "/file.svg#symbol" (a symbol in a sprite, drawn with <use>) or a
+// plain .svg, .webp, or .png file (drawn with <img>).
+function artRef(value, label) {
+  if (isEmpty(value)) return empty(label);
+  must(typeof value === "string", `${label} must be a site path or null`);
+  requireFile(value, label);
+  const [file, id] = value.split("#");
+  if (id === undefined) return { img: checkFormat(file, label, ["svg", "webp", "png"]) };
+  must(file.endsWith(".svg") && id, `${label} must look like /assets/.../sprite.svg#symbol-id`);
+  must(symbolIds(file).has(id), `${label}: ${file} has no <symbol id="${id}">`);
+  return { use: value };
+}
+
+// A group of icons or stars keyed by name. names lists every key a page can use.
+function artRefs(value, label, names) {
+  if (isEmpty(value)) {
+    empty(label);
+    return Object.fromEntries(names.map((name) => [name, null]));
+  }
+  must(isObject(value), `${label} must be null or an object`);
+  onlyKeys(value, names, label);
+  return Object.fromEntries(names.map((name) => [name, artRef(value[name], `${label}.${name}`)]));
+}
+
+const ART_KEYS = ["rosie", "favicon32", "favicon48", "appleTouch", "logo", "og", "hero", "aboutScene", "stars", "icons", "retired"];
+
+// site.json "art": every site-wide picture. See "Art slots" in README.md.
+function loadArt(map) {
+  must(isObject(map), 'site.json needs an "art" object (the art map). See "Art slots" in README.md.');
+  onlyKeys(map, ART_KEYS, "site.json art");
+  must(map.retired == null || (Array.isArray(map.retired) && map.retired.every((src) => typeof src === "string" && src.startsWith("/"))), "site.json art.retired must be a list of site paths");
+  retired = new Set(map.retired || []);
+  // Every path in the map must exist, in every build mode, even in an entry a page does not show.
+  for (const [src, label] of sitePaths({ ...map, retired: null })) requireFile(src, "site.json art." + label);
+  const group = (value, keys, label) => {
+    if (isEmpty(value)) return {};
+    must(isObject(value), `${label} must be null or an object`);
+    onlyKeys(value, keys, label);
+    return value;
+  };
+  const rosie = group(map.rosie, ["static", "animated", "head"], "site.json art.rosie");
+  const og = group(map.og, ["default"], "site.json art.og");
+  return {
+    rosieStatic: picture(rosie.static, "site.json art.rosie.static", { formats: ["webp", "png"] }),
+    rosieAnimated: animatedPicture(rosie.animated, "site.json art.rosie.animated"),
+    head: sizedSet(rosie.head, "site.json art.rosie.head", ["webp", "png"]),
+    favicons: [
+      [32, squareFile(map.favicon32, "site.json art.favicon32", 32, ["png"])],
+      [48, squareFile(map.favicon48, "site.json art.favicon48", 48, ["png"])]
+    ].filter(([, src]) => src),
+    appleTouch: squareFile(map.appleTouch, "site.json art.appleTouch", 180, ["png"]),
+    logo: logoFile(map.logo, "site.json art.logo"),
+    og: sharePicture(og.default, "site.json art.og.default"),
+    hero: heroArt(map.hero, "site.json art.hero"),
+    aboutScene: picture(map.aboutScene, "site.json art.aboutScene"),
+    stars: artRefs(map.stars, "site.json art.stars", Object.keys(STAR_SIZES)),
+    icons: artRefs(map.icons, "site.json art.icons", ICON_NAMES)
+  };
+}
+
+const GAME_ART_KEYS = ["hero", "card", "icon", "og", "screenshots"];
+
+// A game's "art" in games.json. Every picture is optional.
+function loadGameArt(game) {
+  const label = `games.json ${game.id} art`;
+  const map = game.art == null ? {} : game.art;
+  must(isObject(map), `${label} must be an object`);
+  onlyKeys(map, GAME_ART_KEYS, label);
+  must(map.screenshots == null || Array.isArray(map.screenshots), `${label}.screenshots must be a list`);
+  const result = {
+    hero: picture(map.hero, label + ".hero", { formats: ["webp", "png"] }),
+    card: picture(map.card, label + ".card", { alt: false }),
+    icon: picture(map.icon, label + ".icon", { alt: false, formats: ["webp", "png"] }),
+    og: sharePicture(map.og, label + ".og")
+  };
+  const shots = map.screenshots || [];
+  if (!shots.length) empty(label + ".screenshots");
+  result.screenshots = shots.map((entry, index) => picture(entry, `${label}.screenshots[${index}]`)).filter(Boolean);
+  return result;
+}
+
+function reportEmptySlots() {
+  if (!emptySlots.length) {
+    console.log("Every art slot is filled.");
+    return;
+  }
+  const groups = new Map();
+  for (const label of emptySlots) {
+    const at = label.indexOf(" art");
+    const owner = label.slice(0, at);
+    if (!groups.has(owner)) groups.set(owner, []);
+    groups.get(owner).push(label.slice(at + 1));
+  }
+  const lines = [...groups].map(([owner, slots]) => `  ${owner}: ${slots.join(", ")}`);
+  console.warn("Warning: empty art slots, left out of the pages:\n" + lines.join("\n"));
+}
+
+/* site.json ------------------------------------------------------------- */
+
+function loadSite(file) {
+  const site = JSON.parse(readFileSync(file, "utf8"));
+  must(isObject(site), "site.json must be an object");
+  // Pictures live only in the art map.
+  for (const [, label] of sitePaths({ ...site, art: null })) {
+    throw new Error(`site.json ${label} looks like a file path. Pictures go in site.json "art".`);
+  }
+  art = loadArt(site.art);
+  const next = site.mascot;
+  must(isObject(next), "site.json needs a mascot object");
+  onlyKeys(next, ["name", "fullName", "pronouns", "species"], 'site.json mascot (pictures go in "art")');
+  must(typeof next.name === "string" && next.name.trim(), "site.json needs mascot.name");
   must(typeof next.fullName === "string" && next.fullName.trim(), "site.json needs mascot.fullName");
   must(next.pronouns && typeof next.pronouns.subject === "string" && next.pronouns.subject.trim(), "site.json needs mascot.pronouns.subject");
   must(typeof next.species === "string" && next.species.trim(), "site.json needs mascot.species");
-  must(typeof next.alt === "string" && next.alt.trim(), "site.json needs mascot.alt");
-  checkImage(next.full, "mascot.full", ["webp", "png"]);
-  must(next.head && typeof next.head === "object", "site.json needs mascot.head");
-  next.headWebp = sizedSet(next.head.webp, "mascot.head.webp", "webp");
-  next.headPng = sizedSet(next.head.png, "mascot.head.png", "png").at(-1);
-  next.favicons = sizedSet(next.favicon, "mascot.favicon", "png");
-  next.appleTouchIcon = sizedSet(next.appleTouch, "mascot.appleTouch", "png").at(-1);
-  checkImage(next.social, "mascot.social", ["webp", "png"]);
-  for (const size of ["large", "small"]) {
-    const hero = next.hero && next.hero[size];
-    checkImage(hero, "mascot.hero." + size, ["anim", "still"]);
-    for (const kind of ["anim", "still"]) {
-      const [w, h] = webpSize(hero[kind]);
-      must(w === hero.width && h === hero.height, `site.json mascot.hero.${size} says ${hero.width}x${hero.height}, but ${hero[kind]} is ${w}x${h}`);
-    }
-  }
   mascot = next;
 
   const info = site.studio;
@@ -443,16 +650,22 @@ function loadSite() {
 
 /* Shared pieces --------------------------------------------------------- */
 
-function mascotAlt() {
-  return mascot.fullName + " " + mascot.alt;
+// An <img> for an art map picture, with a 1x/2x srcset when the entry has src2x.
+function imgTag(pic, { cls = "", alt = "", lazy = false, priority = false } = {}) {
+  const className = cls ? ` class="${cls}"` : "";
+  const srcset = pic.src2x ? ` srcset="${esc(pic.src)} 1x, ${esc(pic.src2x)} 2x"` : "";
+  const loading = lazy ? ' loading="lazy"' : "";
+  const fetch = priority ? ' fetchpriority="high"' : "";
+  return `<img${className} src="${esc(pic.src)}"${srcset} alt="${esc(alt)}" width="${pic.width}" height="${pic.height}"${loading}${fetch}>`;
 }
 
-// A small decorative Rosie head (ROSIE-HEAD). size is the CSS display size, and
-// phoneSize the size site.css gives it on phones, when that differs. The srcset
-// offers only the smallest files that cover 1x and 2x at those sizes, so a 48 or
-// 64 px head never pulls the 256 px file.
+// A small decorative Rosie head (art.rosie.head), or nothing when that slot is empty.
+// size is the CSS display size, and phoneSize the size site.css gives it on phones,
+// when that differs. The srcset offers only the smallest files that cover 1x and 2x
+// at those sizes, so a 48 or 64 px head never pulls the 256 px file.
 function headImg(className, lazy, size, phoneSize = size) {
-  const files = mascot.headWebp;
+  const files = art.head;
+  if (!files) return "";
   const pick = (px) => files.find(([width]) => width >= px) || files.at(-1);
   const set = [...new Set([phoneSize, size].flatMap((px) => [pick(px), pick(px * 2)]))].sort((a, b) => a[0] - b[0]);
   const sizes = phoneSize === size ? `${size}px` : `${PHONE} ${phoneSize}px, ${size}px`;
@@ -461,37 +674,79 @@ function headImg(className, lazy, size, phoneSize = size) {
   return `<img class="${className}" src="${esc(pick(size)[1])}"${srcset} alt="" width="${size}" height="${size}"${loading}>`;
 }
 
-function fullImg(className, alt, lazy) {
-  const full = mascot.full;
-  const loading = lazy ? ' loading="lazy"' : "";
-  return `<img class="${className}" src="${esc(full.webp)}" alt="${esc(alt)}" width="${full.width}" height="${full.height}"${loading}>`;
+// Rosie's static picture (art.rosie.static), or nothing when that slot is empty.
+function rosieImg(className, lazy) {
+  const pic = art.rosieStatic;
+  return pic ? imgTag(pic, { cls: className, alt: pic.alt, lazy }) : "";
 }
 
 // Phone layout below this width. Keep in step with the 760px breakpoint in site.css.
 const PHONE = "(max-width: 760px)";
 const REDUCE = "(prefers-reduced-motion: reduce)";
 
-function heroPicture() {
-  const { large, small } = mascot.hero;
-  const alt = `${mascot.fullName}, a baby ${mascot.species}, waving hello`;
-  return `<picture>
-          <source media="${PHONE} and ${REDUCE}" srcset="${esc(small.still)}" type="image/webp" width="${small.width}" height="${small.height}">
-          <source media="${PHONE}" srcset="${esc(small.anim)}" type="image/webp" width="${small.width}" height="${small.height}">
-          <source media="${REDUCE}" srcset="${esc(large.still)}" type="image/webp" width="${large.width}" height="${large.height}">
+// The home hero's Rosie: the animated wave (with its still under reduced motion)
+// when art.rosie.animated is set, else the static picture, else nothing, and the
+// hero text spans the band.
+function heroRosie() {
+  const anim = art.rosieAnimated;
+  if (anim) {
+    const { large, small, alt } = anim;
+    const sources = [];
+    if (small) {
+      sources.push(`<source media="${PHONE} and ${REDUCE}" srcset="${esc(small.still)}" type="image/webp" width="${small.width}" height="${small.height}">`);
+      sources.push(`<source media="${PHONE}" srcset="${esc(small.anim)}" type="image/webp" width="${small.width}" height="${small.height}">`);
+    }
+    sources.push(`<source media="${REDUCE}" srcset="${esc(large.still)}" type="image/webp" width="${large.width}" height="${large.height}">`);
+    return `<div class="hero-rosie">
+        <picture>
+          ${sources.join("\n          ")}
           <img src="${esc(large.anim)}" alt="${esc(alt)}" width="${large.width}" height="${large.height}" fetchpriority="high">
-        </picture>`;
+        </picture>
+      </div>`;
+  }
+  if (art.rosieStatic) {
+    return `<div class="hero-rosie">
+        ${imgTag(art.rosieStatic, { alt: art.rosieStatic.alt, priority: true })}
+      </div>`;
+  }
+  return "";
 }
 
 function heroPreloads() {
-  const { large, small } = mascot.hero;
+  const anim = art.rosieAnimated;
+  if (!anim) return "";
+  const { large, small } = anim;
   const motion = "(prefers-reduced-motion: no-preference)";
   const wide = "(min-width: 761px)";
-  return [
-    [large.anim, `${wide} and ${motion}`],
-    [large.still, `${wide} and ${REDUCE}`],
-    [small.anim, `${PHONE} and ${motion}`],
-    [small.still, `${PHONE} and ${REDUCE}`]
-  ].map(([href, media]) => `<link rel="preload" href="${esc(href)}" as="image" type="image/webp" media="${media}">`).join("\n") + "\n";
+  const list = small
+    ? [
+        [large.anim, `${wide} and ${motion}`],
+        [large.still, `${wide} and ${REDUCE}`],
+        [small.anim, `${PHONE} and ${motion}`],
+        [small.still, `${PHONE} and ${REDUCE}`]
+      ]
+    : [
+        [large.anim, motion],
+        [large.still, REDUCE]
+      ];
+  return list.map(([href, media]) => `<link rel="preload" href="${esc(href)}" as="image" type="image/webp" media="${media}">`).join("\n") + "\n";
+}
+
+// art.hero: a decorative backdrop behind the home hero band, cropped to cover it.
+function heroBackdrop() {
+  const pic = art.hero;
+  if (!pic) return "";
+  const img = imgTag(pic, { cls: "hero-art" });
+  if (!pic.srcSmall) return img;
+  return `<picture>
+      <source media="${PHONE}" srcset="${esc(pic.srcSmall)}" width="${pic.widthSmall}" height="${pic.heightSmall}">
+      ${img}
+    </picture>`;
+}
+
+// A game's icon (art.icon) above its title. Decorative: the title names the game.
+function gameIcon(game, lazy) {
+  return game.art.icon ? imgTag(game.art.icon, { cls: "game-icon", lazy }) : "";
 }
 
 const LEAVES = '<span class="visually-hidden"> (leaves this website, a grown-up answers first)</span>';
@@ -563,19 +818,18 @@ function gameFeature(game, { level, id, onPage }) {
   const sizeNote = onPage && game.play_url && game.play_size_note && game.status === "live"
     ? `<p class="size-note">Plays right in your browser · ${esc(game.play_size_note)}</p>`
     : "";
-  let art = "";
-  if (game.art.hero) {
-    const [width, height] = imageSize(game.art.hero);
-    const priority = onPage ? ' fetchpriority="high"' : ' loading="lazy"';
-    art = `<img class="feature-art" src="${esc(game.art.hero)}" alt="${esc(game.art_alt.hero)}" width="${width}" height="${height}"${priority}>\n          `;
-  }
+  const hero = game.art.hero;
+  const pictures = [
+    hero ? imgTag(hero, { cls: "feature-art", alt: hero.alt, lazy: !onPage, priority: onPage }) : "",
+    gameIcon(game, !onPage)
+  ].filter(Boolean).map((tag) => tag + "\n          ").join("");
   const crumbs = onPage
     ? `<nav class="crumbs" aria-label="Breadcrumb"><a href="/games/">Games</a> <span aria-hidden="true">/</span> <span aria-current="page">${esc(game.title)}</span></nav>\n      `
     : "";
   return `<div class="wrap">
       ${crumbs}<div class="feature-grid">
         <div class="feature-head">
-          ${art}<${tag} id="${id}" class="feature-title accent-title">${title}</${tag}>
+          ${pictures}<${tag} id="${id}" class="feature-title accent-title">${title}</${tag}>
           <p class="feature-tagline">${esc(game.tagline)}</p>
         </div>
         <div class="feature-body">
@@ -596,16 +850,9 @@ function jsonLd(data) {
   return `<script type="application/ld+json">${json}</script>`;
 }
 
-function socialImage() {
-  return { url: SITE + mascot.social.png, width: mascot.social.width, height: mascot.social.height, type: "image/png", alt: mascotAlt() };
-}
-
+// A game page shares its own art.og, else the site's art.og.default, else no image.
 function gameSocialImage(game) {
-  const src = game.art.og;
-  if (!src) return socialImage();
-  const [width, height] = imageSize(src);
-  const type = src.endsWith(".png") ? "image/png" : src.endsWith(".webp") ? "image/webp" : "image/jpeg";
-  return { url: SITE + src, width, height, type, alt: game.art_alt.og };
+  return game.art.og || art.og;
 }
 
 // path is the page's public URL path, or null for 404.html: Pages serves that
@@ -613,7 +860,21 @@ function gameSocialImage(game) {
 function layout({ title, description, path, current, robots, main, structured, preloads, image }) {
   const canonical = path ? `<link rel="canonical" href="${SITE + path}">\n` : "";
   const ogUrl = path ? `<meta property="og:url" content="${SITE + path}">\n` : "";
-  const share = image || socialImage();
+  // With no share image at all, the og:image tags are left out and the card is the small one.
+  const share = image || art.og;
+  const ogImage = share
+    ? `<meta property="og:image" content="${esc(share.url)}">
+<meta property="og:image:type" content="${share.type}">
+<meta property="og:image:alt" content="${esc(share.alt)}">
+<meta property="og:image:width" content="${share.width}">
+<meta property="og:image:height" content="${share.height}">
+`
+    : "";
+  const twitterImage = share ? `\n<meta name="twitter:image" content="${esc(share.url)}">` : "";
+  const iconLinks = [
+    ...art.favicons.map(([size, src]) => `<link rel="icon" href="${esc(src)}" sizes="${size}x${size}" type="image/png">\n`),
+    art.appleTouch ? `<link rel="apple-touch-icon" href="${esc(art.appleTouch)}" sizes="180x180">\n` : ""
+  ].join("");
   const nav = [
     ["games", "Games", "/games/"],
     ["about", "About", "/about/"],
@@ -641,19 +902,11 @@ ${canonical}<meta property="og:site_name" content="PinkRyno Studios">
 <meta property="og:locale" content="en_US">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
-${ogUrl}<meta property="og:image" content="${esc(share.url)}">
-<meta property="og:image:type" content="${share.type}">
-<meta property="og:image:alt" content="${esc(share.alt)}">
-<meta property="og:image:width" content="${share.width}">
-<meta property="og:image:height" content="${share.height}">
-<meta name="twitter:card" content="summary_large_image">
+${ogUrl}${ogImage}<meta name="twitter:card" content="${share ? "summary_large_image" : "summary"}">
 <meta name="twitter:title" content="${esc(title)}">
-<meta name="twitter:description" content="${esc(description)}">
-<meta name="twitter:image" content="${esc(share.url)}">
+<meta name="twitter:description" content="${esc(description)}">${twitterImage}
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
-${mascot.favicons.map(([size, src]) => `<link rel="icon" href="${esc(src)}" sizes="${size}x${size}" type="image/png">`).join("\n")}
-<link rel="apple-touch-icon" href="${esc(mascot.appleTouchIcon[1])}" sizes="${mascot.appleTouchIcon[0]}x${mascot.appleTouchIcon[0]}">
-<link rel="preload" href="/assets/fonts/baloo-2-latin-800.woff2" as="font" type="font/woff2" crossorigin>
+${iconLinks}<link rel="preload" href="/assets/fonts/baloo-2-latin-800.woff2" as="font" type="font/woff2" crossorigin>
 ${preloads || ""}<link rel="stylesheet" href="/assets/css/site.css">
 <link rel="stylesheet" href="/assets/css/themes.css">
 ${ld}</head>
@@ -733,7 +986,7 @@ function organization() {
     "@type": "Organization",
     name: "PinkRyno Studios",
     url: SITE + "/",
-    logo: SITE + mascot.headPng[1],
+    ...(art.logo ? { logo: SITE + art.logo } : {}),
     description: "Independent studio in Florida making calm games for children ages 3 to 6."
   };
   if (studio.legalName) data.legalName = studio.legalName;
@@ -782,7 +1035,9 @@ function pageHome(visible) {
     </div>
   </section>`
     : "";
-  const main = `<section class="hero" aria-labelledby="hero-title">
+  const rosie = heroRosie();
+  const main = `<section class="hero${rosie ? "" : " hero-text-only"}" aria-labelledby="hero-title">
+    ${heroBackdrop()}
     ${starField("starfield", "s", HERO_STARS, "    ")}
     <div class="wrap hero-inner">
       <div class="hero-copy">
@@ -793,9 +1048,7 @@ function pageHome(visible) {
           ${featured ? `<a class="more more-down" href="#grown-ups">For grown-ups</a>` : ""}
         </div>
       </div>
-      <div class="hero-rosie">
-        ${heroPicture()}
-      </div>
+      ${rosie}
     </div>
     ${HORIZON}
   </section>
@@ -821,17 +1074,17 @@ function pageHome(visible) {
 
 function gameRow(game) {
   // Card art first, then the cut-out hero. With neither, the row is text only.
-  const src = game.art.card || game.art.hero;
-  let art = "";
-  if (src) {
-    const [width, height] = imageSize(src);
-    const cutout = src === game.art.card ? "" : " cutout";
-    art = `<a class="game-row-art${cutout}" href="${esc(game.page)}" tabindex="-1" aria-hidden="true"><img src="${esc(src)}" alt="" width="${width}" height="${height}" loading="lazy"></a>`;
+  const pic = game.art.card || game.art.hero;
+  let rowArt = "";
+  if (pic) {
+    const cutout = pic === game.art.card ? "" : " cutout";
+    rowArt = `<a class="game-row-art${cutout}" href="${esc(game.page)}" tabindex="-1" aria-hidden="true">${imgTag(pic, { lazy: true })}</a>`;
   }
-  return `<article class="game-row game-${esc(game.id)}${art ? " has-art" : ""}">
-      ${art}
+  const iconTag = gameIcon(game, true);
+  return `<article class="game-row game-${esc(game.id)}${rowArt ? " has-art" : ""}">
+      ${rowArt}
       <div class="game-row-text">
-        <h2 class="accent-title"><a href="${esc(game.page)}">${esc(game.title)}</a></h2>
+        ${iconTag ? iconTag + "\n        " : ""}<h2 class="accent-title"><a href="${esc(game.page)}">${esc(game.title)}</a></h2>
         <p class="feature-tagline">${esc(game.tagline)}</p>
         ${[metaLine(game), game.play_url ? "" : storeLine(game), `<p>${more(game.page, "See " + game.title)}</p>`].filter(Boolean).join("\n        ")}
       </div>
@@ -857,12 +1110,9 @@ function pageGames(visible) {
 }
 
 function screensStrip(game) {
-  const shots = game.art.screens.map((src, index) => ({ src, alt: game.art_alt.screens[index] }));
+  const shots = game.art.screenshots;
   if (!shots.length) return "";
-  const items = shots.map((shot) => {
-    const [width, height] = imageSize(shot.src);
-    return `<li><img src="${esc(shot.src)}" alt="${esc(shot.alt)}" width="${width}" height="${height}" loading="lazy"></li>`;
-  }).join("\n        ");
+  const items = shots.map((shot) => `<li>${imgTag(shot, { alt: shot.alt, lazy: true })}</li>`).join("\n        ");
   return `<section class="section wrap" aria-labelledby="screens-title">
     <h2 id="screens-title">A look inside</h2>
     <ul class="screens">
@@ -903,7 +1153,7 @@ function videoGame(game, share) {
     name: game.title,
     description: game.description,
     url: SITE + game.page,
-    image: share.url,
+    ...(share ? { image: share.url } : {}),
     genre: "Educational",
     audience: {
       "@type": "PeopleAudience",
@@ -971,21 +1221,17 @@ function pageGame(game) {
   });
 }
 
-const ABOUT_SCENE = "/assets/images/about-scene.webp";
-
 function pageAbout(visible) {
   const featured = visible.find((game) => game.status === "live") || visible[0];
   const gameLink = featured ? `\n        <p>${more(featured.page, "Meet " + featured.title)}</p>` : "";
-  let scene = "";
-  if (publicFileExists(ABOUT_SCENE)) {
-    const [width, height] = imageSize(ABOUT_SCENE);
-    const alt = `${mascot.fullName} the ${mascot.species} beside a small smiling planet and a little astronaut`;
-    scene = `\n  <div class="section wrap"><img class="about-scene" src="${ABOUT_SCENE}" alt="${esc(alt)}" width="${width}" height="${height}" loading="lazy"></div>`;
-  }
-  const main = `<section class="section wrap about page-top">
-    <div class="about-rosie">
-      ${fullImg("bob", `${mascot.fullName}, the studio's baby ${mascot.species}, smiling and waving`, false)}
-    </div>
+  const sceneArt = art.aboutScene;
+  const scene = sceneArt
+    ? `\n  <div class="section wrap">${imgTag(sceneArt, { cls: "about-scene", alt: sceneArt.alt, lazy: true })}</div>`
+    : "";
+  // Without Rosie the section drops the two-column .about grid, so the copy starts at the left edge.
+  const rosie = rosieImg("bob", false);
+  const main = `<section class="section wrap${rosie ? " about" : ""} page-top">
+    ${rosie ? `<div class="about-rosie">\n      ${rosie}\n    </div>` : ""}
     <div class="about-copy prose">
       <h1>Hi from PinkRyno Studios</h1>
       <p class="lede">We're a tiny independent studio in Florida, making games for children ages 3 to 6. ${esc(mascot.fullName)}, our baby ${esc(mascot.species)}, is the face of the studio.</p>
@@ -1140,7 +1386,7 @@ function pageSupport(visible) {
 
 function pageNotFound() {
   const main = `<section class="section wrap lost page-top">
-    ${fullImg("bob lost-rosie", `${mascot.fullName}, smiling and ready to help you find your way`, false)}
+    ${rosieImg("bob lost-rosie", false)}
     <h1>This page floated off</h1>
     <p class="lede">${esc(mascot.name)} looked everywhere, but that page isn't here. The games are right where we left them.</p>
     <p class="lost-links">${more("/", "Back home")} ${more("/games/", "See the games")}</p>
@@ -1229,6 +1475,8 @@ function checkRendered(files) {
     if (url.startsWith("data:")) continue;
     if (!/^\/(?!\/)/.test(url)) problems.push(`assets/css/site.css: url(${url}) must be an absolute site path`);
     else if (!exists(url)) problems.push(`assets/css/site.css: url(${url}) does not exist`);
+    // Pictures come from the art maps and render as markup, so swapping art never means editing CSS.
+    else if (!url.endsWith(".woff2")) problems.push(`assets/css/site.css: url(${url}) loads a picture. Add it to the art map in site.json and render it as markup.`);
   }
   must(!problems.length, "Nothing was written. Fix these references first:\n  " + problems.join("\n  "));
 }
@@ -1249,9 +1497,19 @@ function removeStaleGamePages(visible) {
   }
 }
 
+// An empty art slot leaves a whitespace-only line where its tag would be. Drop those lines.
+function dropBlankLines(html) {
+  return html.replace(/^[ \t]*\n/gm, "");
+}
+
 function main() {
   const options = parseArgs(process.argv.slice(2));
-  loadSite();
+  for (const key of ["site", "games"]) {
+    if (options[key] !== join(root, key + ".json")) console.log(`Using ${options[key]} in place of ${key}.json.`);
+  }
+  // Both data files are checked before the release check, so a missing art file stops every mode.
+  loadSite(options.site);
+  const games = loadGames(options.games);
   if (options.release) {
     const missing = RELEASE_FIELDS.filter((key) => !studio[key]);
     if (missing.length) {
@@ -1263,7 +1521,6 @@ function main() {
     }
   }
   year = options.lastmod.slice(0, 4);
-  const games = loadGames();
   const visible = games.filter((game) => game.status !== "hidden");
 
   // Build everything first so a bad entry never leaves a half-written site.
@@ -1277,7 +1534,7 @@ function main() {
     ["support/index.html", pageSupport(visible)],
     ["404.html", pageNotFound()],
     ["sitemap.xml", sitemap(visible, options.lastmod)]
-  ];
+  ].map(([rel, text]) => [rel, rel.endsWith(".html") ? dropBlankLines(text) : text]);
   for (const [rel, html] of files) {
     must(!/\bTODO\b/.test(html), "Refusing to write " + rel + ": it contains TODO text");
   }
@@ -1291,6 +1548,7 @@ function main() {
   if (omitted.length) {
     console.log("Left out until set in site.json: " + omitted.map((key) => "studio." + key).join(", ") + ". Run with --release for the store launch.");
   }
+  reportEmptySlots();
 }
 
 try {

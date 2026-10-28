@@ -25,10 +25,10 @@
     "art": {
       "hero": null,
       "card": null,
+      "icon": null,
       "og": null,
-      "screens": []
+      "screenshots": []
     },
-    "art_alt": {},
     "accent": "#8B7CFF",
     "order": 1,
     "highlights": [

@@ -329,6 +329,13 @@ a:hover { text-decoration-thickness: 2px; }
   .s15 { left: 24%; top: 92%; }
 }
 
+/* Without Rosie the phone band is shorter, and s5, s9, and s11 would land on the copy. */
+@media (max-width: 760px) {
+  .hero-text-only .s5,
+  .hero-text-only .s9,
+  .hero-text-only .s11 { display: none; }
+}
+
 /* On the narrowest phones the copy reaches s5 and s6. */
 @media (max-width: 359px) {
   .s5, .s6 { display: none; }
@@ -384,6 +391,12 @@ a:hover { text-decoration-thickness: 2px; }
 
 .hero-rosie img { width: min(386px, 32vw); }
 
+/* No Rosie in the art map: the hero text takes the whole band. */
+.hero-text-only .hero-inner { grid-template-columns: minmax(0, 1fr); }
+
+/* art.hero: a decorative backdrop, cropped to cover the band, behind the stars. */
+.hero-art { position: absolute; z-index: -2; inset: 0; width: 100%; max-width: none; height: 100%; object-fit: cover; }
+
 .horizon { position: absolute; z-index: 0; left: 0; bottom: -1px; width: 100%; height: clamp(36px, 6.5vw, 96px); color: var(--band); }
 
 /* Game feature: text-led, on the soft planet band ----------------------- */
@@ -398,6 +411,9 @@ a:hover { text-decoration-thickness: 2px; }
 }
 
 .feature-art { width: min(100%, 460px); margin-bottom: 20px; }
+
+/* A game icon (games.json art.icon) above the game title. */
+.game-icon { width: 72px; margin-bottom: 16px; }
 
 .feature-title { font-size: clamp(2.6rem, 3.8vw + 1rem, 4.4rem); margin-bottom: 0.9rem; }
 
@@ -455,8 +471,8 @@ a:hover { text-decoration-thickness: 2px; }
 .fact,
 .split-item { display: flex; align-items: flex-start; gap: 16px; }
 
-/* Centre the first line of the heading on the icon. */
-.fact h3 { margin-top: 13px; }
+/* Centre the first line of the heading on the icon. With no icon, there is no offset. */
+.fact .icon + div h3 { margin-top: 13px; }
 
 .fact p { margin: 0; max-width: 34ch; }
 
@@ -472,13 +488,15 @@ a:hover { text-decoration-thickness: 2px; }
 
 .plays li { display: flex; align-items: flex-start; gap: 16px; max-width: 46ch; }
 
-.plays span { padding-top: 13px; }
+.plays .icon + span { padding-top: 13px; }
 
 .split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 64px; }
 
 .split-item { max-width: 52ch; }
 
-.split h2 { font-size: clamp(1.6rem, 1.2vw + 1rem, 2.1rem); margin-top: 10px; }
+.split h2 { font-size: clamp(1.6rem, 1.2vw + 1rem, 2.1rem); }
+
+.split .icon + div h2 { margin-top: 10px; }
 
 .screens {
   list-style: none;
@@ -750,11 +768,11 @@ body.gate-open { overflow: hidden; }
   .split-item,
   .plays li { gap: 14px; }
 
-  .fact h3 { margin-top: 10px; }
+  .fact .icon + div h3 { margin-top: 10px; }
 
-  .plays span { padding-top: 9px; }
+  .plays .icon + span { padding-top: 9px; }
 
-  .split h2 { margin-top: 6px; }
+  .split .icon + div h2 { margin-top: 6px; }
 
   .about-rosie img { width: min(220px, 56vw); margin-inline: auto; }
 
@@ -797,7 +815,7 @@ body.gate-open { overflow: hidden; }
 }
 
 @media print {
-  .site-header, .skip, .gate, .starfield, .footer-stars, .horizon, .footer-rise { display: none !important; }
+  .site-header, .skip, .gate, .hero-art, .starfield, .footer-stars, .horizon, .footer-rise { display: none !important; }
 
   .hero, .site-footer { background: #fff; color: #000; }
 

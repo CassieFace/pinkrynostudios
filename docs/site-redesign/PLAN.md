@@ -8,7 +8,7 @@ Recorded October 27, 2026. The first cycle 2 pass on this branch implements all 
 
 1. **Price and what's free.** The one-time unlock is **$0.99**. Free Play is free, and the Sun, Earth, and Moon worlds are free. There is **one shared 3-use trial** of locked content. The web (browser) build contains **the free content only**. These live in `games.json` (`price`, `free_content`, `unlock`, `trial`, `web_note`) and feed the home facts, the game page's "What's free / What the $0.99 unlock adds" columns, the support FAQ, and the `VideoGame` structured data.
 2. **Play URL.** `games.json` `play_url` stays `/games/space-maze/`, which is what the live site uses today. It is the single setting for every Play in browser button. Flip it to the sticker-style rebuild's web build when that is ready. `play_size_note` ("about 24 MB, best on Wi-Fi") shows under the button on the game page.
-3. **Rosie stays as she is.** Her current art and her existing wave, squint, and hop animation stay. Nobody redraws or restyles her. The wave loop is re-exported crisp and lighter by `scripts/export-rosie.py` (never shown larger than its native size at 1×: 386 px wide on desktop, a 260 px file on phones). The original `rosie-wave.webp` stays in the repo untouched. ROSIE-WAVE and ROSIE-WAVE-LOOP are dropped from the art list.
+3. **Rosie stays as she is.** Her current art and her existing wave, squint, and hop animation stay. Nobody redraws or restyles her. The wave loop is re-exported crisp and lighter by `scripts/export-rosie.py` (never shown larger than its native size at 1×: 386 px wide on desktop, a 260 px file on phones). The original `rosie-wave.webp` stays in the repo untouched. ROSIE-WAVE and ROSIE-WAVE-LOOP are dropped from the art list. **Superseded October 28, 2026:** the owner wants a new Rosie (static and animated) and all site art redone in a new sticker style. The wave re-export and the head export are temporary until the new Rosie arrives. See [Art slots](#art-slots).
 4. **No stars on Rosie.** `SPARK`, `.spark`, and `floaty` are gone. Rosie's own files (`rosie-full.webp` and the `rosie-wave` loop) have no baked-in stars, so only those SVG stars needed removing. The only stars are a slow background star field on the home hero band, plus a few faint ones in the footer. Since the first approved art landed, these are the TWINKLE-SET SVG stars (see [First approved art](#first-approved-art-integrated)), drifting 60–120 s each way and static under reduced motion. Nothing sits behind or around Rosie.
 5. **Owner details.** `site.json` has `studio.legalName`, `studio.address`, and `studio.supportEmail`. The support email, support@pinkrynostudios.com, is live and appears in the footer, once on the support page, and in the privacy policy's Contact section, always through the parental gate. The legal name and address stay `null` until the owner has them, before the January store launch. The normal build leaves them out cleanly (the privacy page says the studio is an independent game studio in Florida, USA). `node scripts/render-site.mjs --release` refuses to build until all three are set.
 6. **No placeholders.** The TODO banners and art slots are gone. Missing art means the section is left out.
@@ -28,7 +28,27 @@ Recorded October 28, 2026. The Art Director's first approved set is on the site.
 | TT-HERO (Astro design #2) | **Pending from the Art Director** | n/a | Home game section and game page hero stay text-led until it arrives. |
 | OG-HOME, OG-TINY-TRAILS | **Pending from the Art Director** | n/a | Pages keep the current site share image (`rosie-social.png`) until they arrive. |
 
+Since October 28, the ROSIE-HEAD export (with the favicons, apple-touch icon, and logo made from it) and the wave re-export are temporary, pending the new Rosie. See [Art slots](#art-slots).
+
 Known issue in existing art, left unchanged: the approved wave loop `rosie-wave.webp` has a tiny butter-yellow speck (about 3–5 px) just right of Rosie's raised paw in frames 6, 8, and 14. It carries into `rosie-wave-386.webp` and `rosie-wave-260.webp`. It looks like a leftover of the removed baked-in stars. Fixing it means editing those frames, which needs the Director's approval.
+
+## Art slots
+
+Recorded October 28, 2026. The owner wants a new Rosie (static and animated) and all site art redone in a new sticker style, so every picture on the site is now a swappable slot. All image paths live in one art map: `site.json` `art` for site-wide art, and each game's `art` in `games.json`. `render-site.mjs` and `site.css` name no image files.
+
+To swap art: drop the new files in `assets/…`, point the slot's entry at them, and run `node scripts/render-site.mjs`. An empty slot (`null`) is left out cleanly, with no placeholder, box, or gap, and the build prints a warning that lists the empty slots. A slot that points at a missing file stops the build in every mode. Rosie in the home hero uses `rosie.animated` if it is set (its still under reduced motion), else `rosie.static`, else no Rosie, and the hero text spans the band. The full table, rules, and formats are in the [README's Art slots section](../../README.md#art-slots-swapping-art).
+
+| Slot | Display size | Format | Current file |
+| --- | --- | --- | --- |
+| `rosie.animated` | Up to 386×500 on desktop, 240 px tall on phones | Animated WebP plus a same-size still WebP; optional phone pair | **Temporary, pending the new Rosie:** `rosie-wave-386.webp` / `-386-still.webp`, `rosie-wave-260.webp` / `-260-still.webp` |
+| `rosie.static` | About 300 px wide, 404 240 px wide, hero fallback | Transparent WebP or PNG, 1x plus optional 2x | `rosie-full.webp` (370×500) |
+| `rosie.head` | 44–88 px | Square WebP or PNG at 64, 128, 256 | **Temporary, pending the new Rosie:** `assets/mascot/head/rosie-head-*.webp` |
+| `favicon32`, `favicon48`, `appleTouch`, `logo` | 32, 48, and 180 px; logo at least 112 px | PNG (logo PNG, JPEG, or WebP) | **Temporary:** made from the head export |
+| `og.default` | 1200×630 | PNG or JPEG | `rosie-social.png` (OG-HOME pending) |
+| `hero` | Covers the home hero band (540 px tall on desktop) | WebP, PNG, or JPEG, optional phone crop | Empty |
+| `aboutScene` | Up to 1120 px wide | WebP, PNG, or JPEG, 1x plus optional 2x | Empty |
+| `stars`, `icons` | Stars 6–78 px; icons 56 px (48 on phones) | An SVG sprite symbol or an SVG, WebP, or PNG file per entry | TWINKLE-SET and ICON-SET sprites |
+| Game `hero`, `card`, `icon`, `og`, `screenshots` | 460 px, 536 px, 72 px, 1200×630, 400 px wide | See the README | All empty for Tiny Trails: Space |
 
 ## Goals
 
@@ -75,7 +95,7 @@ Known issue in existing art, left unchanged: the approved wave loop `rosie-wave.
    - Left: H1 **"Calm little adventures for ages 3–6."** One line: "Trace a glowing path, meet a friendly star, and play at your child's pace." One primary button, **Play Tiny Trails** (to the game page), and one text link, **For grown-ups ↓** (anchors to the facts).
    - Right: **Rosie, waving**, on the band with no frame, sparkles, or blob. A gentle 4–6 s bob is allowed. Her shadow is a flat plum ellipse in sticker style, not an airbrush.
    - Mobile: Rosie goes *above* the H1 at about 220 px tall, so the H1 and button stay in the first screen.
-2. **The game.** No card. The Tiny Trails key art is cut out and sits on the page. Next to it are the title, tagline, "Ages 3–6 · Free to start · One-time unlock", the button, and "Coming soon to iPhone, iPad and Android." Plain text, no chips.
+2. **The game.** No card. The Tiny Trails key art is cut out and sits on the page (once Astro design #2 art arrives). Next to it are the title, tagline, a peach "Coming soon" tag leading "Ages 3–6 · Free to start · $0.99 one-time unlock", a "More about Tiny Trails" link, and "Coming soon to phones and tablets." The Play in browser button shows only while `play_enabled` is `true` (it is `false` today). The "Coming soon" tag is the only tag; age and price stay plain text.
 3. **For grown-ups.** Three short facts in a row with small sticker icons (outlined, no tinted circles): *Free to start* (Sun, Earth, Moon worlds and two explorers), *One payment, no subscription* (unlock all 10 worlds), *Made for small hands* (big targets, no reading needed, no timers). No privacy line here.
 4. **Studio line.** A small Rosie head with "PinkRyno Studios is a tiny studio in Florida making calm games for little kids." and a link to About.
 5. Footer.
@@ -94,7 +114,7 @@ Target: 4 sections, 0 cards, 1 primary button above the fold, ≤ 250 KB.
 
 ### Games `/games/`
 
-- With one game: H1 "Games", a short line, then a single wide row with the TT card art, title, tagline, and link. No chips, and no placeholder frame. When there are 2+ games, it becomes an open grid of cut-out card art (still no boxed cards). The game's `accent` color is used as a thin underline under the title, not as a card stripe.
+- With one game: H1 "Games", a short line, then a single wide row with the TT card art (once delivered), title, tagline, the peach "Coming soon" tag with the age and price line, "Coming soon to phones and tablets.", and a link. No placeholder frame. When there are 2+ games, it becomes an open grid of cut-out card art (still no boxed cards). The game's `accent` color is used as a thin underline under the title, not as a card stripe.
 
 ### About `/about/`
 
@@ -128,7 +148,7 @@ Target: 4 sections, 0 cards, 1 primary button above the fold, ≤ 250 KB.
 - **Shapes:** the sticker look comes from the *art* (plum outline, flat two-tone, one soft offset shadow). UI stays quiet:
   - The primary button is a solid berry pill with a 3 px plum outline and the offset sticker shadow. It's the one "sticker" UI element.
   - Secondary actions are text links with an arrow, not outlined pills.
-  - No chips. Age, price, and status are plain text separated by middots.
+  - One status tag: a peach "Coming soon" pill (`.status-soon`) leads the age line while a live game has no browser build or store link to offer. Age and price are plain text separated by middots. The store line reads "Coming soon to phones and tablets."
   - Section separators are a single soft planet-horizon curve (SVG, about 1 KB), used at most twice per page.
 - **Background stars:** the TWINKLE-SET SVG stars (four-point twinkles and dots, large glow stars rare), drifting out and back over 60–120 s with staggered delays and a slow twinkle on a few. They live on the hero band's background layer, at fixed positions relative to the band, never inside or around Rosie's column, and under `prefers-reduced-motion` they're static. A few faint ones sit in the empty lower right of the navy footer.
 - **Rosie's motion:** *Decided in cycle 2:* keep the existing wave loop, re-exported by `scripts/export-rosie.py`, with a still frame for reduced motion.
@@ -153,7 +173,7 @@ The Tiny Trails explorer on the site must be **Astro design #2**: Midjourney job
 | ICON-SET | **Delivered, integrated** (replaces the code-drawn icons) | 7 small sticker icons: trace finger, planet, explorer helmet, replay arrow, gift (free), key (unlock), small hand | **SVG**, 64×64 viewBox, plum outline | inline SVG | Home facts, game page |
 | TT-HERO | **Pending** from the Art Director (Astro design #2) | Tiny Trails: Space key art with **Astro design #2** on a small planet beside the smiling star, cut out with no background panel. Replaces the retired `tt-hero-astro-3` | PNG transparent, 1600×1400 | WebP 800×700 / 400×350, ≤ 80 KB | Home game section, game page hero (`art.hero`) |
 | TT-CARD | Pending (Astro design #2) | Games index card with **Astro design #2** on the glowing moon path | PNG 2560×1600 | WebP 1280×800 / 640×400 | Games index (`art.card`) |
-| TT-SCREENS ×3 | Pending (needs the sticker build's capture pass) | **Real captures from the sticker build** showing **Astro design #2** (trace, world select, star at the end), not illustrations | PNG 2400×1500 (16:10) or device-native | WebP 1200×750 / 600×375, ≤ 80 KB each | Game page strip (`art.screens`) |
+| TT-SCREENS ×3 | Pending (needs the sticker build's capture pass) | **Real captures from the sticker build** showing **Astro design #2** (trace, world select, star at the end), not illustrations | PNG 2400×1500 (16:10) or device-native | WebP 1200×750 / 600×375, ≤ 80 KB each | Game page strip (`art.screenshots`) |
 | ABOUT-SCENE | Pending | Already listed: Rosie with a small planet and an astronaut, cut out (no background panel) | PNG transparent, 3200×1800 | WebP 1600×900 / 800×450 | About |
 | OG-HOME | **Pending** from the Art Director | Share card: Rosie waving on deep space with the wordmark "PinkRyno Studios" and room for no other text | PNG 1200×630 | **PNG or JPEG** ≤ 200 KB | OG for site pages |
 | OG-TINY-TRAILS | **Pending** from the Art Director (Astro design #2) | Share card: the **Astro design #2** TT key art plus the title "Tiny Trails: Space" | PNG 1200×630 | PNG or JPEG ≤ 200 KB | OG for the game page (`art.og`) |
@@ -207,8 +227,8 @@ Changes to `render-site.mjs` (cycle 2, on this branch):
 1. **Remove `SPARK`** and its use in `mascotStage()`. Add a `starField()` partial used only in the hero band.
 2. **Remove `reviewNote()`** output. Owner details move to `site.json` (`studio.legalName`, `studio.address`, `studio.supportEmail`), and the privacy page renders them. *Cycle 2:* the normal build leaves out what is missing, and `--release` refuses to build until all three are set, so the store-launch build can't ship without them.
 3. **`media()` omits missing art** instead of rendering an art slot (behind a `--preview-slots` flag for local art reviews only).
-4. A new **`site.json` `mascot.poses`** map (wave, sit, help, lost, head) with 1×/2× sources, so each page picks a pose.
-5. **`games.json` additions:** `price` (string or null), `size_note` (for example "about 24 MB"), `art.og`, `art.screens` with real captures, and `platforms`. Drop `art_slots` from page output.
+4. A **`site.json` `art` map** holds every site-wide picture (Rosie static, animated, and head, favicons, logo, share image, hero, stars, icons), and each game's `art` in `games.json` holds its pictures. This replaces the planned `mascot.poses`. See [Art slots](#art-slots).
+5. **`games.json` additions:** `price` (string or null), `size_note` (for example "about 24 MB"), `art.og`, `art.screenshots` with real captures (renamed from `art.screens`), and `platforms`. Drop `art_slots` from page output.
 6. A single privacy line in the footer from `site.json` `privacyLine`. Strip privacy phrases from `description` / `facts`.
 7. Card markup becomes "open" rows (`.game-row`) instead of `.card`/`.chip`, and `themes.css` keeps generating the accent as a title underline.
 8. CSS rewrite: one `site.css` (about 15 KB) with tokens, layout, hero band, star field, buttons, prose, and FAQ rows. Remove the chip, frame, art-slot, spark, review-note, and short-version styles.
