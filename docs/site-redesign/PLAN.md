@@ -114,7 +114,7 @@ To swap art: drop the new files in `assets/…`, point the slot's entry at them,
 
 1. **Hero (deep-space band).** A full-bleed navy-violet (`#241B45`) band with a slow-floating background star field (CSS-only, 2–3 layers of tiny dots and four-point twinkles drifting at 60–120 s per cycle, paused under `prefers-reduced-motion`). A soft planet horizon curve at the bottom transitions into the light page.
    - Left: H1 **"Calm little adventures for ages 3–6."** One line: "Trace a glowing path, meet a friendly star, and play at your child's pace." One primary button, **Play Tiny Trails** (to the game page), and one text link, **For grown-ups ↓** (anchors to the facts).
-   - Right: **Rosie, waving**, on the band with no frame, sparkles, or blob. A gentle 4–6 s bob is allowed. Her shadow is a flat plum ellipse in sticker style, not an airbrush.
+   - Right: **Rosie, waving**, on the band with no frame, sparkles, or blob. Her only motion is her own animated wave file, with no added CSS motion. Her shadow is a flat plum ellipse in sticker style, not an airbrush.
    - Mobile: Rosie goes *above* the H1 at about 220 px tall, so the H1 and button stay in the first screen.
    - *Superseded October 28, 2026:* the band's picture is the Astro hero art (TT-HERO), with the text on its calm left side, and on phones and tablets the art sits above the text. Rosie moved to the studio line. See [Second approved art](#second-approved-art-integrated).
 2. **The game.** No card. The Tiny Trails key art is cut out and sits on the page (once Astro design #2 art arrives). Next to it are the title, tagline, a peach "Coming soon" tag leading "Ages 3–6 · Free to start · $0.99 one-time unlock", a "More about Tiny Trails" link, and "Coming soon to phones and tablets." The Play in browser button shows only while `play_enabled` is `true` (it is `false` today). The "Coming soon" tag is the only tag; age and price stay plain text.
@@ -172,7 +172,7 @@ Target: 4 sections, 0 cards, 1 primary button above the fold, ≤ 250 KB.
   - Secondary actions are text links with an arrow, not outlined pills.
   - One status tag: a peach "Coming soon" pill (`.status-soon`) leads the age line while a live game has no browser build or store link to offer. Age and price are plain text separated by middots. The store line reads "Coming soon to phones and tablets."
   - Section separators are a single soft planet-horizon curve (SVG, about 1 KB), used at most twice per page.
-- **Background stars:** the TWINKLE-SET SVG stars (four-point twinkles and dots, large glow stars rare), drifting out and back over 60–120 s with staggered delays and a slow twinkle on a few. They live on the hero band's background layer, at fixed positions relative to the band, never over the hero text or the hero art (checked over their whole drift), and under `prefers-reduced-motion` they're static. A few faint ones sit in the empty lower right of the navy footer.
+- **Background stars:** the TWINKLE-SET SVG stars (four-point twinkles and dots, large glow stars rare), drifting out and back over 60–120 s with staggered delays. The drift is their only motion. They live on the hero band's background layer, at fixed positions relative to the band, never over the hero text or the hero art (checked over their whole drift), and under `prefers-reduced-motion` they're static. A few faint ones sit in the empty lower right of the navy footer.
 - **Rosie's motion:** *Decided in cycle 2:* keep the existing wave loop, re-exported by `scripts/export-rosie.py`, with a still frame for reduced motion.
 - **Photography and screens:** real game captures only. Don't use mockups that misrepresent the game. If the live browser build stays pixel art while the store build is sticker art, show the store build's screens and label the browser version honestly. *Director decision needed:* which build is "Tiny Trails: Space" for the site?
 
@@ -228,7 +228,7 @@ Techniques: `<picture>` with `srcset` at 1×/2× (AVIF then WebP, then a PNG fal
 - One `h1` per page and no skipped levels. Move the gate dialog's heading out of the static outline (render the `h2` only when it's opened, or use `aria-labelledby` on a non-heading).
 - No placeholder art announced to assistive tech. Missing art means the section is omitted.
 - Tap targets are ≥ 44×44 for all buttons and nav, and inline links have generous line-height. Focus rings stay visible (`3px` plum plus offset).
-- Motion: the background stars and Rosie's bob stop under `prefers-reduced-motion: reduce`. No motion is faster than 4 s per cycle, and nothing flashes.
+- Motion: the background stars stop under `prefers-reduced-motion: reduce`, and Rosie's animated wave swaps to its still. Rosie has no CSS motion of her own. No motion is faster than 4 s per cycle, and nothing flashes.
 - Alt text: Rosie gets a short, page-specific alt ("Rosie Ryno waving hello"). Decorative heads, twinkles, and icons use `alt=""` or `aria-hidden`.
 - Keyboard: the menu works without JS (the existing checkbox pattern) and the gate traps focus while open.
 - Verify with Lighthouse, axe (run locally, not shipped), and a VoiceOver pass on iOS Safari.

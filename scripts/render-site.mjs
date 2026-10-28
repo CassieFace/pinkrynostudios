@@ -102,23 +102,23 @@ const STAR_SIZES = {
   "dot-lg-glow": 30
 };
 
-// Home hero band: [symbol, depth, extra class]. Depth sets the drift time (far
-// 120 s, mid 90 s, near 60 s); "tw" adds a slow twinkle. Positions are the .s1,
-// .s2, ... rules in site.css (the CSP forbids style attributes), and they keep
-// clear of the hero text and the hero art at every width. Large stars stay rare.
+// Home hero band: [symbol, depth]. Depth sets the drift time (far 120 s, mid
+// 90 s, near 60 s), and the drift is the only star motion. Positions are the
+// .s1, .s2, ... rules in site.css (the CSP forbids style attributes), and they
+// keep clear of the hero text and the hero art at every width. Large stars stay rare.
 const HERO_STARS = [
-  ["twinkle-4pt-lg-glow", "near", "tw"],
+  ["twinkle-4pt-lg-glow", "near"],
   ["dot-sm", "far"],
   ["twinkle-4pt-sm", "mid"],
   ["dot-md", "far"],
   ["dot-sm", "far"],
-  ["twinkle-4pt-md", "mid", "tw"],
+  ["twinkle-4pt-md", "mid"],
   ["dot-lg", "mid"],
   ["dot-sm", "far"],
   ["dot-md", "far"],
   ["twinkle-4pt-sm", "mid"],
   ["dot-sm", "far"],
-  ["dot-lg-glow", "near", "tw"],
+  ["dot-lg-glow", "near"],
   ["dot-md", "far"],
   ["twinkle-4pt-sm", "mid"],
   ["dot-md", "far"],
@@ -138,12 +138,12 @@ const FOOTER_STARS = [
 // indent is the indentation of the opening tag in the page source. A star whose
 // kind is empty in art.stars is left out; the others keep their position class.
 function starField(className, prefix, stars, indent) {
-  const items = stars.map(([kind, depth, extra], index) => {
+  const items = stars.map(([kind, depth], index) => {
     must(STAR_SIZES[kind], `Unknown star kind "${kind}". Use one of ${Object.keys(STAR_SIZES).join(", ")}.`);
     const ref = art.stars[kind];
     if (!ref) return "";
     const size = STAR_SIZES[kind];
-    const cls = ["star", depth, prefix + (index + 1), extra].filter(Boolean).join(" ");
+    const cls = ["star", depth, prefix + (index + 1)].join(" ");
     if (ref.use) return `<svg class="${cls}" width="${size}" height="${size}" focusable="false"><use href="${esc(ref.use)}"/></svg>`;
     return `<img class="${cls}" src="${esc(ref.img)}" alt="" width="${size}" height="${size}">`;
   }).filter(Boolean);
@@ -1269,7 +1269,7 @@ function pageAbout(visible) {
     ? `\n  <div class="section wrap">${imgTag(sceneArt, { cls: "about-scene", alt: sceneArt.alt, lazy: true })}</div>`
     : "";
   // Without Rosie the section drops the two-column .about grid, so the copy starts at the left edge.
-  const rosie = rosieImg(art.rosieStatic, "bob", { priority: true });
+  const rosie = rosieImg(art.rosieStatic, "", { priority: true });
   const main = `<section class="section wrap${rosie ? " about" : ""} page-top">
     ${rosie ? `<div class="about-rosie">\n      ${rosie}\n    </div>` : ""}
     <div class="about-copy prose">
@@ -1426,7 +1426,7 @@ function pageSupport(visible) {
 
 function pageNotFound() {
   const main = `<section class="section wrap lost page-top">
-    ${rosieImg(art.rosieLost, "bob lost-rosie", { priority: true })}
+    ${rosieImg(art.rosieLost, "lost-rosie", { priority: true })}
     <h1>This page floated off</h1>
     <p class="lede">${esc(mascot.name)} looked everywhere, but that page isn't here. The games are right where we left them.</p>
     <p class="lost-links">${more("/", "Back home")} ${more("/games/", "See the games")}</p>

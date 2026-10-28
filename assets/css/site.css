@@ -265,8 +265,6 @@ a:hover { text-decoration-thickness: 2px; }
 
 .star.near { --drift: 60s; }
 
-.star.tw { animation: star-drift var(--drift, 90s) ease-in-out infinite alternate, star-twinkle 7s ease-in-out infinite; }
-
 .star:nth-child(3n) { animation-delay: -40s; }
 
 .star:nth-child(3n + 1) { animation-delay: -75s; }
@@ -275,8 +273,6 @@ a:hover { text-decoration-thickness: 2px; }
   from { transform: translate3d(0, 0, 0) rotate(0deg); }
   to { transform: translate3d(-36px, 18px, 0) rotate(12deg); }
 }
-
-@keyframes star-twinkle { 50% { opacity: 0.55; } }
 
 /* Hero stars sit clear of the text and the art, over their whole drift (36px
    left, 18px down). Wide screens: offsets from the centre line, which the text
@@ -630,13 +626,6 @@ a:hover { text-decoration-thickness: 2px; }
 
 .about-scene { width: 100%; }
 
-.bob { animation: bob 5s ease-in-out infinite; }
-
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
 .title-row { display: flex; align-items: center; gap: 16px; margin-bottom: 1rem; }
 
 .title-row h1 { margin: 0; }
@@ -879,9 +868,7 @@ body.gate-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 
-  .star,
-  .star.tw,
-  .bob { animation: none; }
+  .star { animation: none; }
 
   .btn,
   .faq summary::after { transition: none; }
