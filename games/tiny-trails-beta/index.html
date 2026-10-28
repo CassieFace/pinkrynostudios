@@ -2,8 +2,9 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
-		<title>Tiny Trails</title>
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
+		<!-- Tiny Trails: Godot 4.7.2 platform/web/misc/dist/html/full-size.html (sha256 3a5f265e788646513c32494fc0faead64c6b7f92ef005bf475da0c622bd481f4) with one change: viewport-fit=cover in this static viewport meta (QA M1b-04). tools/tests/test_check_release_policy.py pins it. -->
+		<title>Tiny Trails: Space</title>
 		<style>
 html, body, #canvas {
 	margin: 0;
@@ -38,7 +39,7 @@ body {
 }
 
 #status {
-	background-color: #242424;
+	background-color: #48426e;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -93,7 +94,7 @@ body {
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
 <meta name="robots" content="noindex, nofollow">
-<script>window.addEventListener('pointerdown',function(){var c=document.getElementById('canvas');if(c)c.focus();var a=window.GodotAudio&&window.GodotAudio.ctx;if(a&&a.state!=='running')a.resume();},true);</script>
+<script>window.addEventListener('pointerdown',function(){var c=document.getElementById('canvas');if(c)c.focus();},true);</script>
 	</head>
 	<body>
 		<canvas id="canvas">
@@ -112,7 +113,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":3403136,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":1135968,"index.wasm":15264601},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
