@@ -39,6 +39,13 @@
         "64": "/assets/mascot/head/rosie-head-64.webp",
         "128": "/assets/mascot/head/rosie-head-128.webp",
         "256": "/assets/mascot/head/rosie-head-256.webp"
+      },
+      "lost": {
+        "src": "/assets/mascot/rosie-full.webp",
+        "src2x": null,
+        "width": 370,
+        "height": 500,
+        "alt": "Rosie Ryno, the studio's baby pink rhino, smiling and waving"
       }
     },
     "favicon32": "/assets/mascot/head/favicon-32.png",
@@ -47,13 +54,18 @@
     "logo": "/assets/mascot/head/rosie-head-256.png",
     "og": {
       "default": {
-        "src": "/assets/mascot/rosie-social.png",
+        "src": "/assets/og/og-home.jpg",
         "width": 1200,
         "height": 630,
-        "alt": "Rosie Ryno the pink rhino, PinkRyno Studios mascot"
+        "alt": "PinkRyno Studios. A smiling little astronaut waves from a glowing trail among the planets."
       }
     },
-    "hero": null,
+    "hero": {
+      "src": "/assets/games/tiny-trails-space/astro-hero.webp",
+      "srcSmall": "/assets/games/tiny-trails-space/astro-hero-1200.webp",
+      "width": 2400,
+      "height": 1350
+    },
     "aboutScene": null,
     "stars": {
       "twinkle-4pt-md": "/assets/twinkle/twinkle-sprite.svg#twinkle-4pt-md",

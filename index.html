@@ -17,24 +17,21 @@
 <meta property="og:title" content="PinkRyno Studios · calm games for ages 3–6">
 <meta property="og:description" content="PinkRyno Studios makes calm games for kids ages 3 to 6. Trace a glowing path, meet a friendly star, and play at your child's pace.">
 <meta property="og:url" content="https://pinkrynostudios.com/">
-<meta property="og:image" content="https://pinkrynostudios.com/assets/mascot/rosie-social.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:alt" content="Rosie Ryno the pink rhino, PinkRyno Studios mascot">
+<meta property="og:image" content="https://pinkrynostudios.com/assets/og/og-home.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="PinkRyno Studios. A smiling little astronaut waves from a glowing trail among the planets.">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PinkRyno Studios · calm games for ages 3–6">
 <meta name="twitter:description" content="PinkRyno Studios makes calm games for kids ages 3 to 6. Trace a glowing path, meet a friendly star, and play at your child's pace.">
-<meta name="twitter:image" content="https://pinkrynostudios.com/assets/mascot/rosie-social.png">
+<meta name="twitter:image" content="https://pinkrynostudios.com/assets/og/og-home.jpg">
+<meta name="twitter:image:alt" content="PinkRyno Studios. A smiling little astronaut waves from a glowing trail among the planets.">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <link rel="icon" href="/assets/mascot/head/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/assets/mascot/head/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="apple-touch-icon" href="/assets/mascot/head/apple-touch-icon-180.png" sizes="180x180">
 <link rel="preload" href="/assets/fonts/baloo-2-latin-800.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/assets/mascot/rosie-wave-386.webp" as="image" type="image/webp" media="(min-width: 761px) and (prefers-reduced-motion: no-preference)">
-<link rel="preload" href="/assets/mascot/rosie-wave-386-still.webp" as="image" type="image/webp" media="(min-width: 761px) and (prefers-reduced-motion: reduce)">
-<link rel="preload" href="/assets/mascot/rosie-wave-260.webp" as="image" type="image/webp" media="(max-width: 760px) and (prefers-reduced-motion: no-preference)">
-<link rel="preload" href="/assets/mascot/rosie-wave-260-still.webp" as="image" type="image/webp" media="(max-width: 760px) and (prefers-reduced-motion: reduce)">
 <link rel="stylesheet" href="/assets/css/site.css">
 <link rel="stylesheet" href="/assets/css/themes.css">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"PinkRyno Studios","url":"https://pinkrynostudios.com/","logo":"https://pinkrynostudios.com/assets/mascot/head/rosie-head-256.png","description":"Independent studio in Florida making calm games for children ages 3 to 6.","email":"support@pinkrynostudios.com"}</script>
@@ -58,7 +55,11 @@
   </div>
 </header>
 <main id="main" tabindex="-1">
-<section class="hero" aria-labelledby="hero-title">
+<section class="hero has-art" aria-labelledby="hero-title">
+    <picture>
+      <source media="(max-width: 760px)" srcset="/assets/games/tiny-trails-space/astro-hero-1200.webp">
+      <img class="hero-art" src="/assets/games/tiny-trails-space/astro-hero-1200.webp" srcset="/assets/games/tiny-trails-space/astro-hero-1200.webp 1200w, /assets/games/tiny-trails-space/astro-hero.webp 2400w" sizes="(max-width: 960px) 996px, (max-width: 1199px) 960px, 1102px" alt="" width="2400" height="1350" fetchpriority="high">
+    </picture>
     <div class="starfield" aria-hidden="true">
       <svg class="star near s1 tw" width="78" height="78" focusable="false"><use href="/assets/twinkle/twinkle-sprite.svg#twinkle-4pt-lg-glow"/></svg>
       <svg class="star far s2" width="6" height="6" focusable="false"><use href="/assets/twinkle/twinkle-sprite.svg#dot-sm"/></svg>
@@ -86,14 +87,6 @@
           <a class="btn" href="/games/tiny-trails-space/">See Tiny Trails: Space</a>
           <a class="more more-down" href="#grown-ups">For grown-ups</a>
         </div>
-      </div>
-      <div class="hero-rosie">
-        <picture>
-          <source media="(max-width: 760px) and (prefers-reduced-motion: reduce)" srcset="/assets/mascot/rosie-wave-260-still.webp" type="image/webp" width="260" height="337">
-          <source media="(max-width: 760px)" srcset="/assets/mascot/rosie-wave-260.webp" type="image/webp" width="260" height="337">
-          <source media="(prefers-reduced-motion: reduce)" srcset="/assets/mascot/rosie-wave-386-still.webp" type="image/webp" width="386" height="500">
-          <img src="/assets/mascot/rosie-wave-386.webp" alt="Rosie Ryno, a baby pink rhino, waving hello" width="386" height="500" fetchpriority="high">
-        </picture>
       </div>
     </div>
     <svg class="horizon" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path fill="currentColor" d="M0 90V66C250 22 500 4 720 4s470 18 720 62v24Z"/><path fill="none" stroke="#C9F6F4" stroke-width="3" stroke-opacity="0.75" vector-effect="non-scaling-stroke" d="M0 66C250 22 500 4 720 4s470 18 720 62"/></svg>
@@ -142,8 +135,13 @@
       </div>
     </div>
   </section>
-  <section class="section wrap studio-line" aria-label="About the studio">
-    <img class="studio-icon" src="/assets/mascot/head/rosie-head-64.webp" srcset="/assets/mascot/head/rosie-head-64.webp 64w, /assets/mascot/head/rosie-head-128.webp 128w" sizes="64px" alt="" width="64" height="64" loading="lazy">
+  <section class="section wrap studio-line has-rosie" aria-label="About the studio">
+    <div class="studio-rosie">
+      <picture>
+        <source media="(prefers-reduced-motion: reduce)" srcset="/assets/mascot/rosie-wave-260-still.webp">
+        <img src="/assets/mascot/rosie-wave-260.webp" alt="Rosie Ryno, a baby pink rhino, waving hello" width="260" height="337" loading="lazy">
+      </picture>
+    </div>
     <div>
       <p>PinkRyno Studios is a tiny studio in Florida making calm games for little kids.</p>
       <a class="more" href="/about/">Meet the studio</a>

@@ -278,67 +278,84 @@ a:hover { text-decoration-thickness: 2px; }
 
 @keyframes star-twinkle { 50% { opacity: 0.55; } }
 
-/* Rosie's column starts at about 56% of the band at every width, so no hero
-   star sits right of 49% except the far-right dot on very wide screens. */
-.s1 { left: max(1%, calc(50% - 690px)); top: 7%; }
-.s2 { left: 18%; top: 3%; }
-.s3 { left: max(39%, calc(50% - 230px)); top: 8%; }
-.s4 { left: 31%; top: 2.5%; }
-.s5 { left: 6%; top: 34%; }
-.s6 { left: 43%; top: 30%; }
-.s7 { left: 2%; top: 64%; }
-.s8 { display: none; }
-.s9 { left: 46%; top: 80%; }
-.s10 { left: 4%; top: 84%; }
-.s11 { left: 20%; top: 82%; }
-.s12 { left: 37%; top: 1.5%; }
-.s13 { left: 2%; top: 46%; }
-.s14 { left: 46%; top: 56%; }
-.s15 { left: 8%; top: 18%; }
-.s16 { left: max(1%, calc(50% - 640px)); top: 56%; }
+/* Hero stars sit clear of the text and the art, over their whole drift (36px
+   left, 18px down). Wide screens: offsets from the centre line, which the text
+   column follows. */
+.s1 { left: calc(50% - 700px); top: 7%; }
+.s2 { left: calc(50% - 400px); top: 3%; }
+.s3 { left: calc(50% - 90px); top: 9%; }
+.s4 { left: calc(50% - 240px); top: 2.5%; }
+.s5 { left: calc(50% - 600px); top: 34%; }
+.s6 { left: calc(50% - 40px); top: 38%; }
+.s7 { left: calc(50% - 610px); top: 64%; }
+.s8 { left: calc(50% + 10px); top: 60%; }
+.s9 { left: calc(50% - 60px); top: 80%; }
+.s10 { left: calc(50% - 640px); top: 84%; }
+.s11 { left: calc(50% - 380px); top: 82%; }
+.s12 { left: calc(50% - 160px); top: 1.5%; }
+.s13 { left: calc(50% - 650px); top: 46%; }
+.s14 { left: 50%; top: 18%; }
+.s15 { left: calc(50% - 520px); top: 2.5%; }
+.s16 { left: calc(50% - 660px); top: 56%; }
 .s17 { left: 97%; top: 30%; }
 
-/* Narrower margins: no room for the glow stars, and two dots would sit on the headline. */
+/* Narrower margins: no room for the glow stars. */
 @media (max-width: 1359px) {
   .s1, .s16 { display: none; }
-
-  .s5 { left: 49%; top: 40%; }
-  .s15 { left: 12%; top: 1%; }
 }
 
 @media (max-width: 1599px) {
   .s17 { display: none; }
 }
 
-/* Phones: Rosie stands top centre, so the stars sit around the copy below her. */
-@media (max-width: 760px) {
-  .s12 { display: none; }
-
-  .s2 { left: 8%; top: 46%; }
-  .s3 { left: 6%; top: 56%; }
-  .s4 { left: 92%; top: 53%; }
-  .s5 { left: 16%; top: 63%; }
-  .s6 { left: 86%; top: 55%; }
-  .s7 { left: 4%; top: 66%; }
-  .s8 { display: block; left: 94%; top: 72%; }
-  .s9 { left: 30%; top: 79%; }
-  .s10 { left: 4%; top: 92%; }
-  .s11 { left: 70%; top: 79%; }
-  .s13 { left: 96%; top: 60%; }
-  .s14 { left: 95%; top: 91%; }
-  .s15 { left: 24%; top: 92%; }
+/* 540px band: the headline starts higher and the art is closer. */
+@media (max-width: 1199px) {
+  .s8, .s12 { display: none; }
 }
 
-/* Without Rosie the phone band is shorter, and s5, s9, and s11 would land on the copy. */
-@media (max-width: 760px) {
-  .hero-text-only .s5,
-  .hero-text-only .s9,
-  .hero-text-only .s11 { display: none; }
+@media (max-width: 1023px) {
+  .s14 { display: none; }
 }
 
-/* On the narrowest phones the copy reaches s5 and s6. */
-@media (max-width: 359px) {
-  .s5, .s6 { display: none; }
+/* Up to 960px the star layer covers only the centred copy. Headline stars
+   count from its top, button stars from its foot. */
+@media (max-width: 960px) {
+  .hero .star { display: none; }
+
+  .hero .s2,
+  .hero .s3,
+  .hero .s4,
+  .hero .s6,
+  .hero .s7,
+  .hero .s9,
+  .hero .s10 { display: block; }
+
+  .hero .s3 { left: calc(50% - 200px); top: 30px; }
+  .hero .s4 { left: calc(50% + 200px); top: 60px; }
+  .hero .s2 { left: calc(50% - 200px); top: 150px; }
+  .hero .s6 { left: calc(50% + 250px); top: 175px; }
+  .hero .s7 { left: calc(50% - 260px); top: 200px; }
+  .hero .s9 { left: calc(50% + 256px); top: auto; bottom: 110px; }
+  .hero .s10 { left: calc(50% - 280px); top: auto; bottom: 100px; }
+}
+
+/* Phones: the buttons stack. */
+@media (max-width: 430px) {
+  .hero .s6,
+  .hero .s9 { display: none; }
+
+  .hero .s5,
+  .hero .s13,
+  .hero .s15 { display: block; }
+
+  .hero .s3 { left: calc(50% - 175px); top: 20px; }
+  .hero .s4 { left: calc(50% + 150px); top: 50px; }
+  .hero .s2 { left: calc(50% - 150px); top: 105px; }
+  .hero .s7 { left: calc(50% + 150px); top: 95px; }
+  .hero .s10 { left: calc(50% - 170px); bottom: 142px; }
+  .hero .s13 { left: calc(50% + 166px); top: auto; bottom: 150px; }
+  .hero .s5 { left: calc(50% + 110px); top: auto; bottom: 68px; }
+  .hero .s15 { left: calc(50% - 115px); top: auto; bottom: 62px; }
 }
 
 /* Footer stars: the layer covers only empty space (lower right; on phones the
@@ -363,13 +380,7 @@ a:hover { text-decoration-thickness: 2px; }
   .f4 { left: 86%; top: 40%; }
 }
 
-.hero-inner {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
-  align-items: center;
-  gap: 24px 48px;
-  padding-top: 40px;
-}
+.hero-inner { padding-top: 40px; }
 
 .hero-copy { padding-bottom: 96px; }
 
@@ -387,17 +398,86 @@ a:hover { text-decoration-thickness: 2px; }
 
 .hero :focus-visible { outline-color: var(--butter); }
 
-.hero-rosie { position: relative; z-index: 1; align-self: end; justify-self: center; }
+/* Hero art: the subject on the right, a calm left side for the text. Wider
+   than 960px it is as tall as the band, right-aligned in a centred 1440px frame;
+   a narrower band crops its left side. It fades in at its edges (no seam) and
+   sits 24/90 of the horizon's height up, the horizon's lowest edge, so the
+   horizon clears the subject. heroSizes() in render-site.mjs follows --hero-h. */
+.hero { --hero-h: 540px; --horizon-h: clamp(36px, 6.5vw, 96px); display: flex; flex-direction: column; justify-content: center; min-height: var(--hero-h); }
 
-.hero-rosie img { width: min(386px, 32vw); }
+.hero-art {
+  position: absolute;
+  z-index: -2;
+  bottom: calc(var(--horizon-h) * 24 / 90);
+  right: max(0px, calc(50% - 720px));
+  width: auto;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: 100% 50%;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%);
+  mask-image: linear-gradient(90deg, transparent, #000 18%);
+}
 
-/* No Rosie in the art map: the hero text takes the whole band. */
-.hero-text-only .hero-inner { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1200px) {
+  .hero { --hero-h: 620px; }
+}
 
-/* art.hero: a decorative backdrop, cropped to cover the band, behind the stars. */
-.hero-art { position: absolute; z-index: -2; inset: 0; width: 100%; max-width: none; height: 100%; object-fit: cover; }
+/* Past 1440px the band also runs on past the art's right edge. */
+@media (min-width: 1441px) {
+  .hero-art {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 96%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 18%, #000 96%, transparent);
+  }
+}
 
-.horizon { position: absolute; z-index: 0; left: 0; bottom: -1px; width: 100%; height: clamp(36px, 6.5vw, 96px); color: var(--band); }
+/* Up to 960px the art sits above the centred text and fades into the band.
+   A band without art keeps the same text layout, so the stars fit both. */
+@media (max-width: 960px) {
+  .hero { display: block; min-height: 0; }
+
+  .hero-inner { padding-top: 20px; text-align: center; }
+
+  .hero h1,
+  .hero .lede,
+  .hero .feature-tagline,
+  .hero .accent-title::after { margin-inline: auto; }
+
+  .hero .cta-row { justify-content: center; }
+
+  .hero-art {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    width: 100%;
+    height: min(75vw, 560px);
+    -webkit-mask-image: linear-gradient(180deg, #000 80%, transparent);
+    mask-image: linear-gradient(180deg, #000 80%, transparent);
+  }
+
+  .hero.has-art .starfield { top: min(75vw, 560px); }
+
+  .hero.has-art .hero-inner { padding-top: 4px; }
+}
+
+/* Game page hero band: breadcrumb on top, title and tagline beside the art. */
+.game-hero .crumbs-row { position: relative; }
+
+.game-hero .crumbs { margin: 0; padding-top: 12px; color: var(--on-space); }
+
+.game-hero .crumbs a { color: #fff; }
+
+.game-hero .hero-inner { margin-block: auto; padding-top: 12px; }
+
+.game-hero h1 { max-width: 12ch; margin-bottom: 0.9rem; }
+
+.game-hero .feature-tagline { color: var(--on-space); }
+
+.feature-after-hero { padding: 4px 0 64px; }
+
+.feature-after-hero .feature-body { max-width: var(--measure); }
+
+.horizon { position: absolute; z-index: 0; left: 0; bottom: -1px; width: 100%; height: var(--horizon-h, clamp(36px, 6.5vw, 96px)); color: var(--band); }
 
 /* Game feature: text-led, on the soft planet band ----------------------- */
 
@@ -484,6 +564,13 @@ a:hover { text-decoration-thickness: 2px; }
 
 .studio-icon { width: 64px; height: 64px; flex: none; }
 
+/* Rosie waves beside the studio line, below the fold, away from the hero art. */
+.studio-line.has-rosie { gap: 32px; }
+
+.studio-rosie { flex: none; }
+
+.studio-rosie img { width: auto; height: 240px; }
+
 .plays { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 56px; }
 
 .plays li { display: flex; align-items: flex-start; gap: 16px; max-width: 46ch; }
@@ -524,7 +611,8 @@ a:hover { text-decoration-thickness: 2px; }
 
 .game-row-art img { width: 100%; }
 
-.game-row-art.cutout img { width: min(100%, 300px); }
+/* A hero scene in a games index row, cropped to 4:3 around its subject. */
+.game-row-art.scene img { aspect-ratio: 4 / 3; object-fit: cover; object-position: 100% 50%; border: 3px solid var(--ink); border-radius: 22px; }
 
 .game-row h2 a { color: var(--ink); text-decoration: none; }
 
@@ -733,17 +821,7 @@ body.gate-open { overflow: hidden; }
 
   .nav-links a { min-height: 52px; padding: 0 4px; font-size: 1.15rem; }
 
-  .hero-inner { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 12px; padding-top: 20px; }
-
-  .hero-rosie { order: -1; align-self: auto; margin: 0; }
-
-  .hero-rosie img { width: auto; height: 240px; }
-
   .hero-copy { padding-bottom: 64px; }
-
-  .hero h1, .hero .lede { margin-inline: auto; }
-
-  .hero .cta-row { justify-content: center; }
 
   .feature { padding: 16px 0 56px; }
 
@@ -781,6 +859,10 @@ body.gate-open { overflow: hidden; }
   .toc ol { columns: 1; }
 
   .studio-line { align-items: flex-start; }
+
+  .studio-line.has-rosie { flex-direction: column; gap: 8px; }
+
+  .studio-rosie img { height: 200px; }
 
   .footer-rise { height: 24px; }
 }

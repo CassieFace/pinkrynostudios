@@ -105,7 +105,7 @@ const STAR_SIZES = {
 // Home hero band: [symbol, depth, extra class]. Depth sets the drift time (far
 // 120 s, mid 90 s, near 60 s); "tw" adds a slow twinkle. Positions are the .s1,
 // .s2, ... rules in site.css (the CSP forbids style attributes), and they keep
-// clear of Rosie at every width. Large stars stay rare.
+// clear of the hero text and the hero art at every width. Large stars stay rare.
 const HERO_STARS = [
   ["twinkle-4pt-lg-glow", "near", "tw"],
   ["dot-sm", "far"],
@@ -446,8 +446,8 @@ function picture(entry, label, { alt: needsAlt = true, formats = ["webp", "png",
   return { src, src2x, width, height, alt };
 }
 
-/* Rosie's animated hero: an animated WebP with a same-size still for reduced
-   motion, and optionally a smaller pair for phones (srcSmall + stillSmall). */
+/* Rosie's wave (art.rosie.animated): an animated WebP with a same-size still for
+   reduced motion, and optionally a smaller pair for phones (srcSmall + stillSmall). */
 function animatedPicture(entry, label) {
   if (emptyEntry(entry, label)) return empty(label);
   must(isObject(entry), `${label} must be null or an object like { "src": "/assets/....webp", "still": "/assets/....webp" }`);
@@ -469,11 +469,17 @@ function animatedPicture(entry, label) {
   return { large, small, alt };
 }
 
-// The home hero backdrop: a picture with an optional phone crop (srcSmall).
-function heroArt(entry, label) {
-  const pic = picture(entry, label, { alt: false, keys: ["srcSmall"] });
+/* A wide scene (the home hero art, a game's hero art): { src, srcSmall, width,
+   height, alt }. srcSmall is optional: a smaller copy of the same picture, with
+   the same shape. Phones always get srcSmall, and wider screens pick src or
+   srcSmall by size, so src only loads where srcSmall would look soft. */
+function scene(entry, label, { alt = true } = {}) {
+  const pic = picture(entry, label, { alt, retina: false, keys: ["srcSmall"] });
   if (pic && !isEmpty(entry.srcSmall)) {
     [pic.srcSmall, pic.widthSmall, pic.heightSmall] = sizedFile(entry.srcSmall, label + ".srcSmall", ["webp", "png", "jpg"]);
+    must(pic.widthSmall < pic.width, `${label}.srcSmall is ${pic.widthSmall} px wide, so it is not smaller than src (${pic.width} px)`);
+    must(Math.abs(pic.widthSmall / pic.heightSmall - pic.width / pic.height) < 0.01,
+      `${label}.srcSmall is ${pic.widthSmall}x${pic.heightSmall}, a different shape from src (${pic.width}x${pic.height}). Export a smaller copy of the same picture.`);
   }
   return pic;
 }
@@ -558,12 +564,13 @@ function loadArt(map) {
     onlyKeys(value, keys, label);
     return value;
   };
-  const rosie = group(map.rosie, ["static", "animated", "head"], "site.json art.rosie");
+  const rosie = group(map.rosie, ["static", "animated", "head", "lost"], "site.json art.rosie");
   const og = group(map.og, ["default"], "site.json art.og");
   return {
     rosieStatic: picture(rosie.static, "site.json art.rosie.static", { formats: ["webp", "png"] }),
     rosieAnimated: animatedPicture(rosie.animated, "site.json art.rosie.animated"),
     head: sizedSet(rosie.head, "site.json art.rosie.head", ["webp", "png"]),
+    rosieLost: picture(rosie.lost, "site.json art.rosie.lost", { formats: ["webp", "png"] }),
     favicons: [
       [32, squareFile(map.favicon32, "site.json art.favicon32", 32, ["png"])],
       [48, squareFile(map.favicon48, "site.json art.favicon48", 48, ["png"])]
@@ -571,7 +578,7 @@ function loadArt(map) {
     appleTouch: squareFile(map.appleTouch, "site.json art.appleTouch", 180, ["png"]),
     logo: logoFile(map.logo, "site.json art.logo"),
     og: sharePicture(og.default, "site.json art.og.default"),
-    hero: heroArt(map.hero, "site.json art.hero"),
+    hero: scene(map.hero, "site.json art.hero", { alt: false }),
     aboutScene: picture(map.aboutScene, "site.json art.aboutScene"),
     stars: artRefs(map.stars, "site.json art.stars", Object.keys(STAR_SIZES)),
     icons: artRefs(map.icons, "site.json art.icons", ICON_NAMES)
@@ -588,7 +595,7 @@ function loadGameArt(game) {
   onlyKeys(map, GAME_ART_KEYS, label);
   must(map.screenshots == null || Array.isArray(map.screenshots), `${label}.screenshots must be a list`);
   const result = {
-    hero: picture(map.hero, label + ".hero", { formats: ["webp", "png"] }),
+    hero: scene(map.hero, label + ".hero"),
     card: picture(map.card, label + ".card", { alt: false }),
     icon: picture(map.icon, label + ".icon", { alt: false, formats: ["webp", "png"] }),
     og: sharePicture(map.og, label + ".og")
@@ -674,74 +681,65 @@ function headImg(className, lazy, size, phoneSize = size) {
   return `<img class="${className}" src="${esc(pick(size)[1])}"${srcset} alt="" width="${size}" height="${size}"${loading}>`;
 }
 
-// Rosie's static picture (art.rosie.static), or nothing when that slot is empty.
-function rosieImg(className, lazy) {
-  const pic = art.rosieStatic;
-  return pic ? imgTag(pic, { cls: className, alt: pic.alt, lazy }) : "";
+// A Rosie picture (art.rosie.static on About, art.rosie.lost on 404), or nothing when the slot is empty.
+// priority marks the page's largest picture, so the browser fetches it first.
+function rosieImg(pic, className, { lazy = false, priority = false } = {}) {
+  return pic ? imgTag(pic, { cls: className, alt: pic.alt, lazy, priority }) : "";
 }
 
 // Phone layout below this width. Keep in step with the 760px breakpoint in site.css.
 const PHONE = "(max-width: 760px)";
 const REDUCE = "(prefers-reduced-motion: reduce)";
 
-// The home hero's Rosie: the animated wave (with its still under reduced motion)
-// when art.rosie.animated is set, else the static picture, else nothing, and the
-// hero text spans the band.
-function heroRosie() {
+/* How wide a scene picture is drawn, for its sizes attribute. Keep in step with
+   site.css. Hero bands: from 761px to 960px the art sits above the text, 560px
+   tall at its own shape, at least as wide as the screen; wider, it is as tall
+   as the band (--hero-h: 540px, then 620px from 1200px). For the 16:9 Astro art
+   that is 996, 960, and 1103px, so a 1x screen never needs more than 1200px.
+   Phones always get srcSmall. Games index rows: half the content column,
+   cropped to 4:3 (scaled to its height, so 4:3 x 16:9 = 0.75 of the row width). */
+function heroSizes(pic) {
+  const at = (height) => Math.round((height * pic.width) / pic.height);
+  const stacked = at(560) >= 960 ? `${at(560)}px` : "100vw";
+  return `(max-width: 960px) ${stacked}, (max-width: 1199px) ${at(540)}px, ${at(620)}px`;
+}
+const ROW_SIZES = "(max-width: 1183px) calc(66.7vw - 75px), 715px";
+
+// A scene as <picture>. Phones always get srcSmall; wider screens pick by sizes.
+function scenePicture(pic, { cls = "", alt = "", sizes, lazy = false, priority = false }) {
+  if (!pic.srcSmall) return imgTag(pic, { cls, alt, lazy, priority });
+  const className = cls ? ` class="${cls}"` : "";
+  const loading = lazy ? ' loading="lazy"' : "";
+  const fetch = priority ? ' fetchpriority="high"' : "";
+  return `<picture>
+      <source media="${PHONE}" srcset="${esc(pic.srcSmall)}">
+      <img${className} src="${esc(pic.srcSmall)}" srcset="${esc(pic.srcSmall)} ${pic.widthSmall}w, ${esc(pic.src)} ${pic.width}w" sizes="${sizes}" alt="${esc(alt)}" width="${pic.width}" height="${pic.height}"${loading}${fetch}>
+    </picture>`;
+}
+
+// True when two art entries show the same picture file.
+function samePicture(a, b) {
+  return Boolean(a && b && a.src === b.src);
+}
+
+/* Rosie in the home studio section, below the fold, so she never competes with
+   the hero art: art.rosie.animated (lazy, with its still under reduced motion),
+   else art.rosie.static, else the small head. She is drawn 240px tall (200px on
+   phones, about 185px wide at most), so the small pair is sharp enough everywhere
+   and the larger wave file is never sent here. */
+function studioRosie() {
   const anim = art.rosieAnimated;
   if (anim) {
-    const { large, small, alt } = anim;
-    const sources = [];
-    if (small) {
-      sources.push(`<source media="${PHONE} and ${REDUCE}" srcset="${esc(small.still)}" type="image/webp" width="${small.width}" height="${small.height}">`);
-      sources.push(`<source media="${PHONE}" srcset="${esc(small.anim)}" type="image/webp" width="${small.width}" height="${small.height}">`);
-    }
-    sources.push(`<source media="${REDUCE}" srcset="${esc(large.still)}" type="image/webp" width="${large.width}" height="${large.height}">`);
-    return `<div class="hero-rosie">
-        <picture>
-          ${sources.join("\n          ")}
-          <img src="${esc(large.anim)}" alt="${esc(alt)}" width="${large.width}" height="${large.height}" fetchpriority="high">
-        </picture>
-      </div>`;
+    const pair = anim.small || anim.large;
+    return `<div class="studio-rosie">
+      <picture>
+        <source media="${REDUCE}" srcset="${esc(pair.still)}">
+        <img src="${esc(pair.anim)}" alt="${esc(anim.alt)}" width="${pair.width}" height="${pair.height}" loading="lazy">
+      </picture>
+    </div>`;
   }
-  if (art.rosieStatic) {
-    return `<div class="hero-rosie">
-        ${imgTag(art.rosieStatic, { alt: art.rosieStatic.alt, priority: true })}
-      </div>`;
-  }
-  return "";
-}
-
-function heroPreloads() {
-  const anim = art.rosieAnimated;
-  if (!anim) return "";
-  const { large, small } = anim;
-  const motion = "(prefers-reduced-motion: no-preference)";
-  const wide = "(min-width: 761px)";
-  const list = small
-    ? [
-        [large.anim, `${wide} and ${motion}`],
-        [large.still, `${wide} and ${REDUCE}`],
-        [small.anim, `${PHONE} and ${motion}`],
-        [small.still, `${PHONE} and ${REDUCE}`]
-      ]
-    : [
-        [large.anim, motion],
-        [large.still, REDUCE]
-      ];
-  return list.map(([href, media]) => `<link rel="preload" href="${esc(href)}" as="image" type="image/webp" media="${media}">`).join("\n") + "\n";
-}
-
-// art.hero: a decorative backdrop behind the home hero band, cropped to cover it.
-function heroBackdrop() {
-  const pic = art.hero;
-  if (!pic) return "";
-  const img = imgTag(pic, { cls: "hero-art" });
-  if (!pic.srcSmall) return img;
-  return `<picture>
-      <source media="${PHONE}" srcset="${esc(pic.srcSmall)}" width="${pic.widthSmall}" height="${pic.heightSmall}">
-      ${img}
-    </picture>`;
+  if (art.rosieStatic) return `<div class="studio-rosie">${rosieImg(art.rosieStatic, "", { lazy: true })}</div>`;
+  return headImg("studio-icon", true, 64);
 }
 
 // A game's icon (art.icon) above its title. Decorative: the title names the game.
@@ -811,28 +809,17 @@ function playButton(game) {
   return `<a class="btn" href="${esc(game.play_url)}">${esc(game.play_label)}</a>`;
 }
 
-function gameFeature(game, { level, id, onPage }) {
-  const tag = level === 1 ? "h1" : "h2";
-  const title = onPage ? esc(game.title) : `<a href="${esc(game.page)}">${esc(game.title)}</a>`;
+function crumbs(game) {
+  return `<nav class="crumbs" aria-label="Breadcrumb"><a href="/games/">Games</a> <span aria-hidden="true">/</span> <span aria-current="page">${esc(game.title)}</span></nav>`;
+}
+
+// The summary, price line, actions, and notes beside (or under) a game's title.
+function featureBody(game, onPage) {
   const actions = [playButton(game), onPage ? "" : more(game.page, "More about " + game.short_title), storeLinks(game)].filter(Boolean);
   const sizeNote = onPage && game.play_url && game.play_size_note && game.status === "live"
     ? `<p class="size-note">Plays right in your browser · ${esc(game.play_size_note)}</p>`
     : "";
-  const hero = game.art.hero;
-  const pictures = [
-    hero ? imgTag(hero, { cls: "feature-art", alt: hero.alt, lazy: !onPage, priority: onPage }) : "",
-    gameIcon(game, !onPage)
-  ].filter(Boolean).map((tag) => tag + "\n          ").join("");
-  const crumbs = onPage
-    ? `<nav class="crumbs" aria-label="Breadcrumb"><a href="/games/">Games</a> <span aria-hidden="true">/</span> <span aria-current="page">${esc(game.title)}</span></nav>\n      `
-    : "";
-  return `<div class="wrap">
-      ${crumbs}<div class="feature-grid">
-        <div class="feature-head">
-          ${pictures}<${tag} id="${id}" class="feature-title accent-title">${title}</${tag}>
-          <p class="feature-tagline">${esc(game.tagline)}</p>
-        </div>
-        <div class="feature-body">
+  return `<div class="feature-body">
           ${[
             `<p>${esc(game.summary)}</p>`,
             metaLine(game),
@@ -840,9 +827,53 @@ function gameFeature(game, { level, id, onPage }) {
             sizeNote,
             storeLine(game)
           ].filter(Boolean).join("\n          ")}
+        </div>`;
+}
+
+// A game's title block on the soft band. showHero is false where the page already
+// shows that picture (the home hero band, or the game page's own hero band).
+function gameFeature(game, { level, id, onPage, showHero = true }) {
+  const tag = level === 1 ? "h1" : "h2";
+  const title = onPage ? esc(game.title) : `<a href="${esc(game.page)}">${esc(game.title)}</a>`;
+  const hero = showHero ? game.art.hero : null;
+  const pictures = [
+    hero ? scenePicture(hero, { cls: "feature-art", alt: hero.alt, sizes: "(max-width: 760px) calc(100vw - 32px), 460px", lazy: !onPage, priority: onPage }) : "",
+    gameIcon(game, !onPage)
+  ].filter(Boolean).map((tag) => tag + "\n          ").join("");
+  return `<div class="wrap">
+      ${onPage ? crumbs(game) + "\n      " : ""}<div class="feature-grid">
+        <div class="feature-head">
+          ${pictures}<${tag} id="${id}" class="feature-title accent-title">${title}</${tag}>
+          <p class="feature-tagline">${esc(game.tagline)}</p>
         </div>
+        ${featureBody(game, onPage)}
       </div>
     </div>`;
+}
+
+/* A game page with hero art opens on a hero band like the home page: the art
+   on the right (above the title on phones and tablets), the breadcrumb, title,
+   and tagline on its calm left side, then the summary on the soft band. The art
+   is the page's largest picture, so it loads first. */
+function gameHero(game) {
+  const pic = game.art.hero;
+  const icon = gameIcon(game, false);
+  return `<section class="hero has-art game-hero" aria-labelledby="game-title">
+    <div class="wrap crumbs-row">${crumbs(game)}</div>
+    ${scenePicture(pic, { cls: "hero-art", alt: pic.alt, sizes: heroSizes(pic), priority: true })}
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        ${icon ? icon + "\n        " : ""}<h1 id="game-title" class="feature-title accent-title">${esc(game.title)}</h1>
+        <p class="feature-tagline">${esc(game.tagline)}</p>
+      </div>
+    </div>
+    ${HORIZON}
+  </section>
+  <div class="feature feature-after-hero">
+    <div class="wrap">
+      ${featureBody(game, true)}
+    </div>
+  </div>`;
 }
 
 function jsonLd(data) {
@@ -857,7 +888,7 @@ function gameSocialImage(game) {
 
 // path is the page's public URL path, or null for 404.html: Pages serves that
 // file at any missing URL, so it gets no canonical or og:url.
-function layout({ title, description, path, current, robots, main, structured, preloads, image }) {
+function layout({ title, description, path, current, robots, main, structured, image }) {
   const canonical = path ? `<link rel="canonical" href="${SITE + path}">\n` : "";
   const ogUrl = path ? `<meta property="og:url" content="${SITE + path}">\n` : "";
   // With no share image at all, the og:image tags are left out and the card is the small one.
@@ -870,7 +901,7 @@ function layout({ title, description, path, current, robots, main, structured, p
 <meta property="og:image:height" content="${share.height}">
 `
     : "";
-  const twitterImage = share ? `\n<meta name="twitter:image" content="${esc(share.url)}">` : "";
+  const twitterImage = share ? `\n<meta name="twitter:image" content="${esc(share.url)}">\n<meta name="twitter:image:alt" content="${esc(share.alt)}">` : "";
   const iconLinks = [
     ...art.favicons.map(([size, src]) => `<link rel="icon" href="${esc(src)}" sizes="${size}x${size}" type="image/png">\n`),
     art.appleTouch ? `<link rel="apple-touch-icon" href="${esc(art.appleTouch)}" sizes="180x180">\n` : ""
@@ -907,7 +938,7 @@ ${ogUrl}${ogImage}<meta name="twitter:card" content="${share ? "summary_large_im
 <meta name="twitter:description" content="${esc(description)}">${twitterImage}
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 ${iconLinks}<link rel="preload" href="/assets/fonts/baloo-2-latin-800.woff2" as="font" type="font/woff2" crossorigin>
-${preloads || ""}<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/site.css">
 <link rel="stylesheet" href="/assets/css/themes.css">
 ${ld}</head>
 <body>
@@ -1003,7 +1034,7 @@ function pageHome(visible) {
   else if (featured) heroCta = `<a class="btn" href="${esc(featured.page)}">See ${esc(featured.title)}</a>`;
   const feature = featured
     ? `<section class="feature game-${esc(featured.id)}" aria-labelledby="feature-title">
-    ${gameFeature(featured, { level: 2, id: "feature-title", onPage: false })}
+    ${gameFeature(featured, { level: 2, id: "feature-title", onPage: false, showHero: !samePicture(featured.art.hero, art.hero) })}
   </section>`
     : "";
   const unlockTitle = featured && featured.price ? `One ${featured.price} unlock` : "One-time unlock";
@@ -1035,9 +1066,12 @@ function pageHome(visible) {
     </div>
   </section>`
     : "";
-  const rosie = heroRosie();
-  const main = `<section class="hero${rosie ? "" : " hero-text-only"}" aria-labelledby="hero-title">
-    ${heroBackdrop()}
+  // art.hero is the band's backdrop: Astro on the right, the text on its calm left side
+  // (on phones and tablets the art sits above the text). It is the page's largest picture.
+  const heroArt = art.hero;
+  const rosie = studioRosie();
+  const main = `<section class="hero${heroArt ? " has-art" : ""}" aria-labelledby="hero-title">
+    ${heroArt ? scenePicture(heroArt, { cls: "hero-art", sizes: heroSizes(heroArt), priority: true }) : ""}
     ${starField("starfield", "s", HERO_STARS, "    ")}
     <div class="wrap hero-inner">
       <div class="hero-copy">
@@ -1048,14 +1082,13 @@ function pageHome(visible) {
           ${featured ? `<a class="more more-down" href="#grown-ups">For grown-ups</a>` : ""}
         </div>
       </div>
-      ${rosie}
     </div>
     ${HORIZON}
   </section>
   ${feature}
   ${facts}
-  <section class="section wrap studio-line" aria-label="About the studio">
-    ${headImg("studio-icon", true, 64)}
+  <section class="section wrap studio-line${art.rosieAnimated || art.rosieStatic ? " has-rosie" : ""}" aria-label="About the studio">
+    ${rosie}
     <div>
       <p>PinkRyno Studios is a tiny studio in Florida making calm games for little kids.</p>
       ${more("/about/", "Meet the studio")}
@@ -1067,18 +1100,20 @@ function pageHome(visible) {
     path: "/",
     current: "home",
     main,
-    preloads: heroPreloads(),
     structured: organization()
   });
 }
 
-function gameRow(game) {
-  // Card art first, then the cut-out hero. With neither, the row is text only.
-  const pic = game.art.card || game.art.hero;
+// first marks the top row, whose picture is the largest one on the page.
+function gameRow(game, first) {
+  // Card art first, else the hero scene cropped to 4:3 around its right side. With neither, the row is text only.
+  const card = game.art.card;
+  const hero = game.art.hero;
   let rowArt = "";
-  if (pic) {
-    const cutout = pic === game.art.card ? "" : " cutout";
-    rowArt = `<a class="game-row-art${cutout}" href="${esc(game.page)}" tabindex="-1" aria-hidden="true">${imgTag(pic, { lazy: true })}</a>`;
+  if (card || hero) {
+    const loading = { lazy: !first, priority: first };
+    const tag = card ? imgTag(card, loading) : scenePicture(hero, { sizes: ROW_SIZES, ...loading });
+    rowArt = `<a class="game-row-art${card ? "" : " scene"}" href="${esc(game.page)}" tabindex="-1" aria-hidden="true">${tag}</a>`;
   }
   const iconTag = gameIcon(game, true);
   return `<article class="game-row game-${esc(game.id)}${rowArt ? " has-art" : ""}">
@@ -1092,7 +1127,7 @@ function gameRow(game) {
 }
 
 function pageGames(visible) {
-  const rows = visible.length ? visible.map(gameRow).join("\n    ") : `<p>Our first game is on its way.</p>`;
+  const rows = visible.length ? visible.map((game, index) => gameRow(game, index === 0)).join("\n    ") : `<p>Our first game is on its way.</p>`;
   const main = `<section class="section wrap page-top">
     <h1>Games</h1>
     <p class="lede">Calm games for ages 3 to 6, each one short, gentle, and easy to hand over.</p>
@@ -1105,7 +1140,9 @@ function pageGames(visible) {
     description: "Calm games from PinkRyno Studios for ages 3 to 6, including Tiny Trails: Space.",
     path: "/games/",
     current: "games",
-    main
+    main,
+    // While the index lists a single game, it shares that game's card; otherwise the site default.
+    image: visible.length === 1 ? visible[0].art.og : null
   });
 }
 
@@ -1182,10 +1219,13 @@ function pageGame(game) {
     : "";
   const unlockTitle = game.price ? `What the ${game.price} unlock adds` : "What the unlock adds";
   const share = gameSocialImage(game);
-  const main = `<article class="game-page game-${esc(game.id)}">
-  <section class="feature feature-page" aria-labelledby="game-title">
+  const top = game.art.hero
+    ? gameHero(game)
+    : `<section class="feature feature-page" aria-labelledby="game-title">
     ${gameFeature(game, { level: 1, id: "game-title", onPage: true })}
-  </section>
+  </section>`;
+  const main = `<article class="game-page game-${esc(game.id)}">
+  ${top}
   ${screensStrip(game)}
   ${plays}
   <section class="section wrap split" aria-label="What's free and what the unlock adds">
@@ -1229,7 +1269,7 @@ function pageAbout(visible) {
     ? `\n  <div class="section wrap">${imgTag(sceneArt, { cls: "about-scene", alt: sceneArt.alt, lazy: true })}</div>`
     : "";
   // Without Rosie the section drops the two-column .about grid, so the copy starts at the left edge.
-  const rosie = rosieImg("bob", false);
+  const rosie = rosieImg(art.rosieStatic, "bob", { priority: true });
   const main = `<section class="section wrap${rosie ? " about" : ""} page-top">
     ${rosie ? `<div class="about-rosie">\n      ${rosie}\n    </div>` : ""}
     <div class="about-copy prose">
@@ -1386,7 +1426,7 @@ function pageSupport(visible) {
 
 function pageNotFound() {
   const main = `<section class="section wrap lost page-top">
-    ${rosieImg("bob lost-rosie", false)}
+    ${rosieImg(art.rosieLost, "bob lost-rosie", { priority: true })}
     <h1>This page floated off</h1>
     <p class="lede">${esc(mascot.name)} looked everywhere, but that page isn't here. The games are right where we left them.</p>
     <p class="lost-links">${more("/", "Back home")} ${more("/games/", "See the games")}</p>

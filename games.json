@@ -23,10 +23,21 @@
       "android": null
     },
     "art": {
-      "hero": null,
+      "hero": {
+        "src": "/assets/games/tiny-trails-space/astro-hero.webp",
+        "srcSmall": "/assets/games/tiny-trails-space/astro-hero-1200.webp",
+        "width": 2400,
+        "height": 1350,
+        "alt": "A smiling little astronaut in a bubble helmet waves from a glowing trail that loops past little planets."
+      },
       "card": null,
       "icon": null,
-      "og": null,
+      "og": {
+        "src": "/assets/og/og-tiny-trails.jpg",
+        "width": 1200,
+        "height": 630,
+        "alt": "Tiny Trails: Space. A smiling little astronaut waves from a glowing trail among the planets."
+      },
       "screenshots": []
     },
     "accent": "#8B7CFF",

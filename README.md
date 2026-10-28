@@ -47,12 +47,14 @@ Commit the data files, any new images, and the regenerated files together.
 
 Every picture on the site comes from one of two art maps, and nothing else in the site build names an image file:
 
-- **`site.json` → `art`**: site-wide art (Rosie, her small head, favicons, the logo, the default share image, the hero backdrop, the About scene, stars, and icons).
+- **`site.json` → `art`**: site-wide art (Rosie, her small head, her 404 picture, favicons, the logo, the default share image, the home hero art, the About scene, stars, and icons).
 - **`games.json` → each game's `art`**: that game's hero art, games index card, icon, share image, and screenshots.
 
 `scripts/render-site.mjs` reads only these maps, and `site.css` loads only fonts. Swapping art never means editing code or CSS. `site.json` `mascot` holds only Rosie's text: `name` (used in most sentences), `fullName` (the About introduction), `pronouns`, and `species`.
 
-**Temporary art.** The owner wants a new Rosie (static and animated) and all site art redone in a new sticker style. Until then, the current Rosie wave re-export (`rosie-wave-386/260*.webp`) and the head export in `assets/mascot/head/` (the small heads, favicons, apple-touch icon, and logo) are **temporary placeholders pending the new Rosie**. The static Rosie (`rosie-full.webp`), the share image (`rosie-social.png`), the icons, and the stars are the current art and will be redone in the new style too.
+**Approved art.** The Tiny Trails key art with Astro (TT-HERO) is the home hero and the Tiny Trails page hero: `assets/games/tiny-trails-space/astro-hero.webp` (2400×1350) and `astro-hero-1200.webp` (1200×675), copied as delivered. The share cards are in `assets/og/`: `og-tiny-trails.jpg` (OG-TINY-TRAILS, final) and `og-home.jpg` (OG-HOME, **provisional**). Both were re-encoded from the delivered 1200×630 PNGs as baseline JPEG, quality 87 (116 KB each, down from 197 KB, and visually identical).
+
+**Temporary art.** The owner wants a new Rosie (static and animated, with a wave animation, favicons, and a 404 pose) and all site art redone in a new sticker style. Until the new Rosie arrives, **every Rosie file is a temporary slot fill**: the wave re-export (`rosie-wave-386/260*.webp`), the static Rosie (`rosie-full.webp`, also used for the 404 slot), and the head export in `assets/mascot/head/` (the small heads, favicons, apple-touch icon, and logo). The icons and stars are the current art and will be redone in the new style too.
 
 ### Swap a picture
 
@@ -66,7 +68,8 @@ Rules the build enforces:
 - **`null` (or a missing key) means the slot is empty.** Its element or section is left out completely, with no placeholder, no empty box, and no gap. The build lists every empty slot in a warning.
 - **A slot that is set must point to a real file**, in every mode, or the build stops and writes nothing. Paths start with `/`, like `/assets/mascot/rosie-new.webp`.
 - `width` and `height` are optional. When they are set, they must match the file, and the error message shows the real size. `src2x` must be twice the size of `src`.
-- `alt` is required wherever the picture means something (Rosie, game hero, screenshots, share images, About scene). Heads, icons, stars, cards, game icons, and the hero backdrop are decorative.
+- `alt` is required wherever the picture means something (Rosie, game hero, screenshots, share images, About scene). Heads, icons, stars, cards, game icons, and the home hero art are decorative.
+- `srcSmall` on a hero (`site.json` `art.hero` or a game's `art.hero`) must be a smaller copy of `src` with the same shape. Phones always get `srcSmall`; wider screens choose between the two by size (a 1x desktop gets `srcSmall`, a 2x one gets `src`).
 - Unknown keys stop the build, so a typo like `srcsmall` can't empty a slot without anyone noticing.
 - `art.retired` lists files that stay in the repo but no entry may use. Today that is the off-model `tt-hero-astro-3` art (`assets/games/tiny-trails-space/hero.webp` and its source PNG).
 
@@ -76,23 +79,26 @@ Display sizes are CSS pixels.
 
 | Slot | Shows on | Display size | Deliver | Current file |
 | --- | --- | --- | --- | --- |
-| `rosie.animated` | Home hero, beside the headline (above it on phones) | Up to 386×500 on desktop (`min(386px, 32vw)` wide); 240 px tall on phones (185×240 today) | Animated WebP `src` plus a same-size still WebP `still` for reduced motion. Optional phone pair: `srcSmall` + `stillSmall`. `width`/`height` and `widthSmall`/`heightSmall` are optional and checked. `alt` | **Temporary:** `assets/mascot/rosie-wave-386.webp` + `-386-still.webp` (386×500), `rosie-wave-260.webp` + `-260-still.webp` (260×337) |
-| `rosie.static` | About (300 px wide, about 218 on phones) and 404 (240 px wide). Also the home hero when `animated` is empty | Up to 386×500 | Transparent WebP or PNG `src` at 1x, optional `src2x` at 2x, `alt` | `assets/mascot/rosie-full.webp` (370×500), old Rosie art |
-| `rosie.head` | Header 48 px (44 on phones), footer and home studio line 64 px, support title 88 px (64 on phones) | 44–88 px square | Square WebP or PNG files keyed by pixel size: `64`, `128`, `256`. Each spot loads only the files that cover 1x and 2x | **Temporary:** `assets/mascot/head/rosie-head-64.webp`, `-128.webp`, `-256.webp` |
+| `rosie.animated` | Home studio section, below the fold, beside the studio line. Lazy-loaded, with `still` under reduced motion | 240 px tall (200 on phones), about 185 px wide at most, so only the phone pair (`srcSmall` + `stillSmall`) is sent there when it is set | Animated WebP `src` plus a same-size still WebP `still` for reduced motion. Optional smaller pair: `srcSmall` + `stillSmall`. `width`/`height` and `widthSmall`/`heightSmall` are optional and checked. `alt`. Keep the small animated file light (it is most of the home page weight today) | **Temporary, pending the new Rosie:** `assets/mascot/rosie-wave-386.webp` + `-386-still.webp` (386×500), `rosie-wave-260.webp` + `-260-still.webp` (260×337) |
+| `rosie.static` | About (300 px wide, about 218 on phones). Also the home studio section when `animated` is empty | Up to 386×500 | Transparent WebP or PNG `src` at 1x, optional `src2x` at 2x, `alt` | **Temporary:** `assets/mascot/rosie-full.webp` (370×500), old Rosie art |
+| `rosie.lost` | The 404 page, above "This page floated off" | 240 px wide (56% of the screen on phones) | Transparent WebP or PNG `src` at 1x, optional `src2x`, `alt`. The new Rosie's 404 pose goes here | **Temporary:** `assets/mascot/rosie-full.webp`, the same file as `rosie.static` until the 404 pose arrives |
+| `rosie.head` | Header 48 px (44 on phones), footer 64 px, support title 88 px (64 on phones). Also the home studio section when `animated` and `static` are both empty | 44–88 px square | Square WebP or PNG files keyed by pixel size: `64`, `128`, `256`. Each spot loads only the files that cover 1x and 2x | **Temporary:** `assets/mascot/head/rosie-head-64.webp`, `-128.webp`, `-256.webp` |
 | `favicon32`, `favicon48` | Browser tab icon | 32 and 48 px | PNG, exactly 32×32 and 48×48 | **Temporary:** `assets/mascot/head/favicon-32.png`, `favicon-48.png` |
 | `appleTouch` | Home-screen icon on phones | 180 px | PNG, exactly 180×180, opaque | **Temporary:** `assets/mascot/head/apple-touch-icon-180.png` |
 | `logo` | Organization `logo` in the home page's structured data (not shown on the page) | n/a | PNG, JPEG, or WebP, at least 112×112 | **Temporary:** `assets/mascot/head/rosie-head-256.png` |
-| `og.default` | Share image for every page without its own | 1200×630 | PNG or JPEG, `alt`. When empty, pages have no `og:image` tags | `assets/mascot/rosie-social.png` (OG-HOME pending) |
-| `hero` | Backdrop behind the home hero band, under the stars, Rosie, and text (decorative) | Cropped to cover the band: 540 px tall on desktop at any width, about 390×675 on phones | WebP, PNG, or JPEG `src` (about 2880×1080), optional `srcSmall` crop for phones (about 780×1350). Keep the area behind the headline calm | Empty |
+| `og.default` | Share image (`og:image`, `twitter:image`) for every page without its own | 1200×630 | PNG or JPEG, `alt` (also used for `og:image:alt` and `twitter:image:alt`). When empty, pages have no image tags | `assets/og/og-home.jpg` (OG-HOME, **provisional**) |
+| `hero` | The home hero band, behind the stars and text (decorative). The page's largest picture, so it loads first (`fetchpriority="high"`) | Wider than 960 px: as tall as the band (540 px, 620 px from 1200 px wide) at its own shape, right-aligned in a centred 1440 px frame. Up to 960 px: above the text, full width, 75vw tall (at most 560 px), cropped from the left | A wide WebP, PNG, or JPEG `src` (2400×1350, 16:9) plus `srcSmall`, a smaller copy of the same picture (1200×675). Put the subject on the right and keep the left half calm and dark, because the text sits there. Keep the subject between about 15% and 85% of the height, since the horizon curve covers the band's foot | `assets/games/tiny-trails-space/astro-hero.webp` + `astro-hero-1200.webp` (TT-HERO, approved) |
 | `aboutScene` | Full-width picture below the About text | Up to 1120 px wide | WebP, PNG, or JPEG `src` (for example 1120×630), optional `src2x`, `alt` | Empty (ABOUT-SCENE pending) |
 | `stars` | Home hero background stars and a few faint footer stars | 6–78 px, set per kind in `STAR_SIZES` | One entry per star kind: `"/sprite.svg#symbol-id"` or a plain SVG, WebP, or PNG file | `assets/twinkle/twinkle-sprite.svg` (TWINKLE-SET) |
 | `icons` | Sticker icons beside the home "For grown-ups" facts (`gift`, `key`, `hand`) and the game page lines (`trace`, `planet`, `helmet`, `replay`, `gift`, `key`) | 56 px (48 on phones) | One entry per name: `"/sprite.svg#symbol-id"` or a plain SVG file (or WebP/PNG at 112 px or more) | `assets/icons/icons-sprite.svg` (ICON-SET) |
 
-Rosie in the home hero: if `rosie.animated` is set, the page uses it, with `still` under `prefers-reduced-motion`. If it is empty, the page uses `rosie.static`. If both are empty, the hero has no Rosie and the text spans the band. An empty `rosie.head` removes the small heads from the header, footer, studio line, and support title, and the text closes up. Keep at least one favicon set: with no `<link rel="icon">`, browsers ask for `/favicon.ico`, which does not exist.
+The home hero shows `hero` (Astro) and no Rosie, so she never competes with the hero art. Rosie waves in the home studio section below the fold: `rosie.animated` if it is set (lazy, with `still` under `prefers-reduced-motion`), else `rosie.static`, else the small head, else nothing. She stays on About (`rosie.static`), Support (`rosie.head`), and 404 (`rosie.lost`). An empty `hero` leaves a text-only navy band with the same text layout and stars. An empty `rosie.lost` leaves the 404 page text only. An empty `rosie.head` removes the small heads from the header, footer, and support title, and the text closes up. Keep at least one favicon set: with no `<link rel="icon">`, browsers ask for `/favicon.ico`, which does not exist.
+
+`loading="lazy"` does not keep Rosie's wave out of the first load today. Chrome starts lazy images that are within about 1250 px of the screen, and the studio section is that close on desktops and phones. The temporary 260 px wave is 272 KB, so the new Rosie's small animated file should be much lighter.
 
 A sprite entry draws the symbol with `<svg><use href="/assets/icons/icons-sprite.svg#icon-gift"/></svg>`, so a sprite is one request for the whole site. Don't inline a sprite inside a `display: none` element, because some browsers then drop the glow filters. The build checks that the symbol exists in the sprite.
 
-The star layout is `HERO_STARS` and `FOOTER_STARS` in `scripts/render-site.mjs`. Each star gets a class (`.s1`, `.s2`, ... and `.f1`, ...), and `site.css` positions it, with separate rules for phones and for a hero without Rosie. The CSP forbids `style` attributes, so positions can't go in the HTML. Hero stars stay clear of Rosie's column at every width. On phones she stands at the top centre, so phone stars sit around the copy below her. Stars drift out and back over 60–120 s and stop under reduced motion. An empty star kind drops those stars and leaves the rest in place.
+The star layout is `HERO_STARS` and `FOOTER_STARS` in `scripts/render-site.mjs`. Each star gets a class (`.s1`, `.s2`, ... and `.f1`, ...), and `site.css` positions it. The CSP forbids `style` attributes, so positions can't go in the HTML. Hero stars stay clear of the hero text and the hero art at every width, over their whole drift. On wide screens they sit above the headline, in the gap between the text and the art, in the left margin, and under the buttons. Up to 960 px the art sits above the text, and the stars sit beside the headline and buttons. Stars drift out and back over 60–120 s and stop under reduced motion. An empty star kind drops those stars and leaves the rest in place. If a new `hero` puts its subject somewhere else, check the star positions again.
 
 `scripts/export-rosie.py` made the temporary wave files from the original loop, `assets/mascot/rosie-wave.webp` (it needs Python 3 with Pillow and numpy, and the script header explains each step). Retire it when the new Rosie arrives: the new files are exported at the sizes above and set in `art.rosie`.
 
@@ -102,13 +108,13 @@ Each entry is `null` or an object like `{ "src": "/assets/games/<id>/hero.webp",
 
 | Slot | Shows on | Display size | Deliver |
 | --- | --- | --- | --- |
-| `hero` | Beside the title in the home game section and on the game page. Also the games index row when there is no `card` | Up to 460 px wide | Cut-out WebP or PNG, about 800×700, optional `src2x`, `alt` |
+| `hero` | The game page's hero band, like the home hero: the art on the right (above the title up to 960 px) and the breadcrumb, title, and tagline on its calm left side. It is the page's largest picture, so it loads first. Also the games index row, cropped to 4:3 around its right side, when there is no `card`, and the home game section when it is a different picture from `site.json` `art.hero` | Same as the site `hero` | Same shape and rules as the site `hero`: WebP, PNG, or JPEG `src` (2400×1350) plus `srcSmall` (the same picture, 1200 wide), `alt` |
 | `card` | Games index row picture | Half the row, up to 536 px wide | WebP, PNG, or JPEG, 1280×800 (16:10). Decorative |
 | `icon` | Above the game title in the home game section, on the game page, and in the games index row | 72 px | Square WebP or PNG, `src` 72×72 and `src2x` 144×144. Decorative |
-| `og` | Share image for the game page | 1200×630 | PNG or JPEG, `alt`. Without it, the page uses `og.default` |
+| `og` | Share image for the game page, and for the games index while it lists only this game | 1200×630 | PNG or JPEG, `alt`. Without it, the page uses `og.default` |
 | `screenshots` | "A look inside" strip on the game page. It appears only when the list has at least one picture | 400 px wide each | WebP, PNG, or JPEG, 1200×750 (16:10), `alt` each |
 
-Tiny Trails: Space has every game slot empty today. TT-HERO (Astro design #2), TT-CARD, OG-TINY-TRAILS, and the sticker build's screenshots are pending.
+Tiny Trails: Space has `hero` (TT-HERO, Astro design #2, the same files as the site `hero`) and `og` (`assets/og/og-tiny-trails.jpg`, OG-TINY-TRAILS). `card`, `icon`, and `screenshots` are empty: TT-CARD and the sticker build's screenshots are pending.
 
 ## Add a new game
 
