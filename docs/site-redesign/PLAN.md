@@ -127,7 +127,7 @@ The wave must stay light: at most about 100 KB per file, ideally about 60 KB or 
 - **No-tracking/privacy is mentioned once** in site marketing copy: a single line in the footer, "No ads. No tracking. No accounts. Privacy policy". Remove it from the Home body, About, the game page facts, and the game meta description. The Privacy page itself is the policy, and the Support FAQ links to it without repeating the pitch.
 - **Clean, warm, polished, and kid-and-parent friendly.** Copy is written for the parent, and the art is for the kid.
 - Plain static HTML/CSS, no third-party anything (fonts, analytics, embeds, ads), and the CSP stays strict.
-- `/games/space-maze/` and `/games/tiny-trails-beta/` keep working exactly as they are (we don't edit those folders). The beta stays unlisted, out of the sitemap, and disallowed in robots.txt.
+- `/games/tiny-trails-beta/` keeps working exactly as it is (we don't edit that folder). The beta stays unlisted, out of the sitemap, and disallowed in robots.txt. `/games/space-maze/` is still served and not linked (the Tiny Trails: Space entry in `games.json` has no `play_url` or `play_label`). robots.txt disallows it (`Disallow: /games/space-maze/`), and its `index.html` has a neutral title and description and a `noindex` meta. The build is otherwise untouched. Removing the build (about 52 MB) is prepared only as the optional branch `site-redesign-remove-space-maze`, which needs Cassie's approval.
 
 ## Site structure
 
@@ -140,13 +140,13 @@ The wave must stay light: at most about 100 KB per file, ideally about 60 KB or 
 /support/                 Help for grown-ups: email (gated) + FAQ
 /privacy/                 Policy (legal page, plain), no TODO banner once owner details are filled
 /404.html                 Rosie (her own slot; the puzzled pose comes with the new Rosie), two links
-/games/space-maze/        UNCHANGED (live browser build)
+/games/space-maze/        NOT LINKED (old browser build, still served; noindex meta, disallowed in robots.txt)
 /games/tiny-trails-beta/  UNCHANGED (unlisted staging)
 ```
 
 **Navigation:** keep `Games · About · Support` (text links, no pill highlight; the current page gets an underline). On mobile, use a plain "Menu" text button with no outline that opens a full-width sheet. **Footer:** Rosie head, the tagline, the links Games · About · Support · Privacy, the one privacy line, "Made with care in Florida", and ©.
 
-**Play in browser:** keep linking to `/games/space-maze/`, but first show an interstitial on the game page, a short inline note under the button: "Plays right in your browser · about 24 MB, best on Wi-Fi". We can't add a back link inside the export because that folder is off limits. If the Director wants one later, it's a separate task in the game build. *Superseded October 28, 2026:* the site links no browser build (see [Cycle 2 decisions](#cycle-2-decisions), item 2).
+**Play in browser:** keep linking to `/games/space-maze/`, but first show an interstitial on the game page, a short inline note under the button: "Plays right in your browser · about 24 MB, best on Wi-Fi". We can't add a back link inside the export because that folder is off limits. If the Director wants one later, it's a separate task in the game build. *Superseded October 28, 2026:* the site links no browser build (see [Cycle 2 decisions](#cycle-2-decisions), item 2), and `games/space-maze/index.html` has since had small head edits (see [Non-negotiables](#non-negotiables-owner-preferences)).
 
 ## Page-by-page outline
 
@@ -279,7 +279,7 @@ Techniques: `<picture>` with `srcset` at 1×/2× (AVIF then WebP, then a PNG fal
 - Per-page titles and descriptions, written for parents ("Tiny Trails: Space, a calm tracing game for ages 3–6").
 - OG images in PNG/JPEG: OG-HOME for site pages (provisional), and OG-TINY-TRAILS (from `games.json` `art.og`) for the game page and for the games index while it lists one game. Each page sets `og:image` with its width, height, type, and alt, plus `twitter:image` and `twitter:image:alt`, as absolute `https://pinkrynostudios.com/` URLs.
 - JSON-LD: Organization (existing), plus `VideoGame` on game pages.
-- `sitemap.xml` lastmod comes from the render date (or git), not a constant. Robots and the beta exclusion stay unchanged.
+- `sitemap.xml` lastmod comes from the render date (or git), not a constant. The beta exclusion stays unchanged: `robots.txt` keeps `Disallow: /games/tiny-trails-beta/` and now also has `Disallow: /games/space-maze/`.
 
 ## Fit with the static generator
 
@@ -295,7 +295,7 @@ Changes to `render-site.mjs` (cycle 2, on this branch):
 6. A single privacy line in the footer from `site.json` `privacyLine`. Strip privacy phrases from `description` / `facts`.
 7. Card markup becomes "open" rows (`.game-row`) instead of `.card`/`.chip`, and `themes.css` keeps generating the accent as a title underline.
 8. CSS rewrite: one `site.css` (about 15 KB) with tokens, layout, hero band, star field, buttons, prose, and FAQ rows. Remove the chip, frame, art-slot, spark, review-note, and short-version styles.
-9. Don't touch `games/space-maze/`, `games/tiny-trails-beta/`, or `CNAME`. Keep `RESERVED` as is.
+9. Don't touch `games/tiny-trails-beta/` or `CNAME`. In `games/space-maze/`, only the head of `index.html` changed (a neutral title and description, and a `noindex` meta); leave the rest of the build as is. Keep `RESERVED` as is.
 
 ## Rollout
 
