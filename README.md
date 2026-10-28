@@ -25,6 +25,7 @@ Adding a game is one entry in [`games.json`](games.json), plus its images. You d
    - `hidden` is left out of the site and the sitemap.
 4. Leave `stores.ios` and `stores.android` as `null` until the real listing exists. Use a plain `https://` URL with no tracking parameters. The buttons stay off the page until then.
 5. Set `play_url` only for a page on this site, such as `/games/space-maze/`. Leave it `null` if there is no browser build yet.
+   - The Play in browser button renders only when `play_enabled` is `true` and `play_url` is set. With `false` (or missing), the button is hidden everywhere and `play_url` is kept so it can be switched back on. To turn it on, set `play_enabled` to `true` and re-run `node scripts/render-site.mjs`.
 6. Point `art` at image files under `assets/games/<id>/`. Until a file exists, the page shows a labeled art slot instead of a picture. Alt text lives in `art_alt`. Slot names live in `art_slots` and match [docs/art-requests.md](docs/art-requests.md).
 7. Pick an `accent` color (`#RRGGBB`). It is used as a stripe on the card, not as text.
 8. Run:

@@ -110,6 +110,9 @@ function loadGames() {
     } else {
       game.play_url = null;
     }
+    must(game.play_enabled == null || typeof game.play_enabled === "boolean", game.id + " play_enabled must be true or false");
+    // play_url stays in games.json so it can be switched back on; only play_enabled: true shows it.
+    if (game.play_enabled !== true) game.play_url = null;
     must(game.stores && typeof game.stores === "object", game.id + " needs stores");
     game.stores.ios = httpsOrNull(game.stores.ios, game.id + " stores.ios");
     game.stores.android = httpsOrNull(game.stores.android, game.id + " stores.android");
@@ -250,8 +253,9 @@ function gameMedia(game, kind, frameClass, eager, index) {
 }
 
 function chips(game) {
-  const statusClass = game.status === "live" ? "chip chip-mint" : "chip chip-peach";
-  const statusLabel = game.status === "live" ? "Ready to play" : "Coming soon";
+  const ready = game.status === "live" && Boolean(game.play_url || game.stores.ios || game.stores.android);
+  const statusClass = ready ? "chip chip-mint" : "chip chip-peach";
+  const statusLabel = ready ? "Ready to play" : "Coming soon";
   return `<div class="chips"><span class="chip chip-lavender">Ages ${esc(game.ages)}</span> <span class="${statusClass}">${statusLabel}</span></div>`;
 }
 
@@ -277,6 +281,8 @@ function actions(game, includePageLink, showNote) {
   let note = "";
   if (showNote && game.status === "coming-soon") {
     note = `<p>This game is still being made. It will show up here when it is ready to play.</p>`;
+  } else if (game.status === "live" && !game.play_url && !game.stores.ios && !game.stores.android) {
+    note = `<p>Coming soon to phones and tablets.</p>`;
   } else if (showNote && !game.stores.ios && !game.stores.android) {
     note = `<p>App Store and Google Play buttons appear here when those listings are live.</p>`;
   }
@@ -418,10 +424,8 @@ ${main}
 `;
 }
 
-function reviewNote() {
-  return `<aside class="review-note">
-      <p><strong>TODO for the owner:</strong> confirm the support email ${esc(SUPPORT_EMAIL)} before this page is used on an App Store or Google Play listing. Also confirm the studio's legal name and mailing address in the privacy policy.</p>
-    </aside>`;
+function anyPlayLink(visible) {
+  return visible.some((game) => game.play_url);
 }
 
 function pageHome(visible) {
@@ -466,7 +470,7 @@ function pageHome(visible) {
   <section class="section wrap" aria-labelledby="now-playing">
     <div class="section-head">
       <h2 id="now-playing">Now playing</h2>
-      <p>What is free, what the one-time unlock adds, and where to press play.</p>
+      <p>${anyPlayLink(visible) ? "What is free, what the one-time unlock adds, and where to press play." : "What is free and what the one-time unlock adds."}</p>
     </div>
     ${nowPlaying}
     ${also}
@@ -650,9 +654,8 @@ function pageAbout() {
 
 function pagePrivacy() {
   const main = `<article class="section wrap prose">
-    ${reviewNote()}
     <h1>Privacy policy</h1>
-    <p>Effective October 22, 2026. This policy covers the PinkRyno Studios website and our games, including Tiny Trails: Space on the web, the Apple App Store, and Google Play.</p>
+    <p>Effective October 27, 2026. This policy covers the PinkRyno Studios website and our games played in the web browser on this site. We will update it before any of our games launch as apps.</p>
     <div class="short-version" id="short">
       <h2>The short version</h2>
       <p><strong>PinkRyno Studios does not collect personal data.</strong> Our games and this website have no ads, no tracking, and no third-party advertising, analytics, or social SDKs.</p>
@@ -675,10 +678,10 @@ function pagePrivacy() {
       </ol>
     </nav>
     <h2 id="who">Who we are</h2>
-    <p>PinkRyno Studios is an independent game studio in Florida, USA. TODO for the owner: replace this sentence with the legal name and a mailing address before the policy is linked from a store listing.</p>
+    <p>PinkRyno Studios is an independent game studio in Florida, USA.</p>
     <p>The contact for privacy questions is ${mailLink()}.</p>
     <h2 id="covers">What this policy covers</h2>
-    <p>It covers pinkrynostudios.com and the games we publish for children, including games offered under the Apple App Store kids category and Google Play Families. If a store listing asks for a privacy policy URL, this page is that URL.</p>
+    <p>It covers pinkrynostudios.com and the games we host on it for children.</p>
     <h2 id="collect">Information we collect</h2>
     <p>We do not collect personal information through the website or our games. Personal information means information that identifies a person or can reasonably be linked to a person. That includes a name, email address, phone number, photo, voice, precise location, contacts, and an account identifier.</p>
     <p>There are no accounts, no sign-up forms, and no profile to fill in. We do not ask a child for any of those things. We do not collect gameplay analytics.</p>
@@ -686,24 +689,23 @@ function pagePrivacy() {
     <p>We do not show ads. We do not let anyone else show ads in our games or on this website. We do not use interest-based advertising.</p>
     <p>We do not use third-party advertising SDKs, analytics SDKs, attribution SDKs, crash-reporting SDKs, or social SDKs. The website does not load fonts, pictures, or scripts from any other site.</p>
     <h2 id="purchases">Purchases</h2>
-    <p>Some games may offer a one-time unlock. There is no subscription. If you buy an unlock, Apple or Google processes the payment under that store's own terms and privacy policy. We do not receive your payment card number. We do not receive a child's name from the store.</p>
-    <p>The unlock is tied to the store account that paid, which is how Restore Purchases works. See the <a href="/support/">support page</a>.</p>
+    <p>There is nothing to buy on this website, and the games here are free to play. We do not collect payment information.</p>
     <h2 id="cookies">Cookies and device storage</h2>
-    <p>This website does not set cookies. It does not use local storage, session storage, or similar storage. The parental gate asks a grown-up a question in the moment and does not save the answer.</p>
+    <p>This website does not set cookies. The game saves progress (stars and settings) on your device, in the browser's storage. That progress is not sent to us or to anyone else, and there are no accounts, ads, or trackers. Clearing this site's data in your browser erases it. The parental gate does not save its answer.</p>
     <h2 id="children">Children</h2>
     <p>Our games and this website are directed to children under 13, and parents use them too. We follow the Children's Online Privacy Protection Act by not collecting personal information from children. Because we do not collect it, we do not ask for verifiable parental consent to collect it.</p>
     <p>We do not knowingly receive personal information from a child. If you believe we have, email us and we will delete it.</p>
     <h2 id="email">Email you send us</h2>
     <p>If you email ${mailLink()}, we receive whatever you choose to write, and we use it only to reply. Please do not include a child's name, photo, or precise location. We do not add your address to a mailing list. You can ask us to delete the conversation and we will.</p>
     <h2 id="delete">How to delete information</h2>
-    <p>We do not have a player profile to delete. To remove a game from a device, uninstall it. To stop using the website, close the tab. Purchases remain with Apple or Google, and you manage them in that store account. To delete emails you sent us, write to ${mailLink()} and ask.</p>
+    <p>We do not have a player profile to delete. To erase a game's saved progress, clear this site's data in your browser. To delete emails you sent us, write to ${mailLink()} and ask.</p>
     <h2 id="hosting">Hosting</h2>
     <p>These pages are static files. We do not add analytics, and we do not receive a report of who visited or what a child played.</p>
     <p>The company that hosts the files may keep ordinary technical logs, such as an IP address and the page that was requested, to keep the service secure. We do not use those logs to identify a child, build a profile, or advertise, and we do not combine them with other information.</p>
     <h2 id="changes">Changes</h2>
-    <p>If we change this policy, we will update the date at the top of the page. The store listings point at this same URL.</p>
+    <p>If we change this policy, we will update the date at the top of the page.</p>
     <h2 id="contact">Contact</h2>
-    <p>Privacy questions and support go to the same place: ${mailLink()}. The <a href="/support/">support page</a> also covers restore purchases and uninstalling a game.</p>
+    <p>Privacy questions and support go to the same place: ${mailLink()}. The <a href="/support/">support page</a> answers common questions.</p>
   </article>`;
   return layout({
     title: "Privacy Policy · PinkRyno Studios",
@@ -714,9 +716,17 @@ function pagePrivacy() {
   });
 }
 
-function pageSupport() {
+function pageSupport(visible) {
+  const canPlay = anyPlayLink(visible);
+  const playStaysHere = canPlay ? " Play in the browser stays on our site and does not ask." : "";
+  const playFaq = canPlay
+    ? `
+      <details>
+        <summary>Playing in the browser</summary>
+        <p><a href="/games/tiny-trails-space/">Tiny Trails: Space</a> can be played in the browser from its game page. That version is hosted on this site. It does not ask for an account.</p>
+      </details>`
+    : "";
   const main = `<article class="section wrap">
-    ${reviewNote()}
     <div class="about-grid">
       <div class="portrait">
         ${mascotStage("here to help parents with support questions", true)}
@@ -724,7 +734,7 @@ function pageSupport() {
       <div class="prose">
         <p class="eyebrow">Support</p>
         <h1>${esc(mascot.name)} is here to help</h1>
-        <p>A grown-up can write to us about a purchase, a device, or anything that felt off in a game. This page is the support contact for our website and for our App Store and Google Play listings.</p>
+        <p>A grown-up can write to us about a device, a browser, or anything that felt off in a game. Store details will be added here when our games launch as apps.</p>
         <p>Email ${mailLink()}. The link asks a short multiplication question first, so a small child does not open the mail app. The address is ${esc(SUPPORT_EMAIL)}.</p>
       </div>
     </div>
@@ -733,33 +743,24 @@ function pageSupport() {
     </div>
     <div class="faq">
       <details>
-        <summary>Restore purchases</summary>
-        <p>Open the game and go to the Grown-ups area. Choose Restore Purchases. Sign in with the same Apple ID or Google account that bought the unlock. The purchase lives on that store account. We do not have an account for your child, so there is nothing to sign in to on our side.</p>
-        <p>If the unlock does not come back, email us and tell us which store you used. Please do not include a child's name.</p>
-      </details>
-      <details>
         <summary>The parental gate</summary>
-        <p>Links that leave this website ask a grown-up to answer a short multiplication question first. That includes app stores and email. Play in the browser stays on our site and does not ask.</p>
+        <p>Links that leave this website ask a grown-up to answer a short multiplication question first. That includes email.${playStaysHere}</p>
         <p>The question is a speed bump so a small child does not wander off to another site. It is not an account, and we do not save the answer.</p>
       </details>
       <details>
         <summary>Deleting data</summary>
-        <p>We do not collect personal data, so there is no profile to delete. To remove a game, uninstall it. To leave the website, close the tab. Purchases stay with Apple or Google. You manage or refund those in the store account.</p>
+        <p>We do not collect personal data, so there is no profile to delete. Game progress is saved only in your browser, and clearing this site's data erases it.</p>
         <p>The full explanation is in the <a href="/privacy/">privacy policy</a>.</p>
-      </details>
-      <details>
-        <summary>Playing in the browser</summary>
-        <p><a href="/games/tiny-trails-space/">Tiny Trails: Space</a> can be played in the browser from its game page. That version is hosted on this site. It does not ask for an account.</p>
-      </details>
+      </details>${playFaq}
       <details>
         <summary>Something went wrong</summary>
-        <p>Email ${mailLink()} and tell us the game, the device (iPhone, iPad, Android, or a browser), and what happened. Please do not send a child's name, photo, or precise location. A grown-up's first name and the store they used is enough.</p>
+        <p>Email ${mailLink()} and tell us the game, the device and browser, and what happened. Please do not send a child's name, photo, or precise location. A grown-up's first name is enough.</p>
       </details>
     </div>
   </article>`;
   return layout({
     title: "Support · PinkRyno Studios",
-    description: "Contact PinkRyno Studios for help with restore purchases, the parental gate, and our games for ages 3 to 6.",
+    description: "Contact PinkRyno Studios for help with the parental gate and our games for ages 3 to 6.",
     path: "/support/",
     current: "support",
     main,
@@ -834,7 +835,7 @@ function main() {
   for (const game of visible) writeRel(`games/${game.id}/index.html`, pageGame(game));
   writeRel("about/index.html", pageAbout());
   writeRel("privacy/index.html", pagePrivacy());
-  writeRel("support/index.html", pageSupport());
+  writeRel("support/index.html", pageSupport(visible));
   writeRel("404.html", pageNotFound());
   writeRel("sitemap.xml", sitemap(visible));
   console.log("Rendered " + visible.length + " game page(s) and the studio pages.");
