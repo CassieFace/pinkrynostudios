@@ -17,7 +17,8 @@
  * The mascot text, studio details, and footer privacy line come only from site.json.
  * Games come only from games.json. A game's Play in browser button, and every
  * line that talks about playing in the browser, render only when its
- * play_enabled is true and play_url is set.
+ * play_enabled is true and play_url is set. A game with no play_url renders no
+ * play button; play_enabled true without a play_url stops the build.
  *
  * Every picture comes from an art map: site.json "art" for site-wide art (Rosie,
  * favicons, logo, share image, hero, stars, icons) and each game's "art" in
@@ -360,7 +361,11 @@ function loadGames(file) {
       game.play_url = null;
     }
     must(game.play_enabled == null || typeof game.play_enabled === "boolean", game.id + " play_enabled must be true or false");
-    // play_url stays in games.json so it can be switched back on; only play_enabled: true shows it.
+    must(
+      game.play_enabled !== true || game.play_url,
+      `games.json ${game.id} has "play_enabled": true but no play_url. Add the browser build's play_url (a page on this site), or set "play_enabled" to false.`
+    );
+    // Only play_enabled: true shows a play_url, so a game without it renders no browser-play wording.
     if (game.play_enabled !== true) game.play_url = null;
     game.play_label = textOrNull(game.play_label, game.id + " play_label") || "Play in browser";
     must(game.stores && typeof game.stores === "object", game.id + " needs stores");

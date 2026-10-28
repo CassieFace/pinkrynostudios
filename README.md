@@ -2,7 +2,7 @@
 
 Static website for [pinkrynostudios.com](https://pinkrynostudios.com). GitHub Pages serves the files in this repository. There is no build step on Pages and no change to Pages settings. The pages are generated locally and committed.
 
-The live browser game stays at `games/space-maze/`. Do not edit that folder, `games/tiny-trails-beta/`, or `CNAME` from the website work.
+The old browser build stays in the repo at `games/space-maze/`, and no generated page links to it or to any other browser build (see [Add a new game](#add-a-new-game), step 7). Do not edit that folder, `games/tiny-trails-beta/`, or `CNAME` from the website work.
 
 ## Build the pages
 
@@ -20,7 +20,7 @@ The script writes the pages, `assets/css/themes.css`, and `sitemap.xml`. It over
 
 Before it writes anything, the script checks its own output. If any check fails, it stops with a list of problems and writes nothing:
 
-- Every entry in the art maps (`site.json` `art` and each game's `art` in `games.json`), and `play_url`, is either `null` or points to a file that exists. This check runs in every mode, `--release` included.
+- Every entry in the art maps (`site.json` `art` and each game's `art` in `games.json`), and a game's `play_url` when it has one, is either `null` or points to a file that exists. This check runs in every mode, `--release` included.
 - `assets/css/site.css` loads only fonts. Pictures come from the art maps and render as markup.
 - Every link, image, stylesheet, and share-image URL in the generated pages points to a local file, and uses an absolute path such as `/assets/...`. GitHub Pages serves `404.html` at any missing URL, at any depth, so a relative path would break there.
 - Links that leave the site (email and app stores) carry `data-parent-gate`, so nothing loads from another site.
@@ -123,16 +123,19 @@ Tiny Trails: Space has `hero` (TT-HERO, Astro design #2, the same files as the s
 Adding a game is one entry in [`games.json`](games.json), plus its images. You do not redesign the pages.
 
 1. Copy the Tiny Trails: Space object in `games.json`.
-2. Set a new `id` (lowercase letters, numbers, and hyphens). `page` must be `/games/<id>/`. `short_title` is the name on the home hero button ("Play Tiny Trails", shown while `play_enabled` is `true`).
+2. Set a new `id` (lowercase letters, numbers, and hyphens). `page` must be `/games/<id>/`. `short_title` is the name on the home hero button ("Play Tiny Trails", shown only while the game has a linked browser build: `play_enabled` is `true` and `play_url` is set).
 3. Set `status` to `live`, `coming-soon`, or `hidden`.
    - `live` and `coming-soon` get a page, a row on the games index, and a sitemap entry.
    - `hidden` is left out of the site and the sitemap.
 4. Write the copy for parents: `tagline`, `summary`, `description` (the meta description), `ages` (like `3–6`), `free_content`, `unlock`, `trial`, and `web_note`. `price` is the one-time unlock price, like `$0.99`, or `null`.
 5. `highlights` are the "How it plays" lines. Each one has `text` and an `icon`: `trace`, `planet`, `helmet`, `replay`, `gift`, `key`, or `hand` (the names in `site.json` `art.icons`). An icon whose entry is empty is left out and the text stays.
 6. Leave `stores.ios` and `stores.android` as `null` until the real listing exists. Use a plain `https://` URL with no tracking parameters. The store buttons stay off the page until then. A live game with no store link and no browser build shows a peach "Coming soon" tag and the line "Coming soon to phones and tablets."
-7. Set `play_url` to the browser build on this site, or `null` if there is none. **It is the single setting for every Play in browser button.** It must be a page on this site, such as `/games/space-maze/`. Tiny Trails: Space uses `/games/space-maze/`, the build the live site has always used. When the sticker-style rebuild's web build is ready, flip `play_url` to its folder and re-run the script. `play_size_note` (for example `about 24 MB, best on Wi-Fi`) shows under the button on the game page.
-   - The Play in browser button renders only when `play_enabled` is `true` and `play_url` is set. With `false` (or missing), the button is hidden everywhere and `play_url` is kept so it can be switched back on. To turn it on, set `play_enabled` to `true` and re-run `node scripts/render-site.mjs`.
-   - `play_enabled` must be `true`, `false`, or left out (which counts as `false`); the build stops on anything else. While it is off, everything that talks about playing in the browser is left out too: the home hero button reads "See Tiny Trails: Space" instead of "Play Tiny Trails", and the size note, `web_note`, the support page's "Playing in the browser" question, and the `Web Browser` platform in the structured data are all hidden. Tiny Trails: Space has `play_enabled: false` today.
+7. **Browser build.** The site links no browser build today. Tiny Trails: Space has `play_enabled: false` and no `play_url` or `play_label`, so no page shows a play button, a size note, or other browser-play wording. The old build in `games/space-maze/` stays in the repo, unlinked. A new game build gets its own `games.json` entry and `play_url` later, when it is ready.
+   - `play_url` is the browser build's page on this site, such as `/games/<folder>/`. It must exist, and it cannot point to `/games/tiny-trails-beta/`. Leave it out (or `null`) when there is no browser build. **It is the single setting for every play button.**
+   - `play_enabled` must be `true`, `false`, or left out (which counts as `false`); the build stops on anything else. The play button renders only when `play_enabled` is `true` and `play_url` is set. A game with no `play_url`, or with `play_enabled: false`, renders no play button and no size note, and the build runs normally. `play_enabled: true` without a `play_url` stops the build with an error.
+   - `play_label` is the button text. It is optional and defaults to "Play in browser".
+   - `play_size_note` (for example `about 24 MB, best on Wi-Fi`) shows under the play button on the game page and in the support page's "Playing in the browser" answer. `web_note` shows under "What's free" on the game page and in the support page's unlock answer. Both show only while the play button does.
+   - While there is no play button, everything else that talks about playing in the browser is left out too: the home hero button reads "See Tiny Trails: Space" instead of "Play Tiny Trails", the game page's "Questions?" line skips "Playing in the browser", and the support page's "Playing in the browser" question and the `Web Browser` platform in the structured data are hidden.
 8. Fill in the game's `art` map (`hero`, `card`, `icon`, `og`, `screenshots`) with files under `assets/games/<id>/`. Each entry carries its own `alt`, like `"hero": { "src": "/assets/games/<id>/hero.webp", "alt": "..." }`. Every picture is optional: leave the entry `null` (or `screenshots` empty) and that picture is left out, with no placeholder. A path that is set must point to a real file, or the build stops. The slots, sizes, and formats are in [Game slots](#game-slots-gamesjson-art). `assets/games/tiny-trails-space/hero.webp` and its source `tt-hero-astro-3.png` are off-model and listed in `site.json` `art.retired`, so the build refuses them.
 9. Pick an `accent` color (`#RRGGBB`). It is the thin underline under the game's title.
 10. Run `node scripts/render-site.mjs`, then commit `games.json`, the new images, and the generated files (`games/<id>/index.html`, the home page, the games index, `assets/css/themes.css`, and `sitemap.xml`).
