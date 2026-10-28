@@ -6,7 +6,7 @@ Do not draw these as pixel art, and do not trace or restyle another studio's cha
 
 ## Mascot: Rosie Ryno
 
-The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhino. `site.json` holds her `name` and `fullName` under `mascot`, and every image path under `art`. The site uses the final approved **Rosie AB set** from the art handoff folder (`art-for-site/rosie/`): the wave and its stills (`assets/mascot/rosie-wave-386.webp`, `rosie-wave-386-still.webp`, `rosie-wave-260.webp`, `rosie-wave-260-still.webp`), the full-body Rosie on About (`rosie-full-512.webp`, `rosie-full-1024.webp`), the puzzled pose on the 404 page (`rosie-puzzled-512.webp`, `rosie-puzzled-1024.webp`), the head set in `assets/mascot/head/` (header, footer, support title, the PNG favicons, the apple-touch icon, and the logo), and `/favicon.ico`. The original Rosie art and the older rhinoceros files (`pinkrynostudios-mascot.png`, `pinkrynostudios-head.png`, and the WebP copies) stay in the repo and are not linked. Do not draw more of that older character.
+The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhino. `site.json` holds her `name` and `fullName` under `mascot`, and every image path under `art`. The site uses the final approved **Rosie AB set** from the art handoff folder (`art-for-site/rosie/`): the wave and its stills (`assets/mascot/rosie-wave-386.webp`, `rosie-wave-386-still.webp`, `rosie-wave-260.webp`, `rosie-wave-260-still.webp`), the full-body Rosie on About (`rosie-full-512.webp`, `rosie-full-1024.webp`), the puzzled pose on the 404 page (`rosie-puzzled-512.webp`, `rosie-puzzled-1024.webp`), the head set in `assets/mascot/head/` (header, footer, support title, the PNG favicons, the apple-touch icon, and the logo), and `/favicon.ico`. The original Rosie art and the older rhinoceros files (`pinkrynostudios-mascot.png`, `pinkrynostudios-head.png`, and the WebP copies) were removed from the `site-redesign` branch as unused. They remain on `main` until the branch is merged. Do not draw more of that older character.
 
 A new pose is only an `art` map change in `site.json`, then `node scripts/render-site.mjs`.
 
@@ -43,7 +43,7 @@ Optional, not slotted on the page yet. Say if you want them wired in:
 
 | Slot | Suggested file | Notes |
 | --- | --- | --- |
-| OG-SHARE | `assets/mascot/rosie-social.webp` | Social share image, 1200×630. This file is already the mascot on the site mist color. A future illustrated card can replace `art.og.default` in `site.json`. |
+| OG-SHARE | `assets/og/og-home.jpg` (OG-HOME) | Delivered and slotted as `art.og.default` in `site.json`: the 1200×630 share image for Home, About, Support, Privacy, and the 404 page (the games index and the Tiny Trails: Space page use OG-TINY-TRAILS from `games.json`). A future illustrated card can replace `art.og.default`. The older `assets/mascot/rosie-social.webp` was removed from the `site-redesign` branch as unused. |
 | MASCOT-LOST | `assets/mascot/rosie-puzzled-512.webp` | Delivered with the Rosie AB set and slotted in `art.rosie.lost` (the 1024 file is its 2x). |
 | TT-TRAILER | `assets/games/tiny-trails-space/trailer.webp` | A short silent trailer still or looping WebP. Prefer a real capture from the game once the cosmic sticker build exists. |
 
