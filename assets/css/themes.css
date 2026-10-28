@@ -1,2 +1,2 @@
-/* Generated from games.json accent colors. Soft tints on game features. */
-.game-tiny-trails-space{--stripe:#8B7CFF}
+/* Generated from games.json accent colors. Used as the thin underline under each game title. */
+.game-tiny-trails-space{--accent:#8B7CFF}

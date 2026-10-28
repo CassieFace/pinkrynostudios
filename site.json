@@ -1,4 +1,10 @@
 {
+  "studio": {
+    "legalName": null,
+    "address": null,
+    "supportEmail": "support@pinkrynostudios.com"
+  },
+  "privacyLine": "No ads. No tracking. No accounts.",
   "mascot": {
     "name": "Rosie",
     "fullName": "Rosie Ryno",
@@ -21,6 +27,11 @@
       "width": 256,
       "height": 256
     },
+    "icon": {
+      "webp": "/assets/mascot/rosie-head-128.webp",
+      "width": 128,
+      "height": 128
+    },
     "favicon": "/assets/mascot/favicon.png",
     "appleTouch": "/assets/mascot/apple-touch-icon.png",
     "social": {
@@ -30,11 +41,18 @@
       "height": 630
     },
     "hero": {
-      "webp": "/assets/mascot/rosie-wave.webp",
-      "stillWebp": "/assets/mascot/rosie-wave-still.webp",
-      "png": "/assets/mascot/rosie-wave.png",
-      "width": 386,
-      "height": 500
+      "large": {
+        "anim": "/assets/mascot/rosie-wave-386.webp",
+        "still": "/assets/mascot/rosie-wave-386-still.webp",
+        "width": 386,
+        "height": 500
+      },
+      "small": {
+        "anim": "/assets/mascot/rosie-wave-260.webp",
+        "still": "/assets/mascot/rosie-wave-260-still.webp",
+        "width": 260,
+        "height": 337
+      }
     }
   }
 }

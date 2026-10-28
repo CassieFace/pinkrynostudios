@@ -1,6 +1,18 @@
 # pinkrynostudios.com redesign plan (cycle 1)
 
-Status: proposal for the Studio Director. Nothing here is live. Work happens on the `site-redesign` branch, and nothing goes to `main` without Director approval of a preview. Read with [AUDIT.md](AUDIT.md).
+Status: proposal for the Studio Director. Nothing here is live. Work happens on the `site-redesign` branch, and nothing goes to `main` without Director approval of a preview. Read with [AUDIT.md](AUDIT.md). The Director's answers to the open questions are in [Cycle 2 decisions](#cycle-2-decisions). Where they differ from the cycle 1 text below, the decisions win.
+
+## Cycle 2 decisions
+
+Recorded October 27, 2026. The first cycle 2 pass on this branch implements all of them.
+
+1. **Price and what's free.** The one-time unlock is **$0.99**. Free Play is free, and the Sun, Earth, and Moon worlds are free. There is **one shared 3-use trial** of locked content. The web (browser) build contains **the free content only**. These live in `games.json` (`price`, `free_content`, `unlock`, `trial`, `web_note`) and feed the home facts, the game page's "What's free / What the $0.99 unlock adds" columns, the support FAQ, and the `VideoGame` structured data.
+2. **Play URL.** `games.json` `play_url` stays `/games/space-maze/`, which is what the live site uses today. It is the single setting for every Play in browser button. Flip it to the sticker-style rebuild's web build when that is ready. `play_size_note` ("about 24 MB, best on Wi-Fi") shows under the button on the game page.
+3. **Rosie stays as she is.** Her current art and her existing wave, squint, and hop animation stay. Nobody redraws or restyles her. The wave loop is re-exported crisp and lighter by `scripts/export-rosie.py` (never shown larger than its native size at 1×: 386 px wide on desktop, a 260 px file on phones). The original `rosie-wave.webp` stays in the repo untouched. ROSIE-WAVE and ROSIE-WAVE-LOOP are dropped from the art list.
+4. **No stars on Rosie.** `SPARK`, `.spark`, and `floaty` are gone. Rosie's own files (`rosie-full.webp` and the `rosie-wave` loop) have no baked-in stars, so only those SVG stars needed removing. The only stars are a slow CSS star field on the home hero band (three layers, 110–160 s cycles, static under reduced motion). Nothing sits behind or around Rosie.
+5. **Owner details.** `site.json` has `studio.legalName`, `studio.address`, and `studio.supportEmail`. The support email, support@pinkrynostudios.com, is live and appears in the footer, once on the support page, and in the privacy policy's Contact section, always through the parental gate. The legal name and address stay `null` until the owner has them, before the January store launch. The normal build leaves them out cleanly (the privacy page says the studio is an independent game studio in Florida, USA). `node scripts/render-site.mjs --release` refuses to build until all three are set.
+6. **No placeholders.** The TODO banners and art slots are gone. Missing art means the section is left out.
+7. **Tiny Trails hero art.** `tt-hero-astro-3` (`assets/games/tiny-trails-space/hero.webp` and its source PNG) is off-model, not Astro design #2, and is retired from the site. The files stay in the repo but nothing links them. Until Astro design #2 art arrives, the home game section and the game page hero are text-led, and the `VideoGame` image falls back to the site share image.
 
 ## Goals
 
@@ -103,17 +115,19 @@ Target: 4 sections, 0 cards, 1 primary button above the fold, ≤ 250 KB.
   - No chips. Age, price, and status are plain text separated by middots.
   - Section separators are a single soft planet-horizon curve (SVG, about 1 KB), used at most twice per page.
 - **Background stars:** a CSS-only star field (`radial-gradient` dots on 2–3 pseudo-element layers, `translateY` drift at 90 s and 140 s, plus 4–6 small four-point twinkle SVG sprites drifting slowly across the band). They live on the hero band's background, at fixed positions relative to the band, never inside `.mascot-stage`, and under `prefers-reduced-motion` they're static.
-- **Rosie's motion:** prefer a CSS bob on a crisp still image over the 1.35 MB animated WebP. If the owner wants the wave kept, replace it with a short sprite loop (6–8 frames) at 2× resolution, or an AVIF/WebM loop of 150 KB or less, with no stars baked in (see the art list).
+- **Rosie's motion:** *Decided in cycle 2:* keep the existing wave loop, re-exported by `scripts/export-rosie.py`, with a still frame for reduced motion.
 - **Photography and screens:** real game captures only. Don't use mockups that misrepresent the game. If the live browser build stays pixel art while the store build is sticker art, show the store build's screens and label the browser version honestly. *Director decision needed:* which build is "Tiny Trails: Space" for the site?
 
 ## Art needed from the Art Director
 
-All art should match the style anchor in [`docs/art-requests.md`](../art-requests.md): deep plum `#2B1E4A` outlines, flat two-tone cel shading, one soft violet drop shadow down-right, and the cosmic candy palette. Deliver **transparent PNG masters at 2× the listed size** and I'll export WebP/AVIF. Nothing should have stars, sparkles, or text baked into a Rosie asset.
+**Every piece of art requested below must match the outlined cosmic sticker style:** deep plum `#2B1E4A` outlines on every shape, flat two-tone cel shading, one soft violet drop shadow down and to the right, and the cosmic candy palette (lavender, peach, mint, butter yellow, sky teal, with navy-violet only for space). The style anchor and prompts are in [`docs/art-requests.md`](../art-requests.md). Deliver **transparent PNG masters at 2× the listed size** and I'll export WebP/AVIF. Nothing should have stars, sparkles, or text baked into a Rosie asset.
+
+Rosie's hero is not on this list. The Director decided her current art and wave animation stay, re-exported crisp (see [Cycle 2 decisions](#cycle-2-decisions)), so ROSIE-WAVE and ROSIE-WAVE-LOOP were removed.
+
+The Tiny Trails explorer on the site must be **Astro design #2**: Midjourney job `76179866-926d-4694-803d-68e713e4b88b`, as defined in `docs/art/ART-BIBLE.md` of the tiny-trails-framework repo, branch `rebuild`. The earlier key art `tt-hero-astro-3` is off-model and has been retired from the site, so every TT row below is a new Astro design #2 request.
 
 | ID | What | Deliver (master) | Site export | Used on |
 | --- | --- | --- | --- | --- |
-| ROSIE-WAVE | Rosie waving, full body, **re-drawn in the flat sticker style** (plum outline, flat cel shading), no ground shadow, no stars | PNG transparent, 1000×1300 | WebP 500×650 @1×, 1000×1300 @2×, ≤ 60 KB each | Home hero |
-| ROSIE-WAVE-LOOP (optional) | 6–8-frame wave cycle of the same pose, frames on a sprite sheet, no stars | PNG sprite sheet, 8 × 1000×1300 | WebP sprite ≤ 150 KB, or AVIF/WebM ≤ 150 KB | Home hero (motion) |
 | ROSIE-SIT | Rosie sitting, hugging a small lavender planet | PNG transparent, 1000×1000 | WebP 480/960, ≤ 50 KB | About |
 | ROSIE-HEAD | Head-only portrait, sticker style, front-facing, smiling | PNG transparent, 512×512 | WebP 64/128, favicon 32/48 PNG, apple-touch 180 PNG, SVG if possible | Header, footer, favicon |
 | ROSIE-HELP | Rosie head and shoulders, small friendly "hi" gesture | PNG transparent, 600×600 | WebP 160/320 | Support H1 |
@@ -121,15 +135,16 @@ All art should match the style anchor in [`docs/art-requests.md`](../art-request
 | TWINKLE-SET | 3 four-point twinkles and 3 tiny dot stars, plum outline, butter, peach and lavender fills, as separate shapes | **SVG** (single path each, no gradients) | inline SVG ≤ 1 KB total | Background star field only |
 | PLANET-HORIZON | Soft curved planet edge (lavender with mint craters) for the hero bottom | **SVG**, 1440×120 viewBox | inline SVG ≤ 2 KB | Hero → page transition |
 | ICON-SET | 7 small sticker icons: trace finger, planet, explorer helmet, replay arrow, gift (free), key (unlock), small hand | **SVG**, 64×64 viewBox, plum outline | inline SVG | Home facts, game page |
-| TT-CARD | Already listed in `art-requests.md` | PNG 2560×1600 | WebP 1280×800 / 640×400 | Games index |
-| TT-SCREENS ×3 | **Real captures from the sticker build** (trace, world select, star at the end), not illustrations | PNG 2400×1500 (16:10) or device-native | WebP 1200×750 / 600×375, ≤ 80 KB each | Game page strip |
+| TT-HERO | Tiny Trails: Space key art with **Astro design #2** on a small planet beside the smiling star, cut out with no background panel. Replaces the retired `tt-hero-astro-3` | PNG transparent, 1600×1400 | WebP 800×700 / 400×350, ≤ 80 KB | Home game section, game page hero (`art.hero`) |
+| TT-CARD | Games index card with **Astro design #2** on the glowing moon path | PNG 2560×1600 | WebP 1280×800 / 640×400 | Games index (`art.card`) |
+| TT-SCREENS ×3 | **Real captures from the sticker build** showing **Astro design #2** (trace, world select, star at the end), not illustrations | PNG 2400×1500 (16:10) or device-native | WebP 1200×750 / 600×375, ≤ 80 KB each | Game page strip (`art.screens`) |
 | ABOUT-SCENE | Already listed: Rosie with a small planet and an astronaut, cut out (no background panel) | PNG transparent, 3200×1800 | WebP 1600×900 / 800×450 | About |
 | OG-HOME | Share card: Rosie waving on deep space with the wordmark "PinkRyno Studios" and room for no other text | PNG 1200×630 | **PNG or JPEG** ≤ 200 KB | OG for site pages |
-| OG-TINY-TRAILS | Share card: TT key art plus the title "Tiny Trails: Space" | PNG 1200×630 | PNG or JPEG ≤ 200 KB | OG for the game page |
+| OG-TINY-TRAILS | Share card: the **Astro design #2** TT key art plus the title "Tiny Trails: Space" | PNG 1200×630 | PNG or JPEG ≤ 200 KB | OG for the game page (`art.og`) |
 | WORDMARK (optional) | "PinkRyno Studios" lettering in Baloo-like hand style, plum outline | **SVG** | inline SVG ≤ 4 KB | Header and footer |
 | STORE-BADGES | Official Apple / Google badges (from their brand kits, unmodified) | SVG | SVG | Game page when live |
 
-Priority for cycle 2: ROSIE-WAVE, ROSIE-HEAD, TWINKLE-SET, ICON-SET, MASCOT-LOST, OG-HOME. The TT screenshots depend on the build decision.
+Priority for cycle 2: TT-HERO (Astro design #2), ROSIE-HEAD, ICON-SET, MASCOT-LOST, OG-HOME, TWINKLE-SET. Then TT-CARD and OG-TINY-TRAILS. The TT screenshots need the sticker build's capture pass. Until ICON-SET lands, the site uses simple line icons drawn in code.
 
 ## Performance budget
 
@@ -174,7 +189,7 @@ Keep the current model: **`games.json` + `site.json` → `node scripts/render-si
 Changes to `render-site.mjs` (cycle 2, on this branch):
 
 1. **Remove `SPARK`** and its use in `mascotStage()`. Add a `starField()` partial used only in the hero band.
-2. **Remove `reviewNote()`** output. Owner details move to `site.json` (`studio.legalName`, `studio.address`, `studio.supportEmail`), and the privacy page renders them. If they're missing, the script **fails** (`must()`), so the TODO can't ship.
+2. **Remove `reviewNote()`** output. Owner details move to `site.json` (`studio.legalName`, `studio.address`, `studio.supportEmail`), and the privacy page renders them. *Cycle 2:* the normal build leaves out what is missing, and `--release` refuses to build until all three are set, so the store-launch build can't ship without them.
 3. **`media()` omits missing art** instead of rendering an art slot (behind a `--preview-slots` flag for local art reviews only).
 4. A new **`site.json` `mascot.poses`** map (wave, sit, help, lost, head) with 1×/2× sources, so each page picks a pose.
 5. **`games.json` additions:** `price` (string or null), `size_note` (for example "about 24 MB"), `art.og`, `art.screens` with real captures, and `platforms`. Drop `art_slots` from page output.
@@ -185,14 +200,14 @@ Changes to `render-site.mjs` (cycle 2, on this branch):
 
 ## Rollout
 
-1. **Cycle 2:** build on `site-redesign` with the current art (the hero falls back to the existing still Rosie until ROSIE-WAVE lands), then share a branch preview (run `npx serve` locally and send screenshots, or the Director's preferred preview method) for approval.
+1. **Cycle 2:** build on `site-redesign` with the current art (Rosie's existing wave loop, re-exported), then share a branch preview (run `npx serve` locally and send screenshots, or the Director's preferred preview method) for approval.
 2. Swap in the Art Director's assets as they land, re-run the generator, and re-run `tools/audit.mjs` against the preview to check the budget and the boxes count.
 3. The Director approves and the owner merges. I won't merge or push to `main`.
 
 ## Decisions needed from the Director or owner
 
-1. **Legal name and mailing address** for the Privacy page, and confirmation of `support@pinkrynostudios.com`. Both are required before launch, since the generator will refuse to render without them.
-2. **Price** of the one-time unlock (or keep it "one-time unlock" without a figure).
-3. **Which build is "Tiny Trails: Space"** on the site: the pixel-art `/games/space-maze/` or the sticker-style build now in beta. This affects screenshots and the Play button target. Any change to which folder is served is a separate, Director-approved step.
-4. **Rosie's motion:** a still image plus a gentle CSS bob (lightest), or a redrawn short wave loop (≤ 150 KB).
-5. Whether to keep `/games/` in the nav while there's only one game.
+Items 1–4 were answered in cycle 2 (see [Cycle 2 decisions](#cycle-2-decisions)). What is still open:
+
+1. **Legal name and mailing address** for the Privacy page, from the owner, before the January store launch. The support email is confirmed and live.
+2. **When to flip `play_url`** to the sticker-style rebuild's web build.
+3. Whether to keep `/games/` in the nav while there's only one game. It stays for now.

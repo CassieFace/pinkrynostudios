@@ -1,6 +1,6 @@
 # Art requests — PinkRyno Studios site
 
-For the Art Director. The website rewrite does **not** invent final illustrations in code. Where a picture is missing, the page shows a labeled slot (a candy-colored frame with the slot id on a sticker). Drop the finished file at the path below, then run `node scripts/render-site.mjs`. The slot becomes the image. No page redesign.
+For the Art Director. The website rewrite does **not** invent final illustrations in code. Where a picture is missing, the page leaves it out, with no placeholder. Drop the finished file at the path below (and set its path in `games.json` if it is not there yet), then run `node scripts/render-site.mjs`. The picture appears. No page redesign.
 
 Do not draw these as pixel art, and do not trace or restyle another studio's characters, mazes, or UI. This is our cosmic sticker look: smooth flat shapes, one deep plum outline, one soft shadow down and to the right, cosmic candy colors.
 
@@ -10,15 +10,15 @@ The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhin
 
 A new pose is still only a `site.json` path change, then `node scripts/render-site.mjs`.
 
-The home hero is one `<picture>`. `mascot.hero.webp` plays when the visitor allows motion. `mascot.hero.stillWebp` is the still for `prefers-reduced-motion`. `mascot.hero.png` is the same still for browsers without WebP.
+The home hero is one `<picture>`. `mascot.hero.large` (386×500) is used on wider screens and `mascot.hero.small` (260×337) on phones. Each has an `anim` file that plays when the visitor allows motion and a `still` for `prefers-reduced-motion`. `scripts/export-rosie.py` makes all four, plus the 128 px header icon, from `rosie-wave.webp` and `rosie-head.webp`. It does not change her drawing. It only makes her body opaque so she stays pink on the navy hero band, and folds the repeated hold frames at the end of the loop into one.
 
-Those three files are the approved wave loop. The source movie is `assets/mascot/source/rosie-wave-loop.mp4` (4 seconds, 720×720, 24 fps). It was generated from the approved Midjourney Rosie image, `assets/mascot/source/rosie-ryno-original.png`. In the loop she waves, happy-squints, hops, and comes back to the start pose. The flat lavender field was removed, so the WebP has a real transparent background. The site version keeps every other frame (12 fps, 49 frames, 84 ms each, 386×500, looping). The page does not play the movie's audio. `rosie-wave.png` and `rosie-wave-still.webp` are the first frame.
+`rosie-wave.webp` (with `rosie-wave-still.webp` and `rosie-wave.png`) is the approved wave loop and the source for those exports. It stays in the repo unchanged. The source movie is `assets/mascot/source/rosie-wave-loop.mp4` (4 seconds, 720×720, 24 fps). It was generated from the approved Midjourney Rosie image, `assets/mascot/source/rosie-ryno-original.png`. In the loop she waves, happy-squints, hops, and comes back to the start pose. The flat lavender field was removed, so the WebP has a real transparent background. The site version keeps every other frame (12 fps, 49 frames, 84 ms each, 386×500, looping). The page does not play the movie's audio. `rosie-wave.png` and `rosie-wave-still.webp` are the first frame.
 
 The keyed frames had a blurry green smudge beside both ears: a larger one just to the viewer's right of her head, level with the top of her eyes, and a smaller one on the viewer's left. They were half-transparent keying leftovers, and they sat on every frame. Those pixels are now transparent in all 49 frames of `rosie-wave.webp`, and in the still WebP and PNG. Her outline, the contact shadow, the timing, and the loop were left as they were. The source movie was not edited.
 
-The stars and sparkles that were baked into the loop (the big star by her horn, the small four-point sparkles, and the gold dots that moved with her) are now removed from all 49 frames of `rosie-wave.webp` and from the still WebP and PNG. Where the little sparkle sat on the top of her head during the hop, her outline was redrawn along its own curve. Rosie's own frames were not regenerated, so her wave, squint, and hop are the same. The separate slow-floating SVG stars around the hero (`.spark` in `site.css`) are unchanged.
+The stars and sparkles that were baked into the loop (the big star by her horn, the small four-point sparkles, and the gold dots that moved with her) are now removed from all 49 frames of `rosie-wave.webp` and from the still WebP and PNG. Where the little sparkle sat on the top of her head during the hop, her outline was redrawn along its own curve. Rosie's own frames were not regenerated, so her wave, squint, and hop are the same. The SVG stars that used to sit around her on the site (`.spark`) are removed too. The only stars now are the CSS star field on the home hero band, which is not tied to Rosie.
 
-The older full-body cut-out, `rosie-full`, is still the picture on About, Support, and the 404. The eye and body cut layers in `assets/mascot/source/` (`rosie-body-no-eyes.png`, `rosie-eyes.png`) are not used. Do not build a CSS blink or a separate arm on top of them.
+The older full-body cut-out, `rosie-full`, is the picture on About and the 404. Support shows `rosie-head` beside its title. The eye and body cut layers in `assets/mascot/source/` (`rosie-body-no-eyes.png`, `rosie-eyes.png`) are not used. Do not build a CSS blink or a separate arm on top of them.
 
 ## How to prompt
 
@@ -38,8 +38,8 @@ Negative prompt used throughout: `--no text, letters, watermark, logo, photoreal
 
 | Slot | File to deliver | Where it shows | Size |
 | --- | --- | --- | --- |
-| TT-HERO | `assets/games/tiny-trails-space/hero.webp` | Home Now playing and the Tiny Trails: Space page, with no frame. This file is in place. | 713×656 (keyed crop of the chosen art) |
-| TT-CARD | `assets/games/tiny-trails-space/card.webp` | Home and games index card | 1280×800 (16:10) |
+| TT-HERO | A new file, for example `assets/games/tiny-trails-space/hero-astro2.webp`, set as `art.hero` in `games.json` | Home game section and the Tiny Trails: Space page, cut out with no frame. **Needed: Astro design #2.** The old `hero.webp` (`tt-hero-astro-3`) is off-model and retired from the site. | about 800×700, cut out |
+| TT-CARD | `assets/games/tiny-trails-space/card.webp` | Games index row (Astro design #2) | 1280×800 (16:10) |
 | TT-SCENE-PLAY | `assets/games/tiny-trails-space/scene-play.webp` | Game page, first scene | 1200×900 (4:3) |
 | TT-SCENE-WORLDS | `assets/games/tiny-trails-space/scene-worlds.webp` | Game page, second scene | 1200×900 (4:3) |
 | TT-SCENE-DONE | `assets/games/tiny-trails-space/scene-done.webp` | Game page, third scene | 1200×900 (4:3) |
@@ -59,7 +59,7 @@ Optional, not slotted on the page yet. Say if you want them wired in:
 
 `flat vector cartoon sticker illustration of a cute chibi kid astronaut with a round glass helmet and pink curly hair floating beside a glowing raised peach stardust path on a soft lavender moon, a chubby smiling butter-yellow star with rounded points waiting ahead, a small mint planet and a sky-teal moon in a deep navy-violet sky, consistent medium-weight deep plum outlines on every shape, flat two-tone cel shading, one soft violet drop shadow offset down and to the right, cosmic candy palette of lavender peach mint butter-yellow and sky teal, rounded friendly shapes, kawaii faces with blush, clean and uncluttered, children's game art for ages 3-6 --ar 16:9 --v 7 --style raw --stylize 150 --no text, letters, watermark, photorealism, pixel art, gradients on characters, scary, sharp teeth, black outlines`
 
-Cassie picked this anchor: Midjourney job `8e26e821-8670-4c90-b69c-a6674459051a`, index 3 (bottom-left), file `tt-hero-astro-3`. Astro #2 was the image prompt, with the cosmic-sticker style reference. The original PNG is `assets/games/tiny-trails-space/source/tt-hero-astro-3.png` (1456×816). The flat lavender field was removed, and `hero.webp` is that cut-out at 713×656. It sits on the page with no frame, card, or border, on the home Now playing spot and at the top of the Tiny Trails: Space page. The alt text is in `games.json` under `art_alt.hero`.
+Cassie picked this anchor: Midjourney job `8e26e821-8670-4c90-b69c-a6674459051a`, index 3 (bottom-left), file `tt-hero-astro-3`. Astro #2 was the image prompt, with the cosmic-sticker style reference. The original PNG is `assets/games/tiny-trails-space/source/tt-hero-astro-3.png` (1456×816). The flat lavender field was removed, and `hero.webp` is that cut-out at 713×656. **Cycle 2: this image is retired from the site.** It is off-model: the explorer is not Astro design #2. All Tiny Trails art on the site must show Astro design #2 (Midjourney job `76179866-926d-4694-803d-68e713e4b88b`, as defined in `docs/art/ART-BIBLE.md` of the tiny-trails-framework repo, branch `rebuild`). The files stay in the repo, but `games.json` no longer points at them. See the art list in [site-redesign/PLAN.md](site-redesign/PLAN.md).
 
 ### 1. TT-CARD
 
@@ -99,4 +99,4 @@ Crop to 1200×630 if this is used as the share image.
 
 1. Put the WebP files at the paths in the table. Keep the file names.
 2. From the repo root, run `node scripts/render-site.mjs`.
-3. Check the games index, the Tiny Trails: Space page, and About. The slot stickers for those files should be gone, and each image should have its alt text from `games.json` (or the about-scene alt in the render script).
+3. Check the home page, the games index, and the Tiny Trails: Space page. Each new picture should appear with its alt text from `games.json`.
