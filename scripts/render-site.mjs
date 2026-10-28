@@ -13,7 +13,9 @@
  *   --lastmod=YYYY-MM-DD                    Date for sitemap.xml (default: today).
  *
  * The mascot, studio details, and footer privacy line come only from site.json.
- * Games come only from games.json. Sticker icons and background stars come from
+ * Games come only from games.json. A game's Play in browser button, and every
+ * line that talks about playing in the browser, render only when its
+ * play_enabled is true and play_url is set. Sticker icons and background stars come from
  * the Art Director's sprites, assets/icons/icons-sprite.svg and
  * assets/twinkle/twinkle-sprite.svg, referenced with <use href="...#id">.
  *
@@ -340,6 +342,9 @@ function loadGames() {
     } else {
       game.play_url = null;
     }
+    must(game.play_enabled == null || typeof game.play_enabled === "boolean", game.id + " play_enabled must be true or false");
+    // play_url stays in games.json so it can be switched back on; only play_enabled: true shows it.
+    if (game.play_enabled !== true) game.play_url = null;
     game.play_label = textOrNull(game.play_label, game.id + " play_label") || "Play in browser";
     must(game.stores && typeof game.stores === "object", game.id + " needs stores");
     game.stores.ios = httpsOrNull(game.stores.ios, game.id + " stores.ios");
@@ -509,22 +514,41 @@ function storeLinks(game) {
   return links.join("\n");
 }
 
+function hasStore(game) {
+  return Boolean(game.stores.ios || game.stores.android);
+}
+
+// A live game a family can actually play somewhere: in the browser here, or from a store link.
+function ready(game) {
+  return game.status === "live" && Boolean(game.play_url || hasStore(game));
+}
+
+function anyPlayLink(visible) {
+  return visible.some((game) => game.play_url);
+}
+
 function storeLine(game) {
-  const missing = [];
-  if (!game.stores.ios) missing.push("iPhone", "iPad");
-  if (!game.stores.android) missing.push("Android");
-  if (!missing.length || game.status !== "live") return "";
-  const list = missing.length > 1 ? missing.slice(0, -1).join(", ") + " and " + missing.at(-1) : missing[0];
-  return `<p class="store-line">Coming soon to ${list}.</p>`;
+  if (game.status !== "live" || hasStore(game)) return "";
+  return `<p class="store-line">Coming soon to phones and tablets.</p>`;
 }
 
 function priceLabel(game) {
   return game.price ? `${game.price} one-time unlock` : "One-time unlock";
 }
 
+// The hotfix privacy policy's own words: the unlock is never sold on this site.
+const NOTHING_TO_BUY = "There is nothing to buy on this website.";
+
+// web_note describes the browser version, so it shows only while that version can be played.
+function webNote(game) {
+  return game.play_url ? game.web_note : null;
+}
+
 function metaLine(game) {
-  if (game.status === "coming-soon") return `<p class="meta">Ages ${esc(game.ages)} · Coming soon</p>`;
-  return `<p class="meta">Ages ${esc(game.ages)} · Free to start · ${esc(priceLabel(game))}</p>`;
+  const soon = ready(game) ? "" : `<span class="status-soon">Coming soon</span><span class="visually-hidden">.</span> `;
+  const parts = game.status === "coming-soon" ? [`Ages ${game.ages}`] : [`Ages ${game.ages}`, "Free to start", priceLabel(game)];
+  // Each part stays on one line, so the meta line only wraps at a middot.
+  return `<p class="meta">${soon}${parts.map((part) => `<span class="nowrap">${esc(part)}</span>`).join(" · ")}</p>`;
 }
 
 function playButton(game) {
@@ -721,9 +745,9 @@ function organization() {
 
 function pageHome(visible) {
   const featured = visible.find((game) => game.status === "live") || visible[0];
-  const heroCta = featured
-    ? `<a class="btn" href="${esc(featured.page)}">Play ${esc(featured.short_title)}</a>`
-    : `<a class="btn" href="/games/">See the games</a>`;
+  let heroCta = `<a class="btn" href="/games/">See the games</a>`;
+  if (featured && featured.play_url) heroCta = `<a class="btn" href="${esc(featured.page)}">Play ${esc(featured.short_title)}</a>`;
+  else if (featured) heroCta = `<a class="btn" href="${esc(featured.page)}">See ${esc(featured.title)}</a>`;
   const feature = featured
     ? `<section class="feature game-${esc(featured.id)}" aria-labelledby="feature-title">
     ${gameFeature(featured, { level: 2, id: "feature-title", onPage: false })}
@@ -809,8 +833,7 @@ function gameRow(game) {
       <div class="game-row-text">
         <h2 class="accent-title"><a href="${esc(game.page)}">${esc(game.title)}</a></h2>
         <p class="feature-tagline">${esc(game.tagline)}</p>
-        ${metaLine(game)}
-        <p>${more(game.page, "See " + game.title)}</p>
+        ${[metaLine(game), game.play_url ? "" : storeLine(game), `<p>${more(game.page, "See " + game.title)}</p>`].filter(Boolean).join("\n        ")}
       </div>
     </article>`;
 }
@@ -848,27 +871,33 @@ function screensStrip(game) {
   </section>`;
 }
 
+// Platforms and offers list only what a family can get today. The browser
+// version has only the free content, so the unlock offer needs a store link.
 function videoGame(game, share) {
-  const platforms = ["Web Browser"];
+  const platforms = [];
+  if (game.play_url) platforms.push("Web Browser");
   if (game.stores.ios) platforms.push("iOS");
   if (game.stores.android) platforms.push("Android");
-  const offers = [{
-    "@type": "Offer",
-    name: "Free to play",
-    price: "0",
-    priceCurrency: "USD",
-    url: SITE + game.page
-  }];
-  if (game.price) {
+  const offers = [];
+  if (ready(game)) {
     offers.push({
       "@type": "Offer",
-      name: "One-time unlock (in-app purchase)",
+      name: "Free to play",
+      price: "0",
+      priceCurrency: "USD",
+      url: SITE + game.page
+    });
+  }
+  if (ready(game) && hasStore(game) && game.price) {
+    offers.push({
+      "@type": "Offer",
+      name: "One-time unlock",
       description: game.unlock,
       price: game.price.slice(1),
       priceCurrency: "USD"
     });
   }
-  return {
+  const data = {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     name: game.title,
@@ -880,16 +909,16 @@ function videoGame(game, share) {
       "@type": "PeopleAudience",
       suggestedMinAge: game.ageRange.min,
       suggestedMaxAge: game.ageRange.max
-    },
-    gamePlatform: platforms,
-    applicationCategory: "GameApplication",
-    offers,
-    publisher: {
-      "@type": "Organization",
-      name: "PinkRyno Studios",
-      url: SITE + "/"
     }
   };
+  if (platforms.length) data.gamePlatform = platforms;
+  if (offers.length) data.offers = offers;
+  data.publisher = {
+    "@type": "Organization",
+    name: "PinkRyno Studios",
+    url: SITE + "/"
+  };
+  return data;
 }
 
 function pageGame(game) {
@@ -914,7 +943,7 @@ function pageGame(game) {
       ${icon("gift")}
       <div>
         <h2>What's free</h2>
-        <p>${esc(game.free_content)}</p>${game.web_note ? `\n        <p>${esc(game.web_note)}</p>` : ""}
+        <p>${esc(game.free_content)}</p>${webNote(game) ? `\n        <p>${esc(webNote(game))}</p>` : ""}
       </div>
     </div>
     <div class="split-item">
@@ -922,12 +951,13 @@ function pageGame(game) {
       <div>
         <h2>${esc(unlockTitle)}</h2>
         <p>${esc(game.unlock)}</p>${game.trial ? `\n        <p>${copy(game.trial)}</p>` : ""}
+        <p>${NOTHING_TO_BUY}</p>
       </div>
     </div>
   </section>
   <section class="section wrap" aria-labelledby="questions-title">
     <h2 id="questions-title">Questions?</h2>
-    <p>Restoring a purchase, playing in the browser, and more are on the support page. ${more("/support/", "Help for grown-ups")}</p>
+    <p>${game.play_url ? "Playing in the browser, saved progress, and more" : "Saved progress, the parental gate, and more"} are on the support page. ${more("/support/", "Help for grown-ups")}</p>
   </section>
 </article>`;
   return layout({
@@ -977,16 +1007,16 @@ function pagePrivacy() {
   if (studio.legalName) who.push(`Legal name: ${esc(studio.legalName)}.`);
   if (studio.address) who.push(`Mailing address: ${esc(studio.address)}.`);
   // Links sit on their own rows (not inside sentences) so each one is a 44 px tap target.
-  const contact = studio.supportEmail
-    ? `<p>Privacy questions and support go to the same place. Write to us at:</p>
+  const contact = (studio.supportEmail
+    ? `<p>Privacy questions and support go to the same place:</p>
     <p class="link-row">${mailLink()}</p>
-    <p class="link-row">${more("/support/", "Help for grown-ups")}</p>`
-    : `<p>Help with purchases and uninstalling a game is on the support page.</p>
+    `
+    : "") + `<p>The support page answers common questions.</p>
     <p class="link-row">${more("/support/", "Help for grown-ups")}</p>`;
   const main = `<article class="section wrap page-top">
     <div class="prose">
     <h1>Privacy policy</h1>
-    <p class="effective">Effective ${POLICY_EFFECTIVE}. This policy covers the PinkRyno Studios website and our games, including Tiny Trails: Space, which you can play in your browser on this website.</p>
+    <p class="effective">Effective ${POLICY_EFFECTIVE}. This policy covers the PinkRyno Studios website and our games played in the web browser on this site. We will update it before any of our games launch as apps.</p>
     <p class="intro"><strong>PinkRyno Studios does not collect personal data.</strong> Our games and this website have no ads, no tracking, and no third-party advertising, analytics, or social SDKs.</p>
     <nav class="toc" aria-labelledby="toc-title">
       <h2 id="toc-title">On this page</h2>
@@ -1008,8 +1038,7 @@ function pagePrivacy() {
     <h2 id="who">Who we are</h2>
     <p>${who.join(" ")}</p>
     <h2 id="covers">What this policy covers</h2>
-    <p>It covers pinkrynostudios.com and the games we publish for children, including the browser versions on this website.</p>
-    <p>Our games are coming to the App Store and Google Play. When they are available there, this policy will cover those versions too, including games offered in the Apple App Store kids category and Google Play Families, and each store listing will link to this page.</p>
+    <p>It covers pinkrynostudios.com and the games we host on it for children.</p>
     <h2 id="collect">Information we collect</h2>
     <p>We do not collect personal information through the website or our games. Personal information means information that identifies a person or can reasonably be linked to a person. That includes a name, email address, phone number, photo, voice, precise location, contacts, and an account identifier.</p>
     <p>There are no accounts, no sign-up forms, and no profile to fill in. We do not ask a child for any of those things. We do not collect gameplay analytics.</p>
@@ -1017,19 +1046,16 @@ function pagePrivacy() {
     <p>We do not show ads. We do not let anyone else show ads in our games or on this website. We do not use interest-based advertising.</p>
     <p>We do not use third-party advertising SDKs, analytics SDKs, attribution SDKs, crash-reporting SDKs, or social SDKs. The website does not load fonts, pictures, or scripts from any other site.</p>
     <h2 id="purchases">Purchases</h2>
-    <p>The browser versions on this website have nothing to buy. When our games are available on the App Store and Google Play, some may offer a one-time unlock, with no subscription. Apple or Google processes that payment under the store's own terms and privacy policy. We do not receive your payment card number or a child's name from the store.</p>
-    <p>The unlock is tied to the store account that paid, which is how Restore Purchases works.</p>
-    <p class="link-row">${more("/support/", "Help with restoring a purchase")}</p>
+    <p>There is nothing to buy on this website, and the games here are free to play. We do not collect payment information.</p>
     <h2 id="cookies">Cookies and device storage</h2>
-    <p>This website does not set cookies. Our games save a child's progress and settings on the device they are played on. In a web browser, including the browser versions on this website, they use the browser's own storage (IndexedDB or local storage). On phones and tablets, they use the app's own storage. Saved progress stays on the device and is never sent to us or anyone else.</p>
-    <p>The parental gate on this website asks a grown-up a question in the moment and does not save the answer.</p>
+    <p>This website does not set cookies. The game saves progress (stars and settings) on your device, in the browser's storage. That progress is not sent to us or to anyone else, and there are no accounts, ads, or trackers. Clearing this site's data in your browser erases it. The parental gate does not save its answer.</p>
     <h2 id="children">Children</h2>
     <p>Our games and this website are directed to children under 13, and parents use them too. We follow the Children's Online Privacy Protection Act by not collecting personal information from children. Because we do not collect it, we do not ask for verifiable parental consent to collect it.</p>
     <p>We do not knowingly receive personal information from a child. If you believe we have, email us and we will delete it.</p>
     <h2 id="email">Email you send us</h2>
     <p>If you email us, we receive whatever you choose to write, and we use it only to reply. Please do not include a child's name, photo, or precise location. We do not add your address to a mailing list. You can ask us to delete the conversation and we will.</p>
     <h2 id="delete">How to delete information</h2>
-    <p>We do not have a player profile to delete. To erase saved game progress, clear this website's data in your browser's settings, or uninstall the game from the phone or tablet. Purchases remain with Apple or Google, and you manage them in that store account. To delete emails you sent us, write to us and ask.</p>
+    <p>We do not have a player profile to delete. To erase a game's saved progress, clear this site's data in your browser. To delete emails you sent us, write to us and ask.</p>
     <h2 id="hosting">Hosting</h2>
     <p>These pages are static files. We do not add analytics, and we do not receive a report of who visited or what a child played.</p>
     <p>The company that hosts the files may keep ordinary technical logs, such as an IP address and the page that was requested, to keep the service secure. We do not use those logs to identify a child, build a profile, or advertise, and we do not combine them with other information.</p>
@@ -1051,18 +1077,21 @@ function pagePrivacy() {
 function pageSupport(visible) {
   const featured = visible.find((game) => game.status === "live") || visible[0];
   const email = studio.supportEmail;
-  const writeIn = (text) => (email ? " " + text : "");
+  const canPlay = anyPlayLink(visible);
+  const storesLater = "Store details will be added here when our games launch as apps.";
+  // The email shows once here (the button) and once in the footer. FAQ answers point back to it.
   const contact = email
     ? `<div class="contact">
-        <p>Write to us about a purchase, a device, or anything that felt off in a game. A grown-up's first name and the store you used is plenty.</p>
+        <p>A grown-up can write to us about a device, a browser, or anything that felt off in a game. ${storesLater}</p>
         <p>${mailLink("btn btn-mail")}</p>
       </div>`
-    : `<p>Answers to the questions grown-ups ask most are below.</p>`;
+    : `<p>Answers to the questions grown-ups ask most are below. ${storesLater}</p>`;
   const unlockItem = featured
     ? `<details>
         <summary>The free worlds and the ${esc(featured.price || "one-time")} unlock</summary>
         <p>Free from the start: ${esc(featured.free_content)}</p>
-        <p>${esc(featured.price ? `The ${featured.price} unlock` : "The one-time unlock")}: ${esc(featured.unlock)}${featured.trial ? " " + copy(featured.trial) : ""}</p>${featured.web_note ? `\n        <p>${esc(featured.web_note)}</p>` : ""}
+        <p>${esc(featured.price ? `The ${featured.price} unlock` : "The one-time unlock")}: ${esc(featured.unlock)}${featured.trial ? " " + copy(featured.trial) : ""}</p>${webNote(featured) ? `\n        <p>${esc(webNote(featured))}</p>` : ""}
+        <p>${NOTHING_TO_BUY}</p>
       </details>`
     : "";
   const browserItem = featured && featured.play_url
@@ -1072,6 +1101,9 @@ function pageSupport(visible) {
         <p class="link-row">${more(featured.page, "Go to " + featured.title)}</p>
       </details>`
     : "";
+  const wentWrong = email
+    ? "Write to us at the address above and tell us the game, the device and browser, and what happened. Please do not send a child's name, photo, or precise location. A grown-up's first name is enough."
+    : "Restarting the game fixes most hiccups.";
   const main = `<article class="section wrap page-top support">
     <div class="title-row">
       ${headImg("title-icon", false, 88, 64)}
@@ -1080,30 +1112,26 @@ function pageSupport(visible) {
     ${contact}
     <h2 class="faq-title">Common questions</h2>
     <div class="faq">
-      <details>
-        <summary>Restore purchases</summary>
-        <p>Open the game and go to the Grown-ups area. Choose Restore Purchases, and sign in with the same Apple ID or Google account that bought the unlock. The purchase lives on that store account, so there is nothing to sign in to on our side.</p>${email ? `\n        <p>If the unlock doesn't come back, write to us at the address above and say which store you used.</p>` : ""}
-      </details>
-      ${unlockItem}
-      ${browserItem}
+      ${[unlockItem, browserItem].filter(Boolean).join("\n      ")}
       <details>
         <summary>Deleting data</summary>
-        <p>There's no profile or account to delete. To remove a game, uninstall it. For the browser version, clear this site's data in your browser's settings. Purchases stay with Apple or Google, and you manage or refund them in that store account.</p>
+        <p>We do not collect personal data, so there is no profile to delete. Game progress is saved only in your browser, and clearing this site's data erases it.</p>
         <p class="link-row">${more("/privacy/", "Read the privacy policy")}</p>
       </details>
       <details>
         <summary>Something went wrong</summary>
-        <p>Restarting the game fixes most hiccups.${writeIn("If it keeps happening, write to us at the address above with the game, the device (iPhone, iPad, Android, or a browser), and what happened. Please leave out a child's name, photo, or location.")}</p>
+        <p>${wentWrong}</p>
       </details>
       <details>
         <summary>The parental gate</summary>
-        <p>Links that leave this site, like email and the app stores, first ask a grown-up a quick multiplication question.</p>
+        <p>Links that leave this website ask a grown-up to answer a short multiplication question first. That includes email.${canPlay ? " Play in the browser stays on our site and does not ask." : ""}</p>
+        <p>The question is a speed bump so a small child does not wander off to another site. It is not an account, and we do not save the answer.</p>
       </details>
     </div>
   </article>`;
   return layout({
     title: "Support · PinkRyno Studios",
-    description: "Help for grown-ups: restoring purchases, the free worlds and the one-time unlock, playing in the browser, and how to reach PinkRyno Studios.",
+    description: "Contact PinkRyno Studios for help with the parental gate and our games for ages 3 to 6.",
     path: "/support/",
     current: "support",
     main

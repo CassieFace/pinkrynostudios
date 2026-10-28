@@ -10,6 +10,7 @@
   --band: #efe9ff;
   --lavender: #e4dbff;
   --butter: #ffe7a3;
+  --peach: #ffd0be;
   --berry: #b5176a;
   --link: #4c3fb8;
   --on-space: #e9e3ff;
@@ -419,6 +420,18 @@ a:hover { text-decoration-thickness: 2px; }
 .feature-body > p:first-child { font-size: 1.15rem; }
 
 .meta { font-weight: 700; color: var(--muted); margin: 0; }
+
+/* The one status tag: a live game with nothing to play yet (no play_url, no store link). */
+.status-soon {
+  display: inline-block;
+  margin-right: 0.35em;
+  padding: 0.1em 0.7em;
+  border-radius: 999px;
+  background: var(--peach);
+  color: var(--ink);
+  font-weight: 800;
+  white-space: nowrap;
+}
 
 .size-note, .store-line { margin: 1rem 0 0; color: var(--muted); }
 

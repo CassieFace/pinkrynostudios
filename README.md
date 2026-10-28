@@ -82,14 +82,16 @@ The star list is `HERO_STARS` and `FOOTER_STARS` in `scripts/render-site.mjs`. E
 Adding a game is one entry in [`games.json`](games.json), plus its images. You do not redesign the pages.
 
 1. Copy the Tiny Trails: Space object in `games.json`.
-2. Set a new `id` (lowercase letters, numbers, and hyphens). `page` must be `/games/<id>/`. `short_title` is the name on the home hero button ("Play Tiny Trails").
+2. Set a new `id` (lowercase letters, numbers, and hyphens). `page` must be `/games/<id>/`. `short_title` is the name on the home hero button ("Play Tiny Trails", shown while `play_enabled` is `true`).
 3. Set `status` to `live`, `coming-soon`, or `hidden`.
    - `live` and `coming-soon` get a page, a row on the games index, and a sitemap entry.
    - `hidden` is left out of the site and the sitemap.
 4. Write the copy for parents: `tagline`, `summary`, `description` (the meta description), `ages` (like `3–6`), `free_content`, `unlock`, `trial`, and `web_note`. `price` is the one-time unlock price, like `$0.99`, or `null`.
 5. `highlights` are the "How it plays" lines. Each one has `text` and an `icon`: `trace`, `planet`, `helmet`, `replay`, `gift`, `key`, or `hand` (the symbols in `assets/icons/icons-sprite.svg`).
-6. Leave `stores.ios` and `stores.android` as `null` until the real listing exists. Use a plain `https://` URL with no tracking parameters. Until then the page says "Coming soon to iPhone, iPad and Android."
-7. Set `play_url` to the browser build on this site, or `null` if there is none. **It is the single setting for every Play in browser button.** Tiny Trails: Space uses `/games/space-maze/`, the build the live site has always used. When the sticker-style rebuild's web build is ready, flip `play_url` to its folder and re-run the script. `play_size_note` (for example `about 24 MB, best on Wi-Fi`) shows under the button on the game page.
+6. Leave `stores.ios` and `stores.android` as `null` until the real listing exists. Use a plain `https://` URL with no tracking parameters. The store buttons stay off the page until then. A live game with no store link and no browser build shows a peach "Coming soon" tag and the line "Coming soon to phones and tablets."
+7. Set `play_url` to the browser build on this site, or `null` if there is none. **It is the single setting for every Play in browser button.** It must be a page on this site, such as `/games/space-maze/`. Tiny Trails: Space uses `/games/space-maze/`, the build the live site has always used. When the sticker-style rebuild's web build is ready, flip `play_url` to its folder and re-run the script. `play_size_note` (for example `about 24 MB, best on Wi-Fi`) shows under the button on the game page.
+   - The Play in browser button renders only when `play_enabled` is `true` and `play_url` is set. With `false` (or missing), the button is hidden everywhere and `play_url` is kept so it can be switched back on. To turn it on, set `play_enabled` to `true` and re-run `node scripts/render-site.mjs`.
+   - `play_enabled` must be `true`, `false`, or left out (which counts as `false`); the build stops on anything else. While it is off, everything that talks about playing in the browser is left out too: the home hero button reads "See Tiny Trails: Space" instead of "Play Tiny Trails", and the size note, `web_note`, the support page's "Playing in the browser" question, and the `Web Browser` platform in the structured data are all hidden. Tiny Trails: Space has `play_enabled: false` today.
 8. Point `art` at image files under `assets/games/<id>/`, with alt text in `art_alt`. Every picture is optional: set the field to `null` (or leave `screens` empty) and that picture is left out, with no placeholder. A path that is set must point to a real file, or the build stops. `assets/games/tiny-trails-space/hero.webp` and its source `tt-hero-astro-3.png` are off-model and retired, and the build refuses them:
    - `hero`: cut-out key art beside the title on the home page and the game page.
    - `card`: the games index picture. The index falls back to `hero`, and shows no picture if neither exists.
@@ -102,6 +104,6 @@ Adding a game is one entry in [`games.json`](games.json), plus its images. You d
 
 ## Privacy
 
-The site does not use analytics, cookies, or third-party fonts. Baloo 2 and Nunito are self-hosted in `assets/fonts/` under the SIL Open Font License. Links that leave the site (app stores and email) go through a parental gate in `assets/js/site.js`. The menu works without JavaScript.
+The site does not use analytics, cookies, or third-party fonts. Baloo 2 and Nunito are self-hosted in `assets/fonts/` under the SIL Open Font License. Links that leave the site (email, and store links once they exist) go through a parental gate in `assets/js/site.js`. The menu works without JavaScript.
 
-The games save progress on the device (browser storage for the web builds, app storage on phones and tablets). The privacy policy says so in "Cookies and device storage". When you change the policy text in `scripts/render-site.mjs`, update `POLICY_EFFECTIVE` at the top of the script so the date on the page changes too.
+The browser game saves progress (stars and settings) on the device, in the browser's storage, and nothing is sent anywhere. The privacy policy says so once, in "Cookies and device storage". It covers this website and the games played in the browser here, and must be updated before any game launches as an app. When you change the policy text in `scripts/render-site.mjs`, update `POLICY_EFFECTIVE` at the top of the script so the date on the page changes too.

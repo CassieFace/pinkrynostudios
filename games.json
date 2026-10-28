@@ -9,6 +9,7 @@
     "status": "live",
     "ages": "3–6",
     "page": "/games/tiny-trails-space/",
+    "play_enabled": false,
     "play_url": "/games/space-maze/",
     "play_label": "Play in browser",
     "play_size_note": "about 24 MB, best on Wi-Fi",
