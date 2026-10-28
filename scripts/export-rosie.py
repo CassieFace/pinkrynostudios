@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-"""Re-export Rosie's approved wave loop and head for the website.
+"""Re-export Rosie's approved wave loop for the website.
 
 Run from the repo root:  python3 scripts/export-rosie.py
 Needs Python 3 with Pillow (WebP support) and numpy. No other tools.
 
-Source files (never modified):
+Source file (never modified):
   assets/mascot/rosie-wave.webp   49 frames, 386x500, 84 ms each, stars already removed
-  assets/mascot/rosie-head.webp   256x256
 
 Outputs (new names, overwritten on each run):
   assets/mascot/rosie-wave-386.webp        animated, native size, desktop hero
   assets/mascot/rosie-wave-386-still.webp  first frame, for prefers-reduced-motion
   assets/mascot/rosie-wave-260.webp        animated, 260x337, phone hero
   assets/mascot/rosie-wave-260-still.webp  first frame, for prefers-reduced-motion
-  assets/mascot/rosie-head-128.webp        128x128 header and footer icon
+
+The small Rosie heads (header, footer, support title, favicons) are not made
+here. They are the Art Director's ROSIE-HEAD export in assets/mascot/head/.
 
 Rosie's drawing, poses, timing, and loop are unchanged. Two fixes only:
 
@@ -56,7 +57,6 @@ SAME_POSE_PIXELS = 150
 # Encoder settings, tuned by eye at display size on the navy band.
 ANIM = {"quality": 30, "alpha_quality": 60, "method": 6}
 STILL = {"quality": 80, "alpha_quality": 90, "method": 6}
-HEAD = {"quality": 82, "alpha_quality": 90, "method": 6}
 
 
 def interior(alpha, threshold, close):
@@ -157,11 +157,6 @@ def main():
         save_anim(sized, durations, anim_path)
         sized[0].save(still_path, lossless=False, **STILL)
         outputs += [anim_path, still_path]
-
-    head, _ = flatten(Image.open(MASCOT / "rosie-head.webp"))
-    head_path = MASCOT / "rosie-head-128.webp"
-    resize(head, 128).save(head_path, lossless=False, **HEAD)
-    outputs.append(head_path)
 
     for path in outputs:
         with Image.open(path) as image:

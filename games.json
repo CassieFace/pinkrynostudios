@@ -3,7 +3,7 @@
     "id": "tiny-trails-space",
     "title": "Tiny Trails: Space",
     "short_title": "Tiny Trails",
-    "tagline": "Trace a twinkly trail through ten cosmic worlds.",
+    "tagline": "Trace a twinkly trail from planet to planet.",
     "summary": "A calm tracing game. Follow a glowing path across little planets and meet a friendly star at the end.",
     "description": "Tiny Trails: Space is a calm tracing game for ages 3 to 6. Follow a glowing trail across little planets and meet a friendly star at the end.",
     "status": "live",
@@ -13,7 +13,7 @@
     "play_label": "Play in browser",
     "play_size_note": "about 24 MB, best on Wi-Fi",
     "price": "$0.99",
-    "free_content": "Free Play and the Sun, Earth, and Moon worlds, with the explorers Astro and Zog.",
+    "free_content": "Free Play and the Sun, Earth, and Moon worlds.",
     "unlock": "All 10 worlds and every explorer. No subscription.",
     "trial": "One shared 3-use trial lets your child try locked worlds and explorers first.",
     "web_note": "The browser version includes the free content.",
@@ -23,29 +23,17 @@
     },
     "art": {
       "hero": null,
-      "card": "/assets/games/tiny-trails-space/card.webp",
-      "og": "/assets/games/tiny-trails-space/og.png",
-      "screens": [
-        "/assets/games/tiny-trails-space/scene-play.webp",
-        "/assets/games/tiny-trails-space/scene-worlds.webp",
-        "/assets/games/tiny-trails-space/scene-done.webp"
-      ]
+      "card": null,
+      "og": null,
+      "screens": []
     },
-    "art_alt": {
-      "card": "Tiny Trails: Space, a glowing stardust path across a soft lavender moon",
-      "og": "Tiny Trails: Space key art with the game title",
-      "screens": [
-        "A small astronaut tracing a glowing trail across a moon path",
-        "Three tiny planets: a butter-yellow sun, a mint Earth, and a teal moon",
-        "A chibi astronaut hugging a smiling butter-yellow star"
-      ]
-    },
+    "art_alt": {},
     "accent": "#8B7CFF",
     "order": 1,
     "highlights": [
       { "icon": "trace", "text": "Trace the path with a finger. The trail lights up as the explorer moves." },
-      { "icon": "planet", "text": "Ten little worlds to visit. Free Play and the Sun, Earth, and Moon are open from the start." },
-      { "icon": "explorer", "text": "Astro and Zog are free. The other explorers come with the one-time unlock." },
+      { "icon": "planet", "text": "Visit little planets, each with its own look. Free Play and the Sun, Earth, and Moon worlds are open from the start." },
+      { "icon": "helmet", "text": "Pick a little explorer to guide along the trail. More explorers come with the one-time unlock." },
       { "icon": "replay", "text": "No timers and nothing to read. Play again whenever you like." }
     ]
   }

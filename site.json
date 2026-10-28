@@ -22,18 +22,22 @@
       "height": 500
     },
     "head": {
-      "webp": "/assets/mascot/rosie-head.webp",
-      "png": "/assets/mascot/rosie-head.png",
-      "width": 256,
-      "height": 256
+      "webp": {
+        "64": "/assets/mascot/head/rosie-head-64.webp",
+        "128": "/assets/mascot/head/rosie-head-128.webp",
+        "256": "/assets/mascot/head/rosie-head-256.webp"
+      },
+      "png": {
+        "256": "/assets/mascot/head/rosie-head-256.png"
+      }
     },
-    "icon": {
-      "webp": "/assets/mascot/rosie-head-128.webp",
-      "width": 128,
-      "height": 128
+    "favicon": {
+      "32": "/assets/mascot/head/favicon-32.png",
+      "48": "/assets/mascot/head/favicon-48.png"
     },
-    "favicon": "/assets/mascot/favicon.png",
-    "appleTouch": "/assets/mascot/apple-touch-icon.png",
+    "appleTouch": {
+      "180": "/assets/mascot/head/apple-touch-icon-180.png"
+    },
     "social": {
       "webp": "/assets/mascot/rosie-social.webp",
       "png": "/assets/mascot/rosie-social.png",

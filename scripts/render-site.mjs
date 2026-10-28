@@ -13,7 +13,14 @@
  *   --lastmod=YYYY-MM-DD                    Date for sitemap.xml (default: today).
  *
  * The mascot, studio details, and footer privacy line come only from site.json.
- * Games come only from games.json.
+ * Games come only from games.json. Sticker icons and background stars come from
+ * the Art Director's sprites, assets/icons/icons-sprite.svg and
+ * assets/twinkle/twinkle-sprite.svg, referenced with <use href="...#id">.
+ *
+ * Every site path in site.json and games.json must be null or point to a file
+ * that exists. The build stops on a missing file, and it also stops if a
+ * rendered page links to a missing local file or uses a relative URL (404.html
+ * is served at any depth, so every URL must be absolute).
  *
  * Writes pages, assets/css/themes.css, and sitemap.xml.
  * Never writes CNAME, games/space-maze/, or games/tiny-trails-beta/.
@@ -30,25 +37,108 @@ const RESERVED = new Set(["space-maze", "tiny-trails-beta"]);
 const RELEASE_FIELDS = ["legalName", "address", "supportEmail"];
 // Privacy and no-ads claims live in the footer line and on /privacy/ only.
 const PRIVACY_PITCH = /\bno ads\b|\bno tracking\b|\bno accounts?\b|nothing to sign up|\bad-free\b/i;
+// Update this date whenever the privacy policy text changes.
+const POLICY_EFFECTIVE = "October 27, 2026";
+// Off-model art (tt-hero-astro-3). The files stay in the repo, but no page may use them.
+const RETIRED_ART = new Set([
+  "/assets/games/tiny-trails-space/hero.webp",
+  "/assets/games/tiny-trails-space/source/tt-hero-astro-3.png"
+]);
+// Internal notes and placeholders that must never reach a public page.
+const INTERNAL_NOTES = /\bTODO\b|art director|\bslots?\b|\bmarked\b|placeholder|<h[1-6][^>]*>\s*Pictures\s*</i;
 
 let mascot;
 let studio;
 let privacyLine;
 let year;
 
-/* Small sticker icons: plum outline, flat candy fill. Decorative only. */
-const ICON_PATHS = {
-  gift: `<rect x="8" y="21" width="32" height="20" rx="4" fill="#FFD0BE"/><rect x="5" y="14" width="38" height="9" rx="3" fill="#FFE7A3"/><path d="M24 14v27"/><path d="M24 14c-3-5-11-7-11-2.5 0 2.5 5 2.5 11 2.5Zm0 0c3-5 11-7 11-2.5 0 2.5-5 2.5-11 2.5Z" fill="#FFE7A3"/>`,
-  key: `<circle cx="15" cy="24" r="9" fill="#FFE7A3"/><circle cx="15" cy="24" r="2.5" fill="#2B1E4A"/><path d="M24 24h18M36 24v7M42 24v5"/>`,
-  target: `<circle cx="24" cy="24" r="18" fill="#C8F6EA"/><circle cx="24" cy="24" r="10" fill="#FBF8FF"/><circle cx="24" cy="24" r="3.5" fill="#2B1E4A"/>`,
-  trace: `<path d="M9 37c7 0 6-12 14-12s6 9 13 9c4 0 4-9 4-15" stroke-dasharray="0.1 6.5"/><circle cx="9" cy="37" r="4" fill="#C8F6EA"/><circle cx="40" cy="13" r="5" fill="#FFE7A3"/>`,
-  planet: `<circle cx="24" cy="24" r="12" fill="#E4DBFF"/><path d="M13.5 29.5C6 34 7 38 14 36.5c6-1.3 15-6 21-11 5-4.2 6.5-8.5 0-7.6"/>`,
-  explorer: `<circle cx="24" cy="24" r="17" fill="#C9F6F4"/><path d="M24 11.5 28 24l-4 12.5L20 24Z" fill="#FFD0BE"/><circle cx="24" cy="24" r="2" fill="#2B1E4A"/>`,
-  replay: `<path d="M35.5 17A13 13 0 1 0 37 28" fill="none"/><path d="M37 9v9h-9" fill="none"/><circle cx="24" cy="24" r="4" fill="#FFD0BE"/>`
+/* Sprites from the Art Director (ICON-SET, TWINKLE-SET). Pages point at a symbol
+   with <use href="/sprite.svg#id">, so each sprite is one request for the whole
+   site. External <use> also keeps the glow filters working, which a sprite
+   inlined inside display:none would drop. */
+const ICON_SPRITE = "/assets/icons/icons-sprite.svg";
+const STAR_SPRITE = "/assets/twinkle/twinkle-sprite.svg";
+
+const spriteSymbols = new Map();
+// The symbol ids in a sprite, so a misspelled icon or star stops the build.
+function symbolIds(sprite) {
+  if (!spriteSymbols.has(sprite)) {
+    must(publicFileExists(sprite), "Missing sprite " + sprite);
+    const text = readFileSync(join(root, sprite.slice(1)), "utf8");
+    spriteSymbols.set(sprite, new Set([...text.matchAll(/<symbol\b[^>]*\sid="([^"]+)"/g)].map((match) => match[1])));
+  }
+  return spriteSymbols.get(sprite);
+}
+
+function iconNames() {
+  return [...symbolIds(ICON_SPRITE)].filter((id) => id.startsWith("icon-")).map((id) => id.slice(5));
+}
+
+// A sticker icon beside its text. Decorative: the text next to it carries the meaning.
+const ICON_SIZE = 56;
+function icon(name) {
+  must(symbolIds(ICON_SPRITE).has("icon-" + name), `Unknown icon "${name}". Use one of ${iconNames().join(", ")}.`);
+  return `<svg class="icon" width="${ICON_SIZE}" height="${ICON_SIZE}" aria-hidden="true" focusable="false"><use href="${ICON_SPRITE}#icon-${name}"/></svg>`;
+}
+
+/* Background stars. Each symbol's default size comes from twinkle/README.md
+   (the glow variants are drawn larger so the halo is not clipped). */
+const STAR_SIZES = {
+  "twinkle-4pt-lg": 48,
+  "twinkle-4pt-md": 32,
+  "twinkle-4pt-sm": 20,
+  "dot-lg": 12,
+  "dot-md": 8,
+  "dot-sm": 6,
+  "twinkle-4pt-lg-glow": 78,
+  "twinkle-4pt-md-glow": 52,
+  "dot-lg-glow": 30
 };
 
-function icon(name) {
-  return `<svg class="icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><g fill="none" stroke="#2B1E4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${ICON_PATHS[name]}</g></svg>`;
+// Home hero band: [symbol, depth, extra class]. Depth sets the drift time (far
+// 120 s, mid 90 s, near 60 s); "tw" adds a slow twinkle. Positions are the .s1,
+// .s2, ... rules in site.css (the CSP forbids style attributes), and they keep
+// clear of Rosie at every width. Large stars stay rare.
+const HERO_STARS = [
+  ["twinkle-4pt-lg-glow", "near", "tw"],
+  ["dot-sm", "far"],
+  ["twinkle-4pt-sm", "mid"],
+  ["dot-md", "far"],
+  ["dot-sm", "far"],
+  ["twinkle-4pt-md", "mid", "tw"],
+  ["dot-lg", "mid"],
+  ["dot-sm", "far"],
+  ["dot-md", "far"],
+  ["twinkle-4pt-sm", "mid"],
+  ["dot-sm", "far"],
+  ["dot-lg-glow", "near", "tw"],
+  ["dot-md", "far"],
+  ["twinkle-4pt-sm", "mid"],
+  ["dot-md", "far"],
+  ["twinkle-4pt-md-glow", "near"],
+  ["dot-sm", "far"]
+];
+
+// A few faint stars on the navy footer band (.f1, .f2, ... in site.css).
+const FOOTER_STARS = [
+  ["dot-sm", "far"],
+  ["twinkle-4pt-sm", "mid"],
+  ["dot-md", "far"],
+  ["dot-sm", "far"],
+  ["dot-sm", "far"]
+];
+
+// indent is the indentation of the opening tag in the page source.
+function starField(className, prefix, stars, indent) {
+  const items = stars.map(([id, depth, extra], index) => {
+    must(symbolIds(STAR_SPRITE).has(id) && STAR_SIZES[id], `Unknown star "${id}" in ${STAR_SPRITE}`);
+    const size = STAR_SIZES[id];
+    const cls = ["star", depth, prefix + (index + 1), extra].filter(Boolean).join(" ");
+    return `<svg class="${cls}" width="${size}" height="${size}" focusable="false"><use href="${STAR_SPRITE}#${id}"/></svg>`;
+  });
+  return `<div class="${className}" aria-hidden="true">
+${indent}  ${items.join(`\n${indent}  `)}
+${indent}</div>`;
 }
 
 /* The light planet edge at the bottom of the home hero, and the footer's rise. */
@@ -61,6 +151,11 @@ function esc(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+// Escaped body copy where a number-word compound like "3-use" never breaks at its hyphen.
+function copy(value) {
+  return esc(value).replace(/\b(\d+-[A-Za-z]+)\b/g, '<span class="nowrap">$1</span>');
 }
 
 function must(condition, message) {
@@ -86,6 +181,39 @@ function publicFileExists(src) {
   if (typeof src !== "string" || src === "") return false;
   must(src.startsWith("/"), "Asset path must start with /: " + src);
   return existsSync(join(root, src.slice(1)));
+}
+
+// The repo-relative file a site path is served from ("/games/" -> "games/index.html").
+function sitePathToRel(src) {
+  let clean = src.split(/[?#]/)[0];
+  try {
+    clean = decodeURIComponent(clean);
+  } catch {
+    // Leave it encoded; it will not match a file and the caller reports it.
+  }
+  const rel = clean.slice(1);
+  return rel === "" || rel.endsWith("/") ? rel + "index.html" : rel;
+}
+
+// A site path from site.json or games.json. It must exist; null is handled by the caller.
+function requireFile(src, label) {
+  must(typeof src === "string" && /^\/(?!\/)/.test(src), label + " must be a site path that starts with / (or null)");
+  must(!src.includes(".."), label + " cannot contain ..");
+  must(!RETIRED_ART.has(src), `${label} uses retired off-model art (${src}). Set it to null until approved art exists.`);
+  must(existsSync(join(root, sitePathToRel(src))), `${label} points to ${src}, which does not exist. Add the file or set the field to null.`);
+  return src;
+}
+
+// Every string in a JSON value that looks like a site path, with its key path ("art.screens[0]").
+function sitePaths(value, label = "", out = []) {
+  if (typeof value === "string") {
+    if (/^\/(?!\/)/.test(value)) out.push([value, label]);
+  } else if (Array.isArray(value)) {
+    value.forEach((item, index) => sitePaths(item, `${label}[${index}]`, out));
+  } else if (value && typeof value === "object") {
+    for (const [key, item] of Object.entries(value)) sitePaths(item, label ? `${label}.${key}` : key, out);
+  }
+  return out;
 }
 
 function webpSize(src) {
@@ -172,6 +300,10 @@ function loadGames() {
   const ids = new Set();
   for (const game of games) {
     must(game && typeof game === "object", "Each game must be an object");
+    // `page` is written by this script; every other path must already exist.
+    for (const [src, label] of sitePaths(game)) {
+      if (label !== "page") requireFile(src, `games.json ${game.id} ${label}`);
+    }
     must(/^[a-z][a-z0-9-]*$/.test(game.id), "Bad id: " + game.id);
     must(!RESERVED.has(game.id), game.id + " is a reserved path");
     must(!ids.has(game.id), "Duplicate id: " + game.id);
@@ -195,7 +327,7 @@ function loadGames() {
     must(Array.isArray(game.highlights), game.id + " highlights must be an array");
     for (const item of game.highlights) {
       must(item && typeof item.text === "string" && item.text.trim(), game.id + " each highlight needs text");
-      must(ICON_PATHS[item.icon], game.id + " highlight icon must be one of " + Object.keys(ICON_PATHS).join(", "));
+      must(iconNames().includes(item.icon), game.id + " highlight icon must be one of " + iconNames().join(", "));
     }
     const copy = [...GAME_TEXT.map((key) => game[key]), game.trial, game.web_note, ...game.highlights.map((item) => item.text)];
     for (const text of copy) {
@@ -218,11 +350,21 @@ function loadGames() {
     game.art_alt.screens = game.art_alt.screens || [];
     must(Array.isArray(game.art.screens) && Array.isArray(game.art_alt.screens), game.id + " art.screens and art_alt.screens must be arrays");
     must(game.art.screens.length === game.art_alt.screens.length, game.id + " needs one art_alt.screens entry per screen");
+    // Art is optional, but a path that is set must be a real image with alt text.
     for (const key of ["hero", "card", "og"]) {
-      const src = game.art[key];
-      must(src == null || (typeof src === "string" && src.startsWith("/")), game.id + " art." + key + " must be a site path or null");
-      if (publicFileExists(src)) must(typeof game.art_alt[key] === "string" && game.art_alt[key].trim(), game.id + " needs art_alt." + key);
+      if (game.art[key] == null || game.art[key] === "") {
+        game.art[key] = null;
+        continue;
+      }
+      requireFile(game.art[key], `${game.id} art.${key}`);
+      imageSize(game.art[key]);
+      must(typeof game.art_alt[key] === "string" && game.art_alt[key].trim(), game.id + " needs art_alt." + key);
     }
+    game.art.screens.forEach((src, index) => {
+      requireFile(src, `${game.id} art.screens[${index}]`);
+      imageSize(src);
+      must(typeof game.art_alt.screens[index] === "string" && game.art_alt.screens[index].trim(), `${game.id} needs art_alt.screens[${index}]`);
+    });
   }
   games.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
   return games;
@@ -239,8 +381,24 @@ function checkImage(image, label, kinds = ["webp"]) {
   must(Number.isFinite(image.width) && Number.isFinite(image.height), `site.json ${label} needs width and height`);
 }
 
+// A map of square images keyed by pixel size, like { "64": "/a-64.webp", "128": "/a-128.webp" }.
+// Every file must exist and really be that size. Returns [[64, "/a-64.webp"], ...], smallest first.
+function sizedSet(value, label, ext) {
+  must(value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length, `site.json ${label} must map pixel sizes to ${ext} files, like { "64": "/path-64.${ext}" }`);
+  const list = Object.entries(value).map(([key, src]) => {
+    must(/^[1-9]\d*$/.test(key), `site.json ${label} key "${key}" must be a pixel size`);
+    must(typeof src === "string" && src.endsWith("." + ext), `site.json ${label}.${key} must be a .${ext} file`);
+    const size = Number(key);
+    const [w, h] = imageSize(src);
+    must(w === size && h === size, `site.json ${label}.${key} is ${w}x${h}, expected ${size}x${size}: ${src}`);
+    return [size, src];
+  });
+  return list.sort((a, b) => a[0] - b[0]);
+}
+
 function loadSite() {
   const site = JSON.parse(readFileSync(join(root, "site.json"), "utf8"));
+  for (const [src, label] of sitePaths(site)) requireFile(src, "site.json " + label);
   const next = site && site.mascot;
   must(next && typeof next.name === "string" && next.name.trim(), "site.json needs mascot.name");
   must(typeof next.fullName === "string" && next.fullName.trim(), "site.json needs mascot.fullName");
@@ -248,8 +406,11 @@ function loadSite() {
   must(typeof next.species === "string" && next.species.trim(), "site.json needs mascot.species");
   must(typeof next.alt === "string" && next.alt.trim(), "site.json needs mascot.alt");
   checkImage(next.full, "mascot.full", ["webp", "png"]);
-  checkImage(next.head, "mascot.head", ["webp", "png"]);
-  checkImage(next.icon, "mascot.icon");
+  must(next.head && typeof next.head === "object", "site.json needs mascot.head");
+  next.headWebp = sizedSet(next.head.webp, "mascot.head.webp", "webp");
+  next.headPng = sizedSet(next.head.png, "mascot.head.png", "png").at(-1);
+  next.favicons = sizedSet(next.favicon, "mascot.favicon", "png");
+  next.appleTouchIcon = sizedSet(next.appleTouch, "mascot.appleTouch", "png").at(-1);
   checkImage(next.social, "mascot.social", ["webp", "png"]);
   for (const size of ["large", "small"]) {
     const hero = next.hero && next.hero[size];
@@ -258,10 +419,6 @@ function loadSite() {
       const [w, h] = webpSize(hero[kind]);
       must(w === hero.width && h === hero.height, `site.json mascot.hero.${size} says ${hero.width}x${hero.height}, but ${hero[kind]} is ${w}x${h}`);
     }
-  }
-  for (const key of ["favicon", "appleTouch"]) {
-    must(typeof next[key] === "string" && next[key].startsWith("/"), "site.json needs mascot." + key);
-    must(publicFileExists(next[key]), "Missing mascot file " + next[key]);
   }
   mascot = next;
 
@@ -285,13 +442,18 @@ function mascotAlt() {
   return mascot.fullName + " " + mascot.alt;
 }
 
-// size is the CSS display size. The 128 px icon covers 2x screens up to 64 px;
-// bigger spots also offer the 256 px head.
-function iconImg(className, lazy, size) {
-  const { icon, head } = mascot;
+// A small decorative Rosie head (ROSIE-HEAD). size is the CSS display size, and
+// phoneSize the size site.css gives it on phones, when that differs. The srcset
+// offers only the smallest files that cover 1x and 2x at those sizes, so a 48 or
+// 64 px head never pulls the 256 px file.
+function headImg(className, lazy, size, phoneSize = size) {
+  const files = mascot.headWebp;
+  const pick = (px) => files.find(([width]) => width >= px) || files.at(-1);
+  const set = [...new Set([phoneSize, size].flatMap((px) => [pick(px), pick(px * 2)]))].sort((a, b) => a[0] - b[0]);
+  const sizes = phoneSize === size ? `${size}px` : `${PHONE} ${phoneSize}px, ${size}px`;
+  const srcset = set.length > 1 ? ` srcset="${set.map(([width, src]) => `${esc(src)} ${width}w`).join(", ")}" sizes="${sizes}"` : "";
   const loading = lazy ? ' loading="lazy"' : "";
-  const srcset = size * 2 > icon.width ? ` srcset="${esc(icon.webp)} ${icon.width}w, ${esc(head.webp)} ${head.width}w" sizes="${size}px"` : "";
-  return `<img class="${className}" src="${esc(icon.webp)}"${srcset} alt="" width="${icon.width}" height="${icon.height}"${loading}>`;
+  return `<img class="${className}" src="${esc(pick(size)[1])}"${srcset} alt="" width="${size}" height="${size}"${loading}>`;
 }
 
 function fullImg(className, alt, lazy) {
@@ -378,7 +540,7 @@ function gameFeature(game, { level, id, onPage }) {
     ? `<p class="size-note">Plays right in your browser · ${esc(game.play_size_note)}</p>`
     : "";
   let art = "";
-  if (publicFileExists(game.art.hero)) {
+  if (game.art.hero) {
     const [width, height] = imageSize(game.art.hero);
     const priority = onPage ? ' fetchpriority="high"' : ' loading="lazy"';
     art = `<img class="feature-art" src="${esc(game.art.hero)}" alt="${esc(game.art_alt.hero)}" width="${width}" height="${height}"${priority}>\n          `;
@@ -416,14 +578,17 @@ function socialImage() {
 
 function gameSocialImage(game) {
   const src = game.art.og;
-  if (!publicFileExists(src)) return socialImage();
+  if (!src) return socialImage();
   const [width, height] = imageSize(src);
   const type = src.endsWith(".png") ? "image/png" : src.endsWith(".webp") ? "image/webp" : "image/jpeg";
   return { url: SITE + src, width, height, type, alt: game.art_alt.og };
 }
 
+// path is the page's public URL path, or null for 404.html: Pages serves that
+// file at any missing URL, so it gets no canonical or og:url.
 function layout({ title, description, path, current, robots, main, structured, preloads, image }) {
-  const canonical = SITE + path;
+  const canonical = path ? `<link rel="canonical" href="${SITE + path}">\n` : "";
+  const ogUrl = path ? `<meta property="og:url" content="${SITE + path}">\n` : "";
   const share = image || socialImage();
   const nav = [
     ["games", "Games", "/games/"],
@@ -447,14 +612,12 @@ function layout({ title, description, path, current, robots, main, structured, p
 <meta name="color-scheme" content="light">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="${robots || "index,follow"}">
-<link rel="canonical" href="${canonical}">
-<meta property="og:site_name" content="PinkRyno Studios">
+${canonical}<meta property="og:site_name" content="PinkRyno Studios">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_US">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
-<meta property="og:url" content="${canonical}">
-<meta property="og:image" content="${esc(share.url)}">
+${ogUrl}<meta property="og:image" content="${esc(share.url)}">
 <meta property="og:image:type" content="${share.type}">
 <meta property="og:image:alt" content="${esc(share.alt)}">
 <meta property="og:image:width" content="${share.width}">
@@ -464,8 +627,8 @@ function layout({ title, description, path, current, robots, main, structured, p
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${esc(share.url)}">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
-<link rel="icon" href="${esc(mascot.favicon)}" type="image/png">
-<link rel="apple-touch-icon" href="${esc(mascot.appleTouch)}">
+${mascot.favicons.map(([size, src]) => `<link rel="icon" href="${esc(src)}" sizes="${size}x${size}" type="image/png">`).join("\n")}
+<link rel="apple-touch-icon" href="${esc(mascot.appleTouchIcon[1])}" sizes="${mascot.appleTouchIcon[0]}x${mascot.appleTouchIcon[0]}">
 <link rel="preload" href="/assets/fonts/baloo-2-latin-800.woff2" as="font" type="font/woff2" crossorigin>
 ${preloads || ""}<link rel="stylesheet" href="/assets/css/site.css">
 <link rel="stylesheet" href="/assets/css/themes.css">
@@ -476,7 +639,7 @@ ${ld}</head>
 <header class="site-header">
   <div class="header-inner wrap">
     <a class="brand" href="/">
-      ${iconImg("brand-icon", false, 48)}
+      ${headImg("brand-icon", false, 48, 44)}
       <span class="brand-name"><span class="brand-pink">Pink</span>Ryno Studios</span>
     </a>
     <input class="nav-check" id="nav-check" type="checkbox">
@@ -491,10 +654,11 @@ ${main}
 </main>
 <footer class="site-footer">
   ${FOOTER_RISE}
+  ${starField("footer-stars", "f", FOOTER_STARS, "  ")}
   <div class="footer-inner wrap">
     <div class="footer-top">
       <div class="footer-brand">
-        ${iconImg("footer-icon", true, 64)}
+        ${headImg("footer-icon", true, 64)}
         <div>
           <p class="footer-name">PinkRyno Studios</p>
           <p class="footer-tagline">Gentle games for little explorers.</p>
@@ -545,7 +709,7 @@ function organization() {
     "@type": "Organization",
     name: "PinkRyno Studios",
     url: SITE + "/",
-    logo: SITE + mascot.head.png,
+    logo: SITE + mascot.headPng[1],
     description: "Independent studio in Florida making calm games for children ages 3 to 6."
   };
   if (studio.legalName) data.legalName = studio.legalName;
@@ -572,24 +736,30 @@ function pageHome(visible) {
     <div class="facts">
       <div class="fact">
         ${icon("gift")}
-        <h3>Free to start</h3>
-        <p>${esc(featured.free_content)}</p>
+        <div>
+          <h3>Free to start</h3>
+          <p>${esc(featured.free_content)}</p>
+        </div>
       </div>
       <div class="fact">
         ${icon("key")}
-        <h3>${esc(unlockTitle)}</h3>
-        <p>${esc(featured.unlock)}${featured.trial ? " " + esc(featured.trial) : ""}</p>
+        <div>
+          <h3>${esc(unlockTitle)}</h3>
+          <p>${esc(featured.unlock)}${featured.trial ? " " + copy(featured.trial) : ""}</p>
+        </div>
       </div>
       <div class="fact">
-        ${icon("target")}
-        <h3>Made for small hands</h3>
-        <p>Big targets, no reading needed, and no timers.</p>
+        ${icon("hand")}
+        <div>
+          <h3>Made for small hands</h3>
+          <p>Big targets, no reading needed, and no timers.</p>
+        </div>
       </div>
     </div>
   </section>`
     : "";
   const main = `<section class="hero" aria-labelledby="hero-title">
-    <div class="sky" aria-hidden="true"></div>
+    ${starField("starfield", "s", HERO_STARS, "    ")}
     <div class="wrap hero-inner">
       <div class="hero-copy">
         <h1 id="hero-title">Calm little adventures for ages 3–6.</h1>
@@ -608,7 +778,7 @@ function pageHome(visible) {
   ${feature}
   ${facts}
   <section class="section wrap studio-line" aria-label="About the studio">
-    ${iconImg("studio-icon", true, 64)}
+    ${headImg("studio-icon", true, 64)}
     <div>
       <p>PinkRyno Studios is a tiny studio in Florida making calm games for little kids.</p>
       ${more("/about/", "Meet the studio")}
@@ -627,7 +797,7 @@ function pageHome(visible) {
 
 function gameRow(game) {
   // Card art first, then the cut-out hero. With neither, the row is text only.
-  const src = [game.art.card, game.art.hero].find(publicFileExists);
+  const src = game.art.card || game.art.hero;
   let art = "";
   if (src) {
     const [width, height] = imageSize(src);
@@ -664,9 +834,7 @@ function pageGames(visible) {
 }
 
 function screensStrip(game) {
-  const shots = game.art.screens
-    .map((src, index) => ({ src, alt: game.art_alt.screens[index] }))
-    .filter((shot) => publicFileExists(shot.src));
+  const shots = game.art.screens.map((src, index) => ({ src, alt: game.art_alt.screens[index] }));
   if (!shots.length) return "";
   const items = shots.map((shot) => {
     const [width, height] = imageSize(shot.src);
@@ -742,13 +910,19 @@ function pageGame(game) {
   ${screensStrip(game)}
   ${plays}
   <section class="section wrap split" aria-label="What's free and what the unlock adds">
-    <div>
-      <h2>What's free</h2>
-      <p>${esc(game.free_content)}</p>${game.web_note ? `\n      <p>${esc(game.web_note)}</p>` : ""}
+    <div class="split-item">
+      ${icon("gift")}
+      <div>
+        <h2>What's free</h2>
+        <p>${esc(game.free_content)}</p>${game.web_note ? `\n        <p>${esc(game.web_note)}</p>` : ""}
+      </div>
     </div>
-    <div>
-      <h2>${esc(unlockTitle)}</h2>
-      <p>${esc(game.unlock)}</p>${game.trial ? `\n      <p>${esc(game.trial)}</p>` : ""}
+    <div class="split-item">
+      ${icon("key")}
+      <div>
+        <h2>${esc(unlockTitle)}</h2>
+        <p>${esc(game.unlock)}</p>${game.trial ? `\n        <p>${copy(game.trial)}</p>` : ""}
+      </div>
     </div>
   </section>
   <section class="section wrap" aria-labelledby="questions-title">
@@ -802,13 +976,17 @@ function pagePrivacy() {
   const who = ["PinkRyno Studios is an independent game studio in Florida, USA."];
   if (studio.legalName) who.push(`Legal name: ${esc(studio.legalName)}.`);
   if (studio.address) who.push(`Mailing address: ${esc(studio.address)}.`);
+  // Links sit on their own rows (not inside sentences) so each one is a 44 px tap target.
   const contact = studio.supportEmail
-    ? `Privacy questions and support go to the same place: ${mailLink()}. The <a href="/support/">support page</a> also covers restoring purchases and uninstalling a game.`
-    : `The <a href="/support/">support page</a> covers restoring purchases and uninstalling a game.`;
+    ? `<p>Privacy questions and support go to the same place. Write to us at:</p>
+    <p class="link-row">${mailLink()}</p>
+    <p class="link-row">${more("/support/", "Help for grown-ups")}</p>`
+    : `<p>Help with purchases and uninstalling a game is on the support page.</p>
+    <p class="link-row">${more("/support/", "Help for grown-ups")}</p>`;
   const main = `<article class="section wrap page-top">
     <div class="prose">
     <h1>Privacy policy</h1>
-    <p class="effective">Effective October 22, 2026. This policy covers the PinkRyno Studios website and our games, including Tiny Trails: Space on the web, the Apple App Store, and Google Play.</p>
+    <p class="effective">Effective ${POLICY_EFFECTIVE}. This policy covers the PinkRyno Studios website and our games, including Tiny Trails: Space, which you can play in your browser on this website.</p>
     <p class="intro"><strong>PinkRyno Studios does not collect personal data.</strong> Our games and this website have no ads, no tracking, and no third-party advertising, analytics, or social SDKs.</p>
     <nav class="toc" aria-labelledby="toc-title">
       <h2 id="toc-title">On this page</h2>
@@ -830,7 +1008,8 @@ function pagePrivacy() {
     <h2 id="who">Who we are</h2>
     <p>${who.join(" ")}</p>
     <h2 id="covers">What this policy covers</h2>
-    <p>It covers pinkrynostudios.com and the games we publish for children, including games offered under the Apple App Store kids category and Google Play Families. If a store listing asks for a privacy policy URL, this page is that URL.</p>
+    <p>It covers pinkrynostudios.com and the games we publish for children, including the browser versions on this website.</p>
+    <p>Our games are coming to the App Store and Google Play. When they are available there, this policy will cover those versions too, including games offered in the Apple App Store kids category and Google Play Families, and each store listing will link to this page.</p>
     <h2 id="collect">Information we collect</h2>
     <p>We do not collect personal information through the website or our games. Personal information means information that identifies a person or can reasonably be linked to a person. That includes a name, email address, phone number, photo, voice, precise location, contacts, and an account identifier.</p>
     <p>There are no accounts, no sign-up forms, and no profile to fill in. We do not ask a child for any of those things. We do not collect gameplay analytics.</p>
@@ -838,24 +1017,26 @@ function pagePrivacy() {
     <p>We do not show ads. We do not let anyone else show ads in our games or on this website. We do not use interest-based advertising.</p>
     <p>We do not use third-party advertising SDKs, analytics SDKs, attribution SDKs, crash-reporting SDKs, or social SDKs. The website does not load fonts, pictures, or scripts from any other site.</p>
     <h2 id="purchases">Purchases</h2>
-    <p>Some games may offer a one-time unlock. There is no subscription. If you buy an unlock, Apple or Google processes the payment under that store's own terms and privacy policy. We do not receive your payment card number. We do not receive a child's name from the store.</p>
-    <p>The unlock is tied to the store account that paid, which is how Restore Purchases works. See the <a href="/support/">support page</a>.</p>
+    <p>The browser versions on this website have nothing to buy. When our games are available on the App Store and Google Play, some may offer a one-time unlock, with no subscription. Apple or Google processes that payment under the store's own terms and privacy policy. We do not receive your payment card number or a child's name from the store.</p>
+    <p>The unlock is tied to the store account that paid, which is how Restore Purchases works.</p>
+    <p class="link-row">${more("/support/", "Help with restoring a purchase")}</p>
     <h2 id="cookies">Cookies and device storage</h2>
-    <p>This website does not set cookies. It does not use local storage, session storage, or similar storage. The parental gate asks a grown-up a question in the moment and does not save the answer.</p>
+    <p>This website does not set cookies. Our games save a child's progress and settings on the device they are played on. In a web browser, including the browser versions on this website, they use the browser's own storage (IndexedDB or local storage). On phones and tablets, they use the app's own storage. Saved progress stays on the device and is never sent to us or anyone else.</p>
+    <p>The parental gate on this website asks a grown-up a question in the moment and does not save the answer.</p>
     <h2 id="children">Children</h2>
     <p>Our games and this website are directed to children under 13, and parents use them too. We follow the Children's Online Privacy Protection Act by not collecting personal information from children. Because we do not collect it, we do not ask for verifiable parental consent to collect it.</p>
     <p>We do not knowingly receive personal information from a child. If you believe we have, email us and we will delete it.</p>
     <h2 id="email">Email you send us</h2>
     <p>If you email us, we receive whatever you choose to write, and we use it only to reply. Please do not include a child's name, photo, or precise location. We do not add your address to a mailing list. You can ask us to delete the conversation and we will.</p>
     <h2 id="delete">How to delete information</h2>
-    <p>We do not have a player profile to delete. To remove a game from a device, uninstall it. To stop using the website, close the tab. Purchases remain with Apple or Google, and you manage them in that store account. To delete emails you sent us, write to us and ask.</p>
+    <p>We do not have a player profile to delete. To erase saved game progress, clear this website's data in your browser's settings, or uninstall the game from the phone or tablet. Purchases remain with Apple or Google, and you manage them in that store account. To delete emails you sent us, write to us and ask.</p>
     <h2 id="hosting">Hosting</h2>
     <p>These pages are static files. We do not add analytics, and we do not receive a report of who visited or what a child played.</p>
     <p>The company that hosts the files may keep ordinary technical logs, such as an IP address and the page that was requested, to keep the service secure. We do not use those logs to identify a child, build a profile, or advertise, and we do not combine them with other information.</p>
     <h2 id="changes">Changes</h2>
-    <p>If we change this policy, we will update the date at the top of the page. The store listings point at this same URL.</p>
+    <p>If we change this policy, we will update the date at the top of the page.</p>
     <h2 id="contact">Contact</h2>
-    <p>${contact}</p>
+    ${contact}
     </div>
   </article>`;
   return layout({
@@ -881,18 +1062,19 @@ function pageSupport(visible) {
     ? `<details>
         <summary>The free worlds and the ${esc(featured.price || "one-time")} unlock</summary>
         <p>Free from the start: ${esc(featured.free_content)}</p>
-        <p>${esc(featured.price ? `The ${featured.price} unlock` : "The one-time unlock")}: ${esc(featured.unlock)}${featured.trial ? " " + esc(featured.trial) : ""}</p>${featured.web_note ? `\n        <p>${esc(featured.web_note)}</p>` : ""}
+        <p>${esc(featured.price ? `The ${featured.price} unlock` : "The one-time unlock")}: ${esc(featured.unlock)}${featured.trial ? " " + copy(featured.trial) : ""}</p>${featured.web_note ? `\n        <p>${esc(featured.web_note)}</p>` : ""}
       </details>`
     : "";
   const browserItem = featured && featured.play_url
     ? `<details>
         <summary>Playing in the browser</summary>
-        <p>${esc(featured.title)} plays right in the browser from <a href="${esc(featured.page)}">its game page</a>, with nothing to install.${featured.play_size_note ? ` The download is ${esc(featured.play_size_note)}.` : ""}</p>
+        <p>${esc(featured.title)} plays right in the browser, with nothing to install.${featured.play_size_note ? ` The download is ${esc(featured.play_size_note)}.` : ""}</p>
+        <p class="link-row">${more(featured.page, "Go to " + featured.title)}</p>
       </details>`
     : "";
   const main = `<article class="section wrap page-top support">
     <div class="title-row">
-      ${iconImg("title-icon", false, 88)}
+      ${headImg("title-icon", false, 88, 64)}
       <h1>Help for grown-ups</h1>
     </div>
     ${contact}
@@ -906,7 +1088,8 @@ function pageSupport(visible) {
       ${browserItem}
       <details>
         <summary>Deleting data</summary>
-        <p>There's no profile or account to delete. To remove a game, uninstall it. Purchases stay with Apple or Google, and you manage or refund them in that store account. The details are in our <a href="/privacy/">privacy policy</a>.</p>
+        <p>There's no profile or account to delete. To remove a game, uninstall it. For the browser version, clear this site's data in your browser's settings. Purchases stay with Apple or Google, and you manage or refund them in that store account.</p>
+        <p class="link-row">${more("/privacy/", "Read the privacy policy")}</p>
       </details>
       <details>
         <summary>Something went wrong</summary>
@@ -937,7 +1120,7 @@ function pageNotFound() {
   return layout({
     title: "Page not found · PinkRyno Studios",
     description: "That page is not on the PinkRyno Studios site. Head home or see the games.",
-    path: "/404.html",
+    path: null,
     current: "",
     robots: "noindex",
     main
@@ -960,6 +1143,66 @@ function sitemap(visible, lastmod) {
 ${urls}
 </urlset>
 `;
+}
+
+/* Output checks --------------------------------------------------------- */
+
+const URL_TAG = /<(a|link|img|source|script|form|iframe|video|audio|use)\b([^>]*)>/gi;
+const URL_ATTR = /\s(href|src|srcset|action|poster)="([^"]*)"/gi;
+
+// Every URL in the rendered files must resolve to a local file (or a file this
+// build writes), use an absolute path, and leave the site only through a gated <a>.
+function checkRendered(files) {
+  const outputs = new Set(files.map(([rel]) => rel));
+  const exists = (path) => {
+    const rel = sitePathToRel(path);
+    return outputs.has(rel) || existsSync(join(root, rel));
+  };
+  const problems = [];
+  for (const [rel, text] of files) {
+    if (rel.endsWith(".html")) {
+      const ids = new Set([...text.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));
+      for (const [, tag, attrs] of text.matchAll(URL_TAG)) {
+        const gatedLink = tag.toLowerCase() === "a" && /\sdata-parent-gate(?=[\s=]|$)/.test(attrs);
+        for (const [, attr, raw] of attrs.matchAll(URL_ATTR)) {
+          const value = raw.replaceAll("&amp;", "&");
+          const urls = attr.toLowerCase() === "srcset" ? value.split(",").map((part) => part.trim().split(/\s+/)[0]) : [value];
+          for (const url of urls) {
+            if (url.startsWith("#")) {
+              if (url.length > 1 && !ids.has(url.slice(1))) problems.push(`${rel}: ${url} has no matching id`);
+            } else if (url.startsWith("mailto:") || (url.startsWith("https://") && !url.startsWith(SITE + "/"))) {
+              if (!gatedLink) problems.push(`${rel}: ${url} leaves the site, so it must be an <a> with data-parent-gate`);
+            } else if (url.startsWith(SITE + "/")) {
+              if (!exists(url.slice(SITE.length))) problems.push(`${rel}: ${url} has no local file`);
+            } else if (/^\/(?!\/)/.test(url)) {
+              if (!exists(url)) problems.push(`${rel}: ${url} does not exist`);
+              else if (tag.toLowerCase() === "use") {
+                const [file, id] = url.split("#");
+                if (!id || !symbolIds(file).has(id)) problems.push(`${rel}: ${url} has no matching <symbol> in ${file}`);
+              }
+            } else {
+              problems.push(`${rel}: ${attr}="${url}" must be an absolute site path (/...), a #fragment, or a gated https:// or mailto: link`);
+            }
+          }
+        }
+      }
+      const note = text.match(INTERNAL_NOTES);
+      if (note) problems.push(`${rel}: contains internal or placeholder text ("${note[0]}")`);
+      // The CSP is style-src 'self': a style attribute or <style> block would be blocked.
+      if (/<style\b|\sstyle\s*=/i.test(text)) problems.push(`${rel}: has an inline style, which the CSP blocks. Use a class in site.css.`);
+    }
+    // Absolute URLs in meta tags, JSON-LD, and sitemap.xml.
+    for (const [url] of text.matchAll(/https:\/\/pinkrynostudios\.com\/[^"'\s<>\\]*/g)) {
+      if (!exists(url.slice(SITE.length))) problems.push(`${rel}: ${url} has no local file`);
+    }
+  }
+  const css = readFileSync(join(root, "assets/css/site.css"), "utf8");
+  for (const [, url] of css.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/g)) {
+    if (url.startsWith("data:")) continue;
+    if (!/^\/(?!\/)/.test(url)) problems.push(`assets/css/site.css: url(${url}) must be an absolute site path`);
+    else if (!exists(url)) problems.push(`assets/css/site.css: url(${url}) does not exist`);
+  }
+  must(!problems.length, "Nothing was written. Fix these references first:\n  " + problems.join("\n  "));
 }
 
 function removeStaleGamePages(visible) {
@@ -1010,6 +1253,7 @@ function main() {
   for (const [rel, html] of files) {
     must(!/\bTODO\b/.test(html), "Refusing to write " + rel + ": it contains TODO text");
   }
+  checkRendered(files);
   removeStaleGamePages(visible);
   for (const [rel, html] of files) writeRel(rel, html);
 

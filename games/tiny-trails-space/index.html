@@ -27,8 +27,9 @@
 <meta name="twitter:description" content="Tiny Trails: Space is a calm tracing game for ages 3 to 6. Follow a glowing trail across little planets and meet a friendly star at the end.">
 <meta name="twitter:image" content="https://pinkrynostudios.com/assets/mascot/rosie-social.png">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
-<link rel="icon" href="/assets/mascot/favicon.png" type="image/png">
-<link rel="apple-touch-icon" href="/assets/mascot/apple-touch-icon.png">
+<link rel="icon" href="/assets/mascot/head/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/assets/mascot/head/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/assets/mascot/head/apple-touch-icon-180.png" sizes="180x180">
 <link rel="preload" href="/assets/fonts/baloo-2-latin-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css">
 <link rel="stylesheet" href="/assets/css/themes.css">
@@ -40,7 +41,7 @@
 <header class="site-header">
   <div class="header-inner wrap">
     <a class="brand" href="/">
-      <img class="brand-icon" src="/assets/mascot/rosie-head-128.webp" alt="" width="128" height="128">
+      <img class="brand-icon" src="/assets/mascot/head/rosie-head-64.webp" srcset="/assets/mascot/head/rosie-head-64.webp 64w, /assets/mascot/head/rosie-head-128.webp 128w" sizes="(max-width: 760px) 44px, 48px" alt="" width="48" height="48">
       <span class="brand-name"><span class="brand-pink">Pink</span>Ryno Studios</span>
     </a>
     <input class="nav-check" id="nav-check" type="checkbox">
@@ -60,7 +61,7 @@
       <div class="feature-grid">
         <div class="feature-head">
           <h1 id="game-title" class="feature-title accent-title">Tiny Trails: Space</h1>
-          <p class="feature-tagline">Trace a twinkly trail through ten cosmic worlds.</p>
+          <p class="feature-tagline">Trace a twinkly trail from planet to planet.</p>
         </div>
         <div class="feature-body">
           <p>A calm tracing game. Follow a glowing path across little planets and meet a friendly star at the end.</p>
@@ -78,22 +79,28 @@
   <section class="section wrap" aria-labelledby="plays-title">
     <h2 id="plays-title">How it plays</h2>
     <ul class="plays">
-      <li><svg class="icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><g fill="none" stroke="#2B1E4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 37c7 0 6-12 14-12s6 9 13 9c4 0 4-9 4-15" stroke-dasharray="0.1 6.5"/><circle cx="9" cy="37" r="4" fill="#C8F6EA"/><circle cx="40" cy="13" r="5" fill="#FFE7A3"/></g></svg><span>Trace the path with a finger. The trail lights up as the explorer moves.</span></li>
-      <li><svg class="icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><g fill="none" stroke="#2B1E4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="12" fill="#E4DBFF"/><path d="M13.5 29.5C6 34 7 38 14 36.5c6-1.3 15-6 21-11 5-4.2 6.5-8.5 0-7.6"/></g></svg><span>Ten little worlds to visit. Free Play and the Sun, Earth, and Moon are open from the start.</span></li>
-      <li><svg class="icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><g fill="none" stroke="#2B1E4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="17" fill="#C9F6F4"/><path d="M24 11.5 28 24l-4 12.5L20 24Z" fill="#FFD0BE"/><circle cx="24" cy="24" r="2" fill="#2B1E4A"/></g></svg><span>Astro and Zog are free. The other explorers come with the one-time unlock.</span></li>
-      <li><svg class="icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><g fill="none" stroke="#2B1E4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M35.5 17A13 13 0 1 0 37 28" fill="none"/><path d="M37 9v9h-9" fill="none"/><circle cx="24" cy="24" r="4" fill="#FFD0BE"/></g></svg><span>No timers and nothing to read. Play again whenever you like.</span></li>
+      <li><svg class="icon" width="56" height="56" aria-hidden="true" focusable="false"><use href="/assets/icons/icons-sprite.svg#icon-trace"/></svg><span>Trace the path with a finger. The trail lights up as the explorer moves.</span></li>
+      <li><svg class="icon" width="56" height="56" aria-hidden="true" focusable="false"><use href="/assets/icons/icons-sprite.svg#icon-planet"/></svg><span>Visit little planets, each with its own look. Free Play and the Sun, Earth, and Moon worlds are open from the start.</span></li>
+      <li><svg class="icon" width="56" height="56" aria-hidden="true" focusable="false"><use href="/assets/icons/icons-sprite.svg#icon-helmet"/></svg><span>Pick a little explorer to guide along the trail. More explorers come with the one-time unlock.</span></li>
+      <li><svg class="icon" width="56" height="56" aria-hidden="true" focusable="false"><use href="/assets/icons/icons-sprite.svg#icon-replay"/></svg><span>No timers and nothing to read. Play again whenever you like.</span></li>
     </ul>
   </section>
   <section class="section wrap split" aria-label="What's free and what the unlock adds">
-    <div>
-      <h2>What's free</h2>
-      <p>Free Play and the Sun, Earth, and Moon worlds, with the explorers Astro and Zog.</p>
-      <p>The browser version includes the free content.</p>
+    <div class="split-item">
+      <svg class="icon" width="56" height="56" aria-hidden="true" focusable="false"><use href="/assets/icons/icons-sprite.svg#icon-gift"/></svg>
+      <div>
+        <h2>What's free</h2>
+        <p>Free Play and the Sun, Earth, and Moon worlds.</p>
+        <p>The browser version includes the free content.</p>
+      </div>
     </div>
-    <div>
-      <h2>What the $0.99 unlock adds</h2>
-      <p>All 10 worlds and every explorer. No subscription.</p>
-      <p>One shared 3-use trial lets your child try locked worlds and explorers first.</p>
+    <div class="split-item">
+      <svg class="icon" width="56" height="56" aria-hidden="true" focusable="false"><use href="/assets/icons/icons-sprite.svg#icon-key"/></svg>
+      <div>
+        <h2>What the $0.99 unlock adds</h2>
+        <p>All 10 worlds and every explorer. No subscription.</p>
+        <p>One shared <span class="nowrap">3-use</span> trial lets your child try locked worlds and explorers first.</p>
+      </div>
     </div>
   </section>
   <section class="section wrap" aria-labelledby="questions-title">
@@ -104,10 +111,17 @@
 </main>
 <footer class="site-footer">
   <svg class="footer-rise" viewBox="0 0 1440 48" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path fill="currentColor" d="M0 48V34C300 6 1140 6 1440 34v14Z"/></svg>
+  <div class="footer-stars" aria-hidden="true">
+    <svg class="star far f1" width="6" height="6" focusable="false"><use href="/assets/twinkle/twinkle-sprite.svg#dot-sm"/></svg>
+    <svg class="star mid f2" width="20" height="20" focusable="false"><use href="/assets/twinkle/twinkle-sprite.svg#twinkle-4pt-sm"/></svg>
+    <svg class="star far f3" width="8" height="8" focusable="false"><use href="/assets/twinkle/twinkle-sprite.svg#dot-md"/></svg>
+    <svg class="star far f4" width="6" height="6" focusable="false"><use href="/assets/twinkle/twinkle-sprite.svg#dot-sm"/></svg>
+    <svg class="star far f5" width="6" height="6" focusable="false"><use href="/assets/twinkle/twinkle-sprite.svg#dot-sm"/></svg>
+  </div>
   <div class="footer-inner wrap">
     <div class="footer-top">
       <div class="footer-brand">
-        <img class="footer-icon" src="/assets/mascot/rosie-head-128.webp" alt="" width="128" height="128" loading="lazy">
+        <img class="footer-icon" src="/assets/mascot/head/rosie-head-64.webp" srcset="/assets/mascot/head/rosie-head-64.webp 64w, /assets/mascot/head/rosie-head-128.webp 128w" sizes="64px" alt="" width="64" height="64" loading="lazy">
         <div>
           <p class="footer-name">PinkRyno Studios</p>
           <p class="footer-tagline">Gentle games for little explorers.</p>

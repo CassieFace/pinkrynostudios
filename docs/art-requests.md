@@ -16,9 +16,9 @@ The home hero is one `<picture>`. `mascot.hero.large` (386×500) is used on wide
 
 The keyed frames had a blurry green smudge beside both ears: a larger one just to the viewer's right of her head, level with the top of her eyes, and a smaller one on the viewer's left. They were half-transparent keying leftovers, and they sat on every frame. Those pixels are now transparent in all 49 frames of `rosie-wave.webp`, and in the still WebP and PNG. Her outline, the contact shadow, the timing, and the loop were left as they were. The source movie was not edited.
 
-The stars and sparkles that were baked into the loop (the big star by her horn, the small four-point sparkles, and the gold dots that moved with her) are now removed from all 49 frames of `rosie-wave.webp` and from the still WebP and PNG. Where the little sparkle sat on the top of her head during the hop, her outline was redrawn along its own curve. Rosie's own frames were not regenerated, so her wave, squint, and hop are the same. The SVG stars that used to sit around her on the site (`.spark`) are removed too. The only stars now are the CSS star field on the home hero band, which is not tied to Rosie.
+The stars and sparkles that were baked into the loop (the big star by her horn, the small four-point sparkles, and the gold dots that moved with her) are now removed from all 49 frames of `rosie-wave.webp` and from the still WebP and PNG. Where the little sparkle sat on the top of her head during the hop, her outline was redrawn along its own curve. Rosie's own frames were not regenerated, so her wave, squint, and hop are the same. The SVG stars that used to sit around her on the site (`.spark`) are removed too. The only stars now are the TWINKLE-SET SVG stars in the home hero band's background (plus a few faint ones in the footer), which are not tied to Rosie and keep clear of her.
 
-The older full-body cut-out, `rosie-full`, is the picture on About and the 404. Support shows `rosie-head` beside its title. The eye and body cut layers in `assets/mascot/source/` (`rosie-body-no-eyes.png`, `rosie-eyes.png`) are not used. Do not build a CSS blink or a separate arm on top of them.
+The older full-body cut-out, `rosie-full`, is the picture on About and the 404. The header, footer, home studio line, and support title show the approved ROSIE-HEAD export in `assets/mascot/head/`, which also supplies the favicons and the apple-touch icon. The eye and body cut layers in `assets/mascot/source/` (`rosie-body-no-eyes.png`, `rosie-eyes.png`) are not used. Do not build a CSS blink or a separate arm on top of them.
 
 ## How to prompt
 
@@ -50,7 +50,7 @@ Optional, not slotted on the page yet. Say if you want them wired in:
 | Slot | Suggested file | Notes |
 | --- | --- | --- |
 | OG-SHARE | `assets/mascot/rosie-social.webp` | Social share image, 1200×630. This file is already the mascot on the site mist color. A future illustrated card can replace `mascot.social` in `site.json`. |
-| MASCOT-LOST | `assets/images/mascot-lost.webp` | Optional puzzled Rosie for the 404 page. Until this exists, that page uses the main mascot picture. |
+| MASCOT-LOST | n/a | Dropped. The 404 page keeps the main mascot picture. |
 | TT-TRAILER | `assets/games/tiny-trails-space/trailer.webp` | A short silent trailer still or looping WebP. Prefer a real capture from the game once the cosmic sticker build exists. |
 
 ## Prompts (Midjourney v7)
@@ -87,7 +87,7 @@ Cassie picked this anchor: Midjourney job `8e26e821-8670-4c90-b69c-a6674459051a`
 
 Crop to 1200×630 if this is used as the share image.
 
-### 7. Optional MASCOT-LOST
+### 7. MASCOT-LOST (dropped, kept for reference)
 
 `flat vector cartoon sticker of Rosie Ryno, a cute baby pink rhinoceros, big head, tiny horn, rosy cheeks, chubby baby proportions, looking gently puzzled with a small open smile, one hoof raised, a tiny butter-yellow star beside them, deep plum outline, flat two-tone shading, one soft drop shadow, plain cream background, children's mascot art --ar 1:1 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary, tears`
 

@@ -158,6 +158,12 @@ a:hover { text-decoration-thickness: 2px; }
 
 .more { display: inline-flex; align-items: center; gap: 0.5em; min-height: 44px; font-weight: 800; }
 
+/* A link on its own row under a paragraph. Links stay out of running text so
+   every tap target is at least 44 px tall without stretching the lines. */
+.link-row { margin-top: -0.5rem; }
+
+.link-row a { display: inline-flex; align-items: center; min-height: 44px; }
+
 .more::after {
   content: "";
   width: 0.45em;
@@ -242,66 +248,112 @@ a:hover { text-decoration-thickness: 2px; }
 
 .hero { position: relative; overflow: hidden; isolation: isolate; background: var(--space); color: var(--page); }
 
-/* Three star layers, fixed to the band. Each drifts up by exactly one tile. */
-.hero::before,
-.hero::after,
-.sky {
-  content: "";
+/* TWINKLE-SET stars. Each drifts out and back (alternate), so it never jumps;
+   near ones take 60 s, far ones 120 s. The .s and .f rules place them. */
+.starfield,
+.footer-stars { position: absolute; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; }
+
+.star {
   position: absolute;
-  z-index: -1;
-  inset: 0 0 auto;
-  pointer-events: none;
-  animation: drift 110s linear infinite;
+  max-width: none;
+  will-change: transform;
+  animation: star-drift var(--drift, 90s) ease-in-out infinite alternate;
 }
 
-.hero::before {
-  --tile: 300px;
-  height: calc(100% + var(--tile));
-  background-image:
-    radial-gradient(circle at 24px 40px, #fbf8ff 0 1px, transparent 1.8px),
-    radial-gradient(circle at 132px 18px, #e4dbff 0 1px, transparent 1.8px),
-    radial-gradient(circle at 250px 96px, #fbf8ff 0 1.2px, transparent 2px),
-    radial-gradient(circle at 70px 170px, #c9f6f4 0 1px, transparent 1.8px),
-    radial-gradient(circle at 190px 210px, #fbf8ff 0 1px, transparent 1.8px),
-    radial-gradient(circle at 286px 262px, #ffe7a3 0 1.1px, transparent 1.9px),
-    radial-gradient(circle at 12px 280px, #e4dbff 0 0.9px, transparent 1.6px);
-  background-size: var(--tile) var(--tile);
-  opacity: 0.8;
+.star.far { --drift: 120s; opacity: 0.7; }
+
+.star.near { --drift: 60s; }
+
+.star.tw { animation: star-drift var(--drift, 90s) ease-in-out infinite alternate, star-twinkle 7s ease-in-out infinite; }
+
+.star:nth-child(3n) { animation-delay: -40s; }
+
+.star:nth-child(3n + 1) { animation-delay: -75s; }
+
+@keyframes star-drift {
+  from { transform: translate3d(0, 0, 0) rotate(0deg); }
+  to { transform: translate3d(-36px, 18px, 0) rotate(12deg); }
 }
 
-.hero::after {
-  --tile: 460px;
-  height: calc(100% + var(--tile));
-  background-image:
-    radial-gradient(circle at 90px 60px, #ffe7a3 0 1.6px, transparent 2.6px),
-    radial-gradient(circle at 330px 150px, #fbf8ff 0 1.4px, transparent 2.4px),
-    radial-gradient(circle at 210px 300px, #ffd0be 0 1.5px, transparent 2.5px),
-    radial-gradient(circle at 420px 400px, #c8f6ea 0 1.4px, transparent 2.4px),
-    radial-gradient(circle at 30px 420px, #fbf8ff 0 1.2px, transparent 2.2px);
-  background-size: var(--tile) var(--tile);
-  animation-duration: 140s;
-  opacity: 0.75;
+@keyframes star-twinkle { 50% { opacity: 0.55; } }
+
+/* Rosie's column starts at about 56% of the band at every width, so no hero
+   star sits right of 49% except the far-right dot on very wide screens. */
+.s1 { left: max(1%, calc(50% - 690px)); top: 7%; }
+.s2 { left: 18%; top: 3%; }
+.s3 { left: max(39%, calc(50% - 230px)); top: 8%; }
+.s4 { left: 31%; top: 2.5%; }
+.s5 { left: 6%; top: 34%; }
+.s6 { left: 43%; top: 30%; }
+.s7 { left: 2%; top: 64%; }
+.s8 { display: none; }
+.s9 { left: 46%; top: 80%; }
+.s10 { left: 4%; top: 84%; }
+.s11 { left: 20%; top: 82%; }
+.s12 { left: 37%; top: 1.5%; }
+.s13 { left: 2%; top: 46%; }
+.s14 { left: 46%; top: 56%; }
+.s15 { left: 8%; top: 18%; }
+.s16 { left: max(1%, calc(50% - 640px)); top: 56%; }
+.s17 { left: 97%; top: 30%; }
+
+/* Narrower margins: no room for the glow stars, and two dots would sit on the headline. */
+@media (max-width: 1359px) {
+  .s1, .s16 { display: none; }
+
+  .s5 { left: 49%; top: 40%; }
+  .s15 { left: 12%; top: 1%; }
 }
 
-/* A few soft glows that breathe slowly while drifting sideways. */
-.sky {
-  --tile: 560px;
-  inset: 0 auto auto 0;
-  width: calc(100% + var(--tile));
-  height: 100%;
-  background-image:
-    radial-gradient(circle at 140px 110px, rgba(255, 231, 163, 0.9) 0 2px, rgba(255, 231, 163, 0.18) 3px, transparent 9px),
-    radial-gradient(circle at 460px 330px, rgba(201, 246, 244, 0.9) 0 2px, rgba(201, 246, 244, 0.16) 3px, transparent 9px),
-    radial-gradient(circle at 300px 520px, rgba(251, 248, 255, 0.9) 0 1.8px, rgba(251, 248, 255, 0.16) 3px, transparent 8px);
-  background-size: var(--tile) var(--tile);
-  animation: drift-side 160s linear infinite, breathe 9s ease-in-out infinite alternate;
+@media (max-width: 1599px) {
+  .s17 { display: none; }
 }
 
-@keyframes drift { to { transform: translate3d(0, calc(-1 * var(--tile)), 0); } }
+/* Phones: Rosie stands top centre, so the stars sit around the copy below her. */
+@media (max-width: 760px) {
+  .s12 { display: none; }
 
-@keyframes drift-side { to { transform: translate3d(calc(-1 * var(--tile)), 0, 0); } }
+  .s2 { left: 8%; top: 46%; }
+  .s3 { left: 6%; top: 56%; }
+  .s4 { left: 92%; top: 53%; }
+  .s5 { left: 16%; top: 63%; }
+  .s6 { left: 86%; top: 55%; }
+  .s7 { left: 4%; top: 66%; }
+  .s8 { display: block; left: 94%; top: 72%; }
+  .s9 { left: 30%; top: 79%; }
+  .s10 { left: 4%; top: 92%; }
+  .s11 { left: 70%; top: 79%; }
+  .s13 { left: 96%; top: 60%; }
+  .s14 { left: 95%; top: 91%; }
+  .s15 { left: 24%; top: 92%; }
+}
 
-@keyframes breathe { from { opacity: 0.45; } to { opacity: 1; } }
+/* On the narrowest phones the copy reaches s5 and s6. */
+@media (max-width: 359px) {
+  .s5, .s6 { display: none; }
+}
+
+/* Footer stars: the layer covers only empty space (lower right; on phones the
+   bottom padding), so it never sits under footer text or near the Rosie head. */
+.footer-stars { inset: auto 0 0 auto; width: 32%; height: 55%; }
+
+.footer-stars .star { opacity: 0.45; }
+
+.f1 { left: 12%; top: 35%; }
+.f2 { left: 50%; top: 50%; }
+.f3 { left: 81%; top: 27%; }
+.f4 { left: 31%; top: 76%; }
+.f5 { left: 84%; top: 75%; }
+
+@media (max-width: 760px) {
+  .footer-stars { width: 55%; height: 40px; }
+
+  .f2, .f5 { display: none; }
+
+  .f1 { left: 20%; top: 25%; }
+  .f3 { left: 56%; top: 10%; }
+  .f4 { left: 86%; top: 40%; }
+}
 
 .hero-inner {
   display: grid;
@@ -376,17 +428,22 @@ a:hover { text-decoration-thickness: 2px; }
 
 .crumbs { margin: 0 0 28px; font-size: 0.95rem; color: var(--muted); }
 
-.crumbs a { display: inline-block; padding: 10px 0; }
+.crumbs a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; }
 
 .store-link { display: inline-flex; align-items: center; min-height: 44px; }
 
 /* Facts, lists, columns ------------------------------------------------- */
 
-.icon { width: 48px; height: 48px; flex: none; }
+/* ICON-SET sticker icons sit beside their text, unboxed. */
+.icon { width: 56px; height: 56px; flex: none; }
 
-.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 48px; margin-top: 2rem; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 40px; margin-top: 2rem; }
 
-.fact .icon { margin-bottom: 14px; }
+.fact,
+.split-item { display: flex; align-items: flex-start; gap: 16px; }
+
+/* Centre the first line of the heading on the icon. */
+.fact h3 { margin-top: 13px; }
 
 .fact p { margin: 0; max-width: 34ch; }
 
@@ -400,15 +457,15 @@ a:hover { text-decoration-thickness: 2px; }
 
 .plays { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 56px; }
 
-.plays li { display: flex; align-items: flex-start; gap: 18px; max-width: 46ch; }
+.plays li { display: flex; align-items: flex-start; gap: 16px; max-width: 46ch; }
 
-.plays span { padding-top: 10px; }
+.plays span { padding-top: 13px; }
 
 .split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 64px; }
 
-.split > div { max-width: 46ch; }
+.split-item { max-width: 52ch; }
 
-.split h2 { font-size: clamp(1.6rem, 1.2vw + 1rem, 2.1rem); }
+.split h2 { font-size: clamp(1.6rem, 1.2vw + 1rem, 2.1rem); margin-top: 10px; }
 
 .screens {
   list-style: none;
@@ -520,11 +577,11 @@ a:hover { text-decoration-thickness: 2px; }
 
 .toc h2 { font-size: 1.35rem; }
 
-.toc ol { margin: 0; padding-left: 1.4em; columns: 2; column-gap: 48px; }
+.toc ol { margin: 0; padding-left: 1.7em; columns: 2; column-gap: 48px; }
 
 .toc li { break-inside: avoid; }
 
-.toc a { display: inline-block; padding: 4px 0; }
+.toc a { display: flex; align-items: center; min-height: 44px; padding: 4px 0; line-height: 1.3; }
 
 .prose h2 { margin-top: 2.4rem; }
 
@@ -557,7 +614,7 @@ a:hover { text-decoration-thickness: 2px; }
 
 .gate-title { font-family: var(--display); font-weight: 800; font-size: 1.7rem; line-height: 1.15; margin: 0 0 0.5rem; }
 
-.gate-form label { display: block; margin-bottom: 8px; font-family: var(--display); font-weight: 800; font-size: 1.3rem; }
+.gate-form label { display: flex; align-items: center; min-height: 44px; margin-bottom: 4px; font-family: var(--display); font-weight: 800; font-size: 1.3rem; line-height: 1.2; }
 
 .gate-form input {
   width: 100%;
@@ -578,7 +635,7 @@ body.gate-open { overflow: hidden; }
 
 /* Footer ---------------------------------------------------------------- */
 
-.site-footer { position: relative; margin-top: 7rem; background: var(--space); color: var(--page); }
+.site-footer { position: relative; isolation: isolate; margin-top: 7rem; background: var(--space); color: var(--page); }
 
 .footer-rise { position: absolute; left: 0; bottom: calc(100% - 1px); width: 100%; height: 40px; color: var(--space); }
 
@@ -596,7 +653,7 @@ body.gate-open { overflow: hidden; }
 
 .footer-links { display: flex; flex-wrap: wrap; gap: 0 6px; margin: 0; padding: 0; list-style: none; }
 
-.footer-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; }
+.footer-links a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0 10px; }
 
 .site-footer a { color: #fff; }
 
@@ -605,6 +662,8 @@ body.gate-open { overflow: hidden; }
 .footer-notes { display: grid; gap: 4px; padding-top: 18px; border-top: 1px solid rgba(228, 219, 255, 0.22); }
 
 .footer-notes p { margin: 0; }
+
+.footer-notes a { display: inline-flex; align-items: center; min-height: 44px; }
 
 .footer-privacy { font-weight: 700; }
 
@@ -672,6 +731,18 @@ body.gate-open { overflow: hidden; }
 
   .facts { gap: 28px; }
 
+  .icon { width: 48px; height: 48px; }
+
+  .fact,
+  .split-item,
+  .plays li { gap: 14px; }
+
+  .fact h3 { margin-top: 10px; }
+
+  .plays span { padding-top: 9px; }
+
+  .split h2 { margin-top: 6px; }
+
   .about-rosie img { width: min(220px, 56vw); margin-inline: auto; }
 
   .title-icon { width: 64px; height: 64px; }
@@ -684,6 +755,9 @@ body.gate-open { overflow: hidden; }
 }
 
 @media (min-width: 761px) {
+  /* The menu checkbox only works with its phone-only label; keep it out of the tab order here. */
+  .nav-check { display: none; }
+
   body { font-size: 1.125rem; }
 
   .wrap { width: min(var(--wrap), calc(100% - 64px)); }
@@ -692,9 +766,8 @@ body.gate-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 
-  .hero::before,
-  .hero::after,
-  .sky,
+  .star,
+  .star.tw,
   .bob { animation: none; }
 
   .btn,
@@ -711,7 +784,7 @@ body.gate-open { overflow: hidden; }
 }
 
 @media print {
-  .site-header, .skip, .gate, .hero::before, .hero::after, .sky, .horizon, .footer-rise { display: none !important; }
+  .site-header, .skip, .gate, .starfield, .footer-stars, .horizon, .footer-rise { display: none !important; }
 
   .hero, .site-footer { background: #fff; color: #000; }
 
