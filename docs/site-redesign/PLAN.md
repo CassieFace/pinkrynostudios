@@ -87,7 +87,7 @@ Recorded October 28, 2026. Rosie is the mascot for everything. **The final appro
 | `art.logo` | Head | PNG (JPEG or WebP also work), at least 112×112; 256×256 PNG suggested | Organization logo in the home page's structured data (search results). Not shown on the page | `assets/mascot/head/rosie-head-256.png` (256×256, 24,989 bytes) |
 | `art.faviconIco` | Favicons | ICO with at least the 16, 32, and 48 px images. Its `<link sizes>` lists every size in the file | Browser tab, every page, and browsers that ask for `/favicon.ico` on their own | `/favicon.ico` at the site root (16, 32, and 48 px, 9,592 bytes) |
 | `art.favicon32`, `art.favicon48` | Favicons | PNG, exactly 32×32 and 48×48 | Browser tab, every page | `assets/mascot/head/favicon-32.png`, `favicon-48.png` |
-| `art.appleTouch` | Favicons | PNG, exactly 180×180 | Phone home-screen icon, every page | `assets/mascot/head/apple-touch-icon-180.png` (Rosie's head on butter yellow, with transparent rounded corners) |
+| `art.appleTouch` | Favicons | PNG, exactly 180×180 | Phone home-screen icon, every page | `assets/mascot/head/apple-touch-icon-180.png` (Rosie's head on full-bleed cream `#FFF2C8`, fully opaque RGB with square corners; iOS applies its own rounded mask) |
 | `art.rosie.lost` | 404 | Transparent WebP or PNG, at least 240 px wide; optional `src2x` at exactly twice the size | The 404 page, above "This page floated off", 240 px wide (56% of the screen on phones), with no box and no stars | `assets/mascot/rosie-puzzled-512.webp` (512×512, 22,934 bytes), `src2x` `rosie-puzzled-1024.webp` (1024×1024, 50,980 bytes). Alt: "Rosie Ryno looking puzzled" |
 
 The site uses the set's `rosie-full` files only for About's `rosie.static`, and does not use `rosie-social` (the share image is OG-HOME).
