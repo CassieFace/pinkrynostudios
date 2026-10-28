@@ -18,10 +18,10 @@
   "art": {
     "rosie": {
       "static": {
-        "src": "/assets/mascot/rosie-full.webp",
-        "src2x": null,
-        "width": 370,
-        "height": 500,
+        "src": "/assets/mascot/rosie-full-512.webp",
+        "src2x": "/assets/mascot/rosie-full-1024.webp",
+        "width": 512,
+        "height": 512,
         "alt": "Rosie Ryno, the studio's baby pink rhino, smiling and waving"
       },
       "animated": {
@@ -41,13 +41,14 @@
         "256": "/assets/mascot/head/rosie-head-256.webp"
       },
       "lost": {
-        "src": "/assets/mascot/rosie-full.webp",
-        "src2x": null,
-        "width": 370,
-        "height": 500,
-        "alt": "Rosie Ryno, the studio's baby pink rhino, smiling and waving"
+        "src": "/assets/mascot/rosie-puzzled-512.webp",
+        "src2x": "/assets/mascot/rosie-puzzled-1024.webp",
+        "width": 512,
+        "height": 512,
+        "alt": "Rosie Ryno looking puzzled"
       }
     },
+    "faviconIco": "/favicon.ico",
     "favicon32": "/assets/mascot/head/favicon-32.png",
     "favicon48": "/assets/mascot/head/favicon-48.png",
     "appleTouch": "/assets/mascot/head/apple-touch-icon-180.png",
@@ -57,7 +58,7 @@
         "src": "/assets/og/og-home.jpg",
         "width": 1200,
         "height": 630,
-        "alt": "PinkRyno Studios. A smiling little astronaut waves from a glowing trail among the planets."
+        "alt": "PinkRyno Studios. Rosie Ryno, a baby pink rhino, waves beside a smiling little astronaut on a glowing trail among the planets."
       }
     },
     "hero": {

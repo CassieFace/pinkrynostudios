@@ -10,7 +10,7 @@ The site is technically solid: it's fast on the home page apart from one image, 
 2. **Stars stuck to Rosie.** Five outlined SVG stars (`.spark-a` to `.spark-e`) are positioned around her on Home, About, Support, and 404, and they pulse with the `floaty` animation. That's what the owner asked us to remove. There is no slow-floating background star field anywhere.
 3. **Too many boxes and pills.** Chips, eyebrow pills, outlined buttons, a blob behind the game art, three icon-dot "fact" columns, framed placeholders, and boxed FAQ rows.
 4. **No ads / no sign-up / privacy repeated about 5 times.** It appears on Home, About, the Tiny Trails page (twice: the facts and the meta description), plus the Support FAQ, on top of the Privacy page itself.
-5. **The hero image is heavy and soft.** `rosie-wave.webp` is a 49-frame animation at **1.35 MB**, which is 85% of the home page's weight. It's only 386×500, so it's upscaled to about 600×777 on desktop and blurs on 2× phones (Lighthouse: "Serves images with low resolution").
+5. **The hero image is heavy and soft.** Rosie's original wave loop is a 49-frame animation at **1.35 MB**, which is 85% of the home page's weight. It's only 386×500, so it's upscaled to about 600×777 on desktop and blurs on 2× phones (Lighthouse: "Serves images with low resolution").
 6. **The game's look doesn't match the site.** The live game at `/games/space-maze/` is pixel art, while the site and key art are the cosmic sticker style (the beta at `/games/tiny-trails-beta/` is sticker-style). A parent who taps "Play in browser" lands in a different visual world with no way back to the site.
 
 ## Screenshots
@@ -85,7 +85,7 @@ Almost every heading has a pill above it, and every badge is a chip. A store-gra
 
 | Page | Requests | Transfer (cold) | Notes |
 | --- | --- | --- | --- |
-| Home | 11 | **1.59 MB** | `rosie-wave.webp` 1.35 MB (49 frames, 386×500) |
+| Home | 11 | **1.59 MB** | Rosie's original wave loop, 1.35 MB (49 frames, 386×500) |
 | Games | 9 | 99 KB | |
 | Tiny Trails: Space | 10 | 242 KB | `hero.webp` 142 KB at 713×656, lazy on Home |
 | About / Support / 404 | 10 | ~172 KB | `rosie-full.webp` 72 KB |

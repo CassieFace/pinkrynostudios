@@ -57,7 +57,7 @@ How to read the numbers:
 | /games/space-maze/index.wasm | Fetch | 9.14 MB | /games/space-maze/ |
 | /games/tiny-trails-beta/earth-grounds.pck | Fetch | 4.59 MB | /games/tiny-trails-beta/ |
 | /games/tiny-trails-beta/index.pck | Fetch | 2.89 MB | /games/tiny-trails-beta/ |
-| /assets/mascot/rosie-wave.webp | Image | 1.35 MB | / |
+| Rosie's original wave loop (/assets/mascot/) | Image | 1.35 MB | / |
 | /assets/games/tiny-trails-space/hero.webp | Image | 142.3 KB | /games/tiny-trails-space/ |
 | /games/space-maze/index.js | Script | 77.7 KB | /games/space-maze/ |
 | /assets/mascot/rosie-full.webp | Image | 72.1 KB | /404-check-does-not-exist/ |
@@ -117,7 +117,7 @@ Box elements (desktop): `a.btn.btn-play` ×2, `a.btn` ×2, `p.eyebrow` ×1, `spa
 | Image (currentSrc) | Natural | Rendered desktop | Rendered mobile | loading | alt |
 | --- | --- | --- | --- | --- | --- |
 | /assets/mascot/rosie-head.webp | 256x256 | 52x52 | 52x52 |  | (empty, decorative) |
-| /assets/mascot/rosie-wave.webp | 386x500 | 599.6x776.7 | 358x463.7 |  | Rosie Ryno the pink rhino, PinkRyno Studios mascot |
+| Rosie's original wave loop (/assets/mascot/) | 386x500 | 599.6x776.7 | 358x463.7 |  | Rosie Ryno the pink rhino, PinkRyno Studios mascot |
 | /assets/games/tiny-trails-space/hero.webp | 713x656 | 606x557.6 | 346x318.3 | lazy | Astro, a chibi astronaut with pink curly hair, standing on a small mint planet beside a smiling butter-yellow star and a trail of sparkles |
 | /assets/mascot/rosie-head.webp | 256x256 | 72x72 | 72x72 |  | (empty, decorative) |
 
@@ -125,7 +125,7 @@ Box elements (desktop): `a.btn.btn-play` ×2, `a.btn` ×2, `p.eyebrow` ×1, `spa
 
 | Resource | Type | Status | Size |
 | --- | --- | --- | --- |
-| /assets/mascot/rosie-wave.webp | Image | 200 | 1.35 MB |
+| Rosie's original wave loop (/assets/mascot/) | Image | 200 | 1.35 MB |
 | /assets/games/tiny-trails-space/hero.webp | Image | 200 | 142.1 KB |
 | /assets/mascot/rosie-head.webp | Image | 200 | 30.6 KB |
 | /assets/fonts/baloo-2-latin-800.woff2 | Font | 200 | 18.4 KB |

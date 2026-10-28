@@ -268,6 +268,23 @@ function jpegSize(src) {
   throw new Error("No size in JPEG: " + src);
 }
 
+// The pixel sizes of the images inside an .ico, smallest first. Each must be square.
+function icoSizes(src) {
+  const buf = readFileSync(join(root, src.slice(1)));
+  must(buf.length >= 6 && buf.readUInt16LE(0) === 0 && buf.readUInt16LE(2) === 1 && buf.readUInt16LE(4) > 0, "Not an ICO: " + src);
+  const sizes = [];
+  for (let index = 0; index < buf.readUInt16LE(4); index++) {
+    const at = 6 + 16 * index;
+    must(at + 16 <= buf.length, "Truncated ICO: " + src);
+    // A stored 0 means 256 px.
+    const width = buf[at] || 256;
+    const height = buf[at + 1] || 256;
+    must(width === height, `${src} has a ${width}x${height} image, but favicon images must be square`);
+    sizes.push(width);
+  }
+  return [...new Set(sizes)].sort((a, b) => a - b);
+}
+
 function imageSize(src) {
   if (src.endsWith(".webp")) return webpSize(src);
   if (src.endsWith(".png")) return pngSize(src);
@@ -413,7 +430,7 @@ function emptyEntry(entry, label) {
   return false;
 }
 
-const FORMAT_NAMES = { webp: "WebP", png: "PNG", jpg: "JPEG", svg: "SVG" };
+const FORMAT_NAMES = { webp: "WebP", png: "PNG", jpg: "JPEG", svg: "SVG", ico: "ICO" };
 function checkFormat(src, label, formats) {
   const ext = src.split(/[?#]/)[0].split(".").pop().toLowerCase().replace("jpeg", "jpg");
   must(formats.includes(ext), `${label} must be ${formats.map((format) => FORMAT_NAMES[format]).join(" or ")}: ${src}`);
@@ -529,6 +546,19 @@ function squareFile(value, label, size, formats) {
   return src;
 }
 
+// The classic favicon: an .ico that holds at least the 16, 32, and 48 px images.
+// Its <link sizes> lists every size in the file. Returns { src, sizes }.
+const ICO_SIZES = [16, 32, 48];
+function icoFile(value, label) {
+  if (isEmpty(value)) return empty(label);
+  requireFile(value, label);
+  checkFormat(value, label, ["ico"]);
+  const sizes = icoSizes(value);
+  const missing = ICO_SIZES.filter((size) => !sizes.includes(size));
+  must(!missing.length, `${label} has no ${missing.map((size) => `${size}x${size}`).join(", ")} image. It needs ${ICO_SIZES.map((size) => `${size}x${size}`).join(", ")}: ${value}`);
+  return { src: value, sizes };
+}
+
 // The Organization logo in the home page's JSON-LD. Search engines want at least 112x112.
 function logoFile(value, label) {
   if (isEmpty(value)) return empty(label);
@@ -577,7 +607,7 @@ function artRefs(value, label, names) {
   return Object.fromEntries(names.map((name) => [name, artRef(value[name], `${label}.${name}`)]));
 }
 
-const ART_KEYS = ["rosie", "favicon32", "favicon48", "appleTouch", "logo", "og", "hero", "aboutScene", "stars", "icons", "retired"];
+const ART_KEYS = ["rosie", "faviconIco", "favicon32", "favicon48", "appleTouch", "logo", "og", "hero", "aboutScene", "stars", "icons", "retired"];
 
 // site.json "art": every site-wide picture. See "Art slots" in README.md.
 function loadArt(map) {
@@ -600,6 +630,7 @@ function loadArt(map) {
     rosieAnimated: animatedPicture(rosie.animated, "site.json art.rosie.animated"),
     head: sizedSet(rosie.head, "site.json art.rosie.head", ["webp", "png"]),
     rosieLost: picture(rosie.lost, "site.json art.rosie.lost", { formats: ["webp", "png"] }),
+    faviconIco: icoFile(map.faviconIco, "site.json art.faviconIco"),
     favicons: [
       [32, squareFile(map.favicon32, "site.json art.favicon32", 32, ["png"])],
       [48, squareFile(map.favicon48, "site.json art.favicon48", 48, ["png"])]
@@ -651,7 +682,7 @@ function reportEmptySlots() {
   console.warn("Warning: empty art slots, left out of the pages:\n" + lines.join("\n"));
 }
 
-// Over budget is a warning, so the temporary wave keeps building until the new one arrives.
+// Over budget is a warning, so an over-budget wave still builds while a lighter export is made.
 function reportHeavyWaves() {
   if (!heavyWaves.length) return;
   const lines = heavyWaves.map(([label, src, bytes]) => `  ${src} (${label}) is ${bytes.toLocaleString("en-US")} bytes (${Math.round(bytes / 1024)} KB)`);
@@ -1005,7 +1036,9 @@ function layout({ title, description, path, current, robots, main, structured, i
 `
     : "";
   const twitterImage = share ? `\n<meta name="twitter:image" content="${esc(share.url)}">\n<meta name="twitter:image:alt" content="${esc(share.alt)}">` : "";
+  const ico = art.faviconIco;
   const iconLinks = [
+    ico ? `<link rel="icon" href="${esc(ico.src)}" sizes="${ico.sizes.map((size) => `${size}x${size}`).join(" ")}">\n` : "",
     ...art.favicons.map(([size, src]) => `<link rel="icon" href="${esc(src)}" sizes="${size}x${size}" type="image/png">\n`),
     art.appleTouch ? `<link rel="apple-touch-icon" href="${esc(art.appleTouch)}" sizes="180x180">\n` : ""
   ].join("");

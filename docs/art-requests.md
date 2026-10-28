@@ -6,19 +6,13 @@ Do not draw these as pixel art, and do not trace or restyle another studio's cha
 
 ## Mascot: Rosie Ryno
 
-The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhino. `site.json` holds her `name` and `fullName` under `mascot`, and every image path under `art`. The approved original is `assets/mascot/source/rosie-ryno-original.png`. The site uses the cut-outs beside it: `rosie-full` (hero), `rosie-head` (header and footer), `favicon.png`, `apple-touch-icon.png`, and `rosie-social` (share image). The older rhinoceros files (`pinkrynostudios-mascot.png`, `pinkrynostudios-head.png`, and the WebP copies) stay in the repo and are not linked. Do not draw more of that older character.
+The studio mascot is **Rosie Ryno** (Rosie for short, she/her), a baby pink rhino. `site.json` holds her `name` and `fullName` under `mascot`, and every image path under `art`. The site uses the final approved **Rosie AB set** from the art handoff folder (`art-for-site/rosie/`): the wave and its stills (`assets/mascot/rosie-wave-386.webp`, `rosie-wave-386-still.webp`, `rosie-wave-260.webp`, `rosie-wave-260-still.webp`), the full-body Rosie on About (`rosie-full-512.webp`, `rosie-full-1024.webp`), the puzzled pose on the 404 page (`rosie-puzzled-512.webp`, `rosie-puzzled-1024.webp`), the head set in `assets/mascot/head/` (header, footer, support title, the PNG favicons, the apple-touch icon, and the logo), and `/favicon.ico`. The original Rosie art and the older rhinoceros files (`pinkrynostudios-mascot.png`, `pinkrynostudios-head.png`, and the WebP copies) stay in the repo and are not linked. Do not draw more of that older character.
 
-A new pose is only an `art` map change in `site.json`, then `node scripts/render-site.mjs`. The owner has asked for a new Rosie (static and animated): the current wave re-export and head export are temporary until she arrives.
+A new pose is only an `art` map change in `site.json`, then `node scripts/render-site.mjs`.
 
-The home hero is one `<picture>` from `art.rosie.animated`: `src` (386×500) is used on wider screens and `srcSmall` (260×337) on phones. Each has an animated file that plays when the visitor allows motion and a still (`still`, `stillSmall`) for `prefers-reduced-motion`. `scripts/export-rosie.py` makes all four from `rosie-wave.webp`. It does not change her drawing. It only makes her body opaque so she stays pink on the navy hero band, and folds the repeated hold frames at the end of the loop into one.
+Rosie waves in the home "Meet Rosie" section, below the fold. The page loads only her still (the wave's first frame), and the wave swaps in when she scrolls near the screen, never under `prefers-reduced-motion`. Each loop is 3.6 s: two gentle waves of her raised paw and one short blink, with her body still. The sizes, budgets, and markup are in [PLAN.md's Rosie art handoff](site-redesign/PLAN.md#rosie-art-handoff) and the README's [Art slots](../README.md#art-slots-swapping-art) section.
 
-`rosie-wave.webp` (with `rosie-wave-still.webp` and `rosie-wave.png`) is the approved wave loop and the source for those exports. It stays in the repo unchanged. The source movie is `assets/mascot/source/rosie-wave-loop.mp4` (4 seconds, 720×720, 24 fps). It was generated from the approved Midjourney Rosie image, `assets/mascot/source/rosie-ryno-original.png`. In the loop she waves, happy-squints, hops, and comes back to the start pose. The flat lavender field was removed, so the WebP has a real transparent background. The site version keeps every other frame (12 fps, 49 frames, 84 ms each, 386×500, looping). The page does not play the movie's audio. `rosie-wave.png` and `rosie-wave-still.webp` are the first frame.
-
-The keyed frames had a blurry green smudge beside both ears: a larger one just to the viewer's right of her head, level with the top of her eyes, and a smaller one on the viewer's left. They were half-transparent keying leftovers, and they sat on every frame. Those pixels are now transparent in all 49 frames of `rosie-wave.webp`, and in the still WebP and PNG. Her outline, the contact shadow, the timing, and the loop were left as they were. The source movie was not edited.
-
-The stars and sparkles that were baked into the loop (the big star by her horn, the small four-point sparkles, and the gold dots that moved with her) are now removed from all 49 frames of `rosie-wave.webp` and from the still WebP and PNG. Where the little sparkle sat on the top of her head during the hop, her outline was redrawn along its own curve. Rosie's own frames were not regenerated, so her wave, squint, and hop are the same. The SVG stars that used to sit around her on the site (`.spark`) are removed too. The only stars now are the TWINKLE-SET SVG stars in the home hero band's background (plus a few faint ones in the footer), which are not tied to Rosie and keep clear of her.
-
-The older full-body cut-out, `rosie-full`, is the picture on About and the 404. The header, footer, home studio line, and support title show the approved ROSIE-HEAD export in `assets/mascot/head/`, which also supplies the favicons and the apple-touch icon. The eye and body cut layers in `assets/mascot/source/` (`rosie-body-no-eyes.png`, `rosie-eyes.png`) are not used. Do not build a CSS blink or a separate arm on top of them.
+No Rosie file the site uses has stars, sparkles, or text baked in, and nothing on the site sits behind or around her: no box, card, border, or background panel. The only stars are the TWINKLE-SET SVG stars in the home hero band's background (plus a few faint ones in the footer), which are not tied to Rosie, keep clear of her, and stop moving under reduced motion.
 
 ## How to prompt
 
@@ -50,7 +44,7 @@ Optional, not slotted on the page yet. Say if you want them wired in:
 | Slot | Suggested file | Notes |
 | --- | --- | --- |
 | OG-SHARE | `assets/mascot/rosie-social.webp` | Social share image, 1200×630. This file is already the mascot on the site mist color. A future illustrated card can replace `art.og.default` in `site.json`. |
-| MASCOT-LOST | n/a | Dropped. The 404 page keeps the main mascot picture. |
+| MASCOT-LOST | `assets/mascot/rosie-puzzled-512.webp` | Delivered with the Rosie AB set and slotted in `art.rosie.lost` (the 1024 file is its 2x). |
 | TT-TRAILER | `assets/games/tiny-trails-space/trailer.webp` | A short silent trailer still or looping WebP. Prefer a real capture from the game once the cosmic sticker build exists. |
 
 ## Prompts (Midjourney v7)
@@ -87,7 +81,7 @@ Cassie picked this anchor: Midjourney job `8e26e821-8670-4c90-b69c-a6674459051a`
 
 Crop to 1200×630 if this is used as the share image.
 
-### 7. MASCOT-LOST (dropped, kept for reference)
+### 7. MASCOT-LOST (delivered as the Rosie AB puzzled pose, kept for reference)
 
 `flat vector cartoon sticker of Rosie Ryno, a cute baby pink rhinoceros, big head, tiny horn, rosy cheeks, chubby baby proportions, looking gently puzzled with a small open smile, one hoof raised, a tiny butter-yellow star beside them, deep plum outline, flat two-tone shading, one soft drop shadow, plain cream background, children's mascot art --ar 1:1 --v 7 --style raw --stylize 100 --sref <anchor url> --sw 300 --no text, letters, watermark, photorealism, pixel art, scary, tears`
 
