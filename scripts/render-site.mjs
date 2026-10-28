@@ -691,7 +691,7 @@ function pagePrivacy() {
     <h2 id="purchases">Purchases</h2>
     <p>There is nothing to buy on this website, and the games here are free to play. We do not collect payment information.</p>
     <h2 id="cookies">Cookies and device storage</h2>
-    <p>This website does not set cookies. The game saves progress (stars, progress, and settings) on your device, in the browser's storage. That progress is not sent to us or to anyone else, and there are no accounts, ads, or trackers. Clearing this site's data in your browser erases it. The parental gate does not save its answer.</p>
+    <p>This website does not set cookies. The game saves progress (stars and settings) on your device, in the browser's storage. That progress is not sent to us or to anyone else, and there are no accounts, ads, or trackers. Clearing this site's data in your browser erases it. The parental gate does not save its answer.</p>
     <h2 id="children">Children</h2>
     <p>Our games and this website are directed to children under 13, and parents use them too. We follow the Children's Online Privacy Protection Act by not collecting personal information from children. Because we do not collect it, we do not ask for verifiable parental consent to collect it.</p>
     <p>We do not knowingly receive personal information from a child. If you believe we have, email us and we will delete it.</p>
