@@ -1154,7 +1154,7 @@ function pageHome(visible) {
     ${rosie}
     <div class="meet-rosie-copy">
       <h2 id="meet-rosie-title">Meet ${esc(name)}</h2>
-      <p class="lede">${esc(fullName)} is our baby ${esc(species)}. ${esc(pronouns.subject)} waves hello in every PinkRyno game.</p>
+      <p class="lede">${esc(fullName)} is our baby ${esc(species)}. ${esc(pronouns.subject)} is the friendly face of PinkRyno Studios.</p>
       <p>${more("/about/", "Meet the studio")}</p>
     </div>
   </section>`;
