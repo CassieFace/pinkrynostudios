@@ -21,7 +21,6 @@ const PAGES = [
   { path: '/support/', slug: 'support' },
   { path: '/privacy/', slug: 'privacy' },
   { path: '/404-check-does-not-exist/', slug: '404' },
-  { path: '/games/space-maze/', slug: 'space-maze', game: true },
   { path: '/games/tiny-trails-beta/', slug: 'tiny-trails-beta', game: true },
 ];
 
