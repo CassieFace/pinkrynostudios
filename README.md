@@ -2,7 +2,7 @@
 
 Static website for [pinkrynostudios.com](https://pinkrynostudios.com). GitHub Pages serves the files in this repository. There is no build step on Pages and no change to Pages settings. The pages are generated locally and committed.
 
-The old browser build stays in the repo at `games/space-maze/` and is still served, and no generated page links to it or to any other browser build (see [Add a new game](#add-a-new-game), step 7). `robots.txt` disallows it (`Disallow: /games/space-maze/`, next to the unchanged `/games/tiny-trails-beta/` rule), and its `index.html` has a neutral title and description and a `noindex` meta. The rest of the build is untouched. Removing the build (about 52 MB) is prepared only as the optional branch `site-redesign-remove-space-maze`, which needs Cassie's approval. Make no other edits to that folder, and do not edit `games/tiny-trails-beta/` or `CNAME` from the website work.
+The old browser build stays in the repo at `games/space-maze/` and is still served, and no generated page links to it or to any other browser build (see [Add a new game](#add-a-new-game), step 7). Its `index.html` has a neutral title and description and a `noindex` meta. `robots.txt` does not block `/games/space-maze/`, so crawlers can fetch the page, see its `noindex` meta, and drop it from search results. `robots.txt` keeps `Disallow: /games/tiny-trails-beta/` unchanged. The rest of the build is untouched. Removing the build (about 52 MB) remains an optional branch, `site-redesign-remove-space-maze`, which needs Cassie's approval. Make no other edits to that folder, and do not edit `games/tiny-trails-beta/` or `CNAME` from the website work.
 
 ## Build the pages
 

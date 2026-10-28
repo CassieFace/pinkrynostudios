@@ -127,7 +127,7 @@ The wave must stay light: at most about 100 KB per file, ideally about 60 KB or 
 - **No-tracking/privacy is mentioned once** in site marketing copy: a single line in the footer, "No ads. No tracking. No accounts. Privacy policy". Remove it from the Home body, About, the game page facts, and the game meta description. The Privacy page itself is the policy, and the Support FAQ links to it without repeating the pitch.
 - **Clean, warm, polished, and kid-and-parent friendly.** Copy is written for the parent, and the art is for the kid.
 - Plain static HTML/CSS, no third-party anything (fonts, analytics, embeds, ads), and the CSP stays strict.
-- `/games/tiny-trails-beta/` keeps working exactly as it is (we don't edit that folder). The beta stays unlisted, out of the sitemap, and disallowed in robots.txt. `/games/space-maze/` is still served and not linked (the Tiny Trails: Space entry in `games.json` has no `play_url` or `play_label`). robots.txt disallows it (`Disallow: /games/space-maze/`), and its `index.html` has a neutral title and description and a `noindex` meta. The build is otherwise untouched. Removing the build (about 52 MB) is prepared only as the optional branch `site-redesign-remove-space-maze`, which needs Cassie's approval.
+- `/games/tiny-trails-beta/` keeps working exactly as it is (we don't edit that folder). The beta stays unlisted, out of the sitemap, and disallowed in robots.txt. `/games/space-maze/` is still served and not linked (the Tiny Trails: Space entry in `games.json` has no `play_url` or `play_label`). Its `index.html` has a neutral title and description and a `noindex` meta. robots.txt does not block `/games/space-maze/`, so crawlers can fetch the page, see its `noindex` meta, and drop it from search results. The build is otherwise untouched. Removing the build (about 52 MB) remains an optional branch, `site-redesign-remove-space-maze`, which needs Cassie's approval.
 
 ## Site structure
 
@@ -140,7 +140,7 @@ The wave must stay light: at most about 100 KB per file, ideally about 60 KB or 
 /support/                 Help for grown-ups: email (gated) + FAQ
 /privacy/                 Policy (legal page, plain), no TODO banner once owner details are filled
 /404.html                 Rosie (her own slot; the puzzled pose comes with the new Rosie), two links
-/games/space-maze/        NOT LINKED (old browser build, still served; noindex meta, disallowed in robots.txt)
+/games/space-maze/        NOT LINKED (old browser build, still served; noindex meta, open to crawlers in robots.txt)
 /games/tiny-trails-beta/  UNCHANGED (unlisted staging)
 ```
 
@@ -279,7 +279,7 @@ Techniques: `<picture>` with `srcset` at 1×/2× (AVIF then WebP, then a PNG fal
 - Per-page titles and descriptions, written for parents ("Tiny Trails: Space, a calm tracing game for ages 3–6").
 - OG images in PNG/JPEG: OG-HOME for site pages (provisional), and OG-TINY-TRAILS (from `games.json` `art.og`) for the game page and for the games index while it lists one game. Each page sets `og:image` with its width, height, type, and alt, plus `twitter:image` and `twitter:image:alt`, as absolute `https://pinkrynostudios.com/` URLs.
 - JSON-LD: Organization (existing), plus `VideoGame` on game pages.
-- `sitemap.xml` lastmod comes from the render date (or git), not a constant. The beta exclusion stays unchanged: `robots.txt` keeps `Disallow: /games/tiny-trails-beta/` and now also has `Disallow: /games/space-maze/`.
+- `sitemap.xml` lastmod comes from the render date (or git), not a constant. The beta exclusion stays unchanged: `robots.txt` keeps `Disallow: /games/tiny-trails-beta/`. `robots.txt` does not block `/games/space-maze/`, so crawlers can see that page's `noindex` meta and drop it from search results.
 
 ## Fit with the static generator
 

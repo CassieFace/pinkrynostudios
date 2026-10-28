@@ -1474,7 +1474,7 @@ function pageSupport(visible) {
   // The email shows once here (the button) and once in the footer. FAQ answers point back to it.
   const contact = email
     ? `<div class="contact">
-        <p>A grown-up can write to us about a device, a browser, or anything that felt off in a game. ${storesLater}</p>
+        <p>Questions about PinkRyno, our games, or this site? A grown-up can write to us, and we'll be glad to help.</p>
         <p>${mailLink("btn btn-mail")}</p>
       </div>`
     : `<p>Answers to the questions grown-ups ask most are below. ${storesLater}</p>`;
