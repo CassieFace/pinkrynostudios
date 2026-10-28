@@ -47,7 +47,7 @@ const RELEASE_FIELDS = ["legalName", "address", "supportEmail"];
 // Privacy and no-ads claims live in the footer line and on /privacy/ only.
 const PRIVACY_PITCH = /\bno ads\b|\bno tracking\b|\bno accounts?\b|nothing to sign up|\bad-free\b/i;
 // Update this date whenever the privacy policy text changes.
-const POLICY_EFFECTIVE = "October 27, 2026";
+const POLICY_EFFECTIVE = "October 28, 2026";
 // Internal notes and placeholders that must never reach a public page.
 const INTERNAL_NOTES = /\bTODO\b|art director|\bslots?\b|\bmarked\b|placeholder|<h[1-6][^>]*>\s*Pictures\s*</i;
 
@@ -847,7 +847,7 @@ function priceLabel(game) {
   return game.price ? `${game.price} one-time unlock` : "One-time unlock";
 }
 
-// The hotfix privacy policy's own words: the unlock is never sold on this site.
+// The unlock is never sold on this site. The privacy policy's Purchases section says the same.
 const NOTHING_TO_BUY = "There is nothing to buy on this website.";
 
 // web_note describes the browser version, so it shows only while that version can be played.
@@ -1372,8 +1372,8 @@ function pagePrivacy() {
   const main = `<article class="section wrap page-top">
     <div class="prose">
     <h1>Privacy policy</h1>
-    <p class="effective">Effective ${POLICY_EFFECTIVE}. This policy covers the PinkRyno Studios website and our games played in the web browser on this site. We will update it before any of our games launch as apps.</p>
-    <p class="intro"><strong>PinkRyno Studios does not collect personal data.</strong> Our games and this website have no ads, no tracking, and no third-party advertising, analytics, or social SDKs.</p>
+    <p class="effective">Effective ${POLICY_EFFECTIVE}. This policy covers the PinkRyno Studios website. Our games are coming soon to phones and tablets; we will update this policy before they launch, and it will describe how the apps handle information.</p>
+    <p class="intro"><strong>PinkRyno Studios does not collect personal data through this website.</strong></p>
     <nav class="toc" aria-labelledby="toc-title">
       <h2 id="toc-title">On this page</h2>
       <ol>
@@ -1394,26 +1394,26 @@ function pagePrivacy() {
     <h2 id="who">Who we are</h2>
     <p>${who.join(" ")}</p>
     <h2 id="covers">What this policy covers</h2>
-    <p>It covers pinkrynostudios.com and the games we host on it for children.</p>
+    <p>It covers pinkrynostudios.com and every page on it.</p>
     <h2 id="collect">Information we collect</h2>
-    <p>We do not collect personal information through the website or our games. Personal information means information that identifies a person or can reasonably be linked to a person. That includes a name, email address, phone number, photo, voice, precise location, contacts, and an account identifier.</p>
-    <p>There are no accounts, no sign-up forms, and no profile to fill in. We do not ask a child for any of those things. We do not collect gameplay analytics.</p>
+    <p>We do not collect personal information through this website. Personal information means information that identifies a person or can reasonably be linked to a person. That includes a name, email address, phone number, photo, voice, precise location, contacts, and an account identifier.</p>
+    <p>There are no accounts, no sign-up forms, and no profile to fill in. We do not ask a child for any of those things.</p>
     <h2 id="ads">Ads, tracking, and SDKs</h2>
-    <p>We do not show ads. We do not let anyone else show ads in our games or on this website. We do not use interest-based advertising.</p>
-    <p>We do not use third-party advertising SDKs, analytics SDKs, attribution SDKs, crash-reporting SDKs, or social SDKs. The website does not load fonts, pictures, or scripts from any other site.</p>
+    <p>This website has no ads and no tracking. We do not let anyone else show ads on it, we do not use interest-based advertising, and we do not collect analytics.</p>
+    <p>It does not use third-party advertising, analytics, attribution, crash-reporting, or social SDKs, and it does not load fonts, pictures, or scripts from any other site.</p>
     <h2 id="purchases">Purchases</h2>
-    <p>There is nothing to buy on this website, and the games here are free to play. We do not collect payment information.</p>
+    <p>You can't buy anything on this website, and we do not collect payment information.</p>
     <h2 id="cookies">Cookies and device storage</h2>
-    <p>This website does not set cookies. The game saves progress (stars and settings) on your device, in the browser's storage. That progress is not sent to us or to anyone else, and there are no accounts, ads, or trackers. Clearing this site's data in your browser erases it. The parental gate does not save its answer.</p>
+    <p>This website does not set cookies. If one of our games runs in your browser, it saves progress (like stars and settings) on your device, in the browser's storage. That progress is not sent to us or to anyone else. Clearing this site's data in your browser erases it. The parental gate does not save its answer.</p>
     <h2 id="children">Children</h2>
-    <p>Our games and this website are directed to children under 13, and parents use them too. We follow the Children's Online Privacy Protection Act by not collecting personal information from children. Because we do not collect it, we do not ask for verifiable parental consent to collect it.</p>
+    <p>This website is directed to children under 13, and parents use it too. We follow the Children's Online Privacy Protection Act by not collecting personal information from children. Because we do not collect it, we do not ask for verifiable parental consent to collect it.</p>
     <p>We do not knowingly receive personal information from a child. If you believe we have, email us and we will delete it.</p>
     <h2 id="email">Email you send us</h2>
     <p>If you email us, we receive whatever you choose to write, and we use it only to reply. Please do not include a child's name, photo, or precise location. We do not add your address to a mailing list. You can ask us to delete the conversation and we will.</p>
     <h2 id="delete">How to delete information</h2>
-    <p>We do not have a player profile to delete. To erase a game's saved progress, clear this site's data in your browser. To delete emails you sent us, write to us and ask.</p>
+    <p>We do not have a player profile to delete. To erase game progress, see Cookies and device storage above. To delete emails you sent us, write to us and ask.</p>
     <h2 id="hosting">Hosting</h2>
-    <p>These pages are static files. We do not add analytics, and we do not receive a report of who visited or what a child played.</p>
+    <p>These pages are static files, and we do not receive a report of who visited them.</p>
     <p>The company that hosts the files may keep ordinary technical logs, such as an IP address and the page that was requested, to keep the service secure. We do not use those logs to identify a child, build a profile, or advertise, and we do not combine them with other information.</p>
     <h2 id="changes">Changes</h2>
     <p>If we change this policy, we will update the date at the top of the page.</p>
@@ -1423,7 +1423,7 @@ function pagePrivacy() {
   </article>`;
   return layout({
     title: "Privacy Policy · PinkRyno Studios",
-    description: "Privacy policy for PinkRyno Studios games and website: what we collect (no personal data), purchases, children's privacy, and how to reach us.",
+    description: "Privacy policy for the PinkRyno Studios website: what we collect (no personal data), purchases, children's privacy, and how to reach us.",
     path: "/privacy/",
     current: "privacy",
     main
@@ -1471,7 +1471,7 @@ function pageSupport(visible) {
       ${[unlockItem, browserItem].filter(Boolean).join("\n      ")}
       <details>
         <summary>Deleting data</summary>
-        <p>We do not collect personal data, so there is no profile to delete. Game progress is saved only in your browser, and clearing this site's data erases it.</p>
+        <p>To delete game progress, clear this site's data in your browser settings (often under Privacy or Site settings, then Cookies and site data).</p>
         <p class="link-row">${more("/privacy/", "Read the privacy policy")}</p>
       </details>
       <details>
