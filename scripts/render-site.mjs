@@ -33,6 +33,7 @@
  * Never writes CNAME, games/space-maze/, or games/tiny-trails-beta/.
  */
 
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -462,8 +463,13 @@ function animatedPicture(entry, label) {
   };
   const large = pair("src", "still", "width", "height");
   let small = null;
-  if (!isEmpty(entry.srcSmall)) small = pair("srcSmall", "stillSmall", "widthSmall", "heightSmall");
-  else must(isEmpty(entry.stillSmall) && entry.widthSmall == null && entry.heightSmall == null, `${label}: stillSmall, widthSmall, and heightSmall go with srcSmall`);
+  if (!isEmpty(entry.srcSmall)) {
+    small = pair("srcSmall", "stillSmall", "widthSmall", "heightSmall");
+    // Both pairs share one srcset, so the small one must be a smaller copy with the same shape.
+    must(small.width < large.width, `${label}.srcSmall is ${small.width} px wide, so it is not smaller than src (${large.width} px)`);
+    must(Math.abs(small.width / small.height - large.width / large.height) < 0.01,
+      `${label}.srcSmall is ${small.width}x${small.height}, a different shape from src (${large.width}x${large.height}). Export a smaller copy of the same picture.`);
+  } else must(isEmpty(entry.stillSmall) && entry.widthSmall == null && entry.heightSmall == null, `${label}: stillSmall, widthSmall, and heightSmall go with srcSmall`);
   const alt = textOrNull(entry.alt, label + ".alt");
   must(alt, `${label} needs alt text that describes the picture`);
   return { large, small, alt };
@@ -722,25 +728,54 @@ function samePicture(a, b) {
   return Boolean(a && b && a.src === b.src);
 }
 
+// Rosie's height in the home studio section. Keep in step with .studio-rosie img in site.css.
+const STUDIO_ROSIE_HEIGHT = 240;
+const STUDIO_ROSIE_PHONE_HEIGHT = 200;
+
 /* Rosie in the home studio section, below the fold, so she never competes with
-   the hero art: art.rosie.animated (lazy, with its still under reduced motion),
-   else art.rosie.static, else the small head. She is drawn 240px tall (200px on
-   phones, about 185px wide at most), so the small pair is sharp enough everywhere
-   and the larger wave file is never sent here. */
+   the hero art: art.rosie.animated, else art.rosie.static, else the small head.
+   The animated slot renders only its stills (srcset of still and stillSmall, so
+   she is sharp at 1x and 2x). That is the first load, and the whole picture
+   without JavaScript or under reduced motion. The wave files sit only in
+   data-wave-srcset, with the same widths, and ROSIE_WAVE_SCRIPT swaps them in
+   when she is about to scroll into view. */
 function studioRosie() {
   const anim = art.rosieAnimated;
   if (anim) {
-    const pair = anim.small || anim.large;
+    const pairs = [anim.small, anim.large].filter(Boolean);
+    const first = pairs[0];
+    const at = (height) => Math.round((height * anim.large.width) / anim.large.height);
+    const sizes = `${PHONE} ${at(STUDIO_ROSIE_PHONE_HEIGHT)}px, ${at(STUDIO_ROSIE_HEIGHT)}px`;
+    const set = (key) => pairs.map((pair) => `${esc(pair[key])} ${pair.width}w`).join(", ");
     return `<div class="studio-rosie">
-      <picture>
-        <source media="${REDUCE}" srcset="${esc(pair.still)}">
-        <img src="${esc(pair.anim)}" alt="${esc(anim.alt)}" width="${pair.width}" height="${pair.height}" loading="lazy">
-      </picture>
+      <img src="${esc(first.still)}" srcset="${set("still")}" sizes="${sizes}" data-wave-srcset="${set("anim")}" alt="${esc(anim.alt)}" width="${first.width}" height="${first.height}" loading="lazy">
     </div>`;
   }
   if (art.rosieStatic) return `<div class="studio-rosie">${rosieImg(art.rosieStatic, "", { lazy: true })}</div>`;
   return headImg("studio-icon", true, 64);
 }
+
+/* The home page's only inline script, emitted only with art.rosie.animated.
+   After the page has loaded, it swaps Rosie's still for her wave the first time
+   she comes within 200px of the screen, so the wave is never part of the first
+   load. Under reduced motion it never swaps (and puts the still back if the
+   setting turns on after the swap). Without IntersectionObserver the still stays.
+   The CSP allows it by its sha256 hash, which layout() computes from this text. */
+const ROSIE_WAVE_SCRIPT = `
+addEventListener("load", () => {
+  const motion = matchMedia("${REDUCE}");
+  const img = document.querySelector("img[data-wave-srcset]");
+  if (motion.matches || !img || !("IntersectionObserver" in window)) return;
+  const still = img.srcset;
+  motion.onchange = () => { if (motion.matches) img.srcset = still; };
+  const watch = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    watch.disconnect();
+    if (!motion.matches) img.srcset = img.dataset.waveSrcset;
+  }, { rootMargin: "200px 0px" });
+  watch.observe(img);
+});
+`;
 
 // A game's icon (art.icon) above its title. Decorative: the title names the game.
 function gameIcon(game, lazy) {
@@ -886,9 +921,18 @@ function gameSocialImage(game) {
   return game.art.og || art.og;
 }
 
+// The CSP source that allows one inline script: the base64 SHA-256 of its exact text.
+function scriptHash(text) {
+  return `'sha256-${createHash("sha256").update(text, "utf8").digest("base64")}'`;
+}
+
 // path is the page's public URL path, or null for 404.html: Pages serves that
 // file at any missing URL, so it gets no canonical or og:url.
-function layout({ title, description, path, current, robots, main, structured, image }) {
+// script is an optional inline script. script-src stays 'self' plus that script's
+// hash, never 'unsafe-inline'.
+function layout({ title, description, path, current, robots, main, structured, image, script = "" }) {
+  const scriptSrc = script ? `'self' ${scriptHash(script)}` : "'self'";
+  const inlineScript = script ? `\n<script>${script}</script>` : "";
   const canonical = path ? `<link rel="canonical" href="${SITE + path}">\n` : "";
   const ogUrl = path ? `<meta property="og:url" content="${SITE + path}">\n` : "";
   // With no share image at all, the og:image tags are left out and the card is the small one.
@@ -936,7 +980,7 @@ ${canonical}<meta property="og:site_name" content="PinkRyno Studios">
 ${ogUrl}${ogImage}<meta name="twitter:card" content="${share ? "summary_large_image" : "summary"}">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">${twitterImage}
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src ${scriptSrc}; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 ${iconLinks}<link rel="preload" href="/assets/fonts/baloo-2-latin-800.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css">
 <link rel="stylesheet" href="/assets/css/themes.css">
@@ -1005,7 +1049,7 @@ ${main}
     </form>
   </div>
 </div>
-<script src="/assets/js/site.js"></script>
+<script src="/assets/js/site.js"></script>${inlineScript}
 </body>
 </html>
 `;
@@ -1100,7 +1144,8 @@ function pageHome(visible) {
     path: "/",
     current: "home",
     main,
-    structured: organization()
+    structured: organization(),
+    script: art.rosieAnimated ? ROSIE_WAVE_SCRIPT : ""
   });
 }
 
@@ -1462,7 +1507,8 @@ ${urls}
 /* Output checks --------------------------------------------------------- */
 
 const URL_TAG = /<(a|link|img|source|script|form|iframe|video|audio|use)\b([^>]*)>/gi;
-const URL_ATTR = /\s(href|src|srcset|action|poster)="([^"]*)"/gi;
+const URL_ATTR = /\s(href|src|srcset|data-wave-srcset|action|poster)="([^"]*)"/gi;
+const INLINE_SCRIPT = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
 
 // Every URL in the rendered files must resolve to a local file (or a file this
 // build writes), use an absolute path, and leave the site only through a gated <a>.
@@ -1472,6 +1518,9 @@ function checkRendered(files) {
     const rel = sitePathToRel(path);
     return outputs.has(rel) || existsSync(join(root, rel));
   };
+  // Rosie's wave files may appear only in data-wave-srcset, so they never load up front.
+  const anim = art.rosieAnimated;
+  const waveFiles = new Set(anim ? [anim.large.anim, anim.small && anim.small.anim].filter(Boolean) : []);
   const problems = [];
   for (const [rel, text] of files) {
     if (rel.endsWith(".html")) {
@@ -1480,8 +1529,11 @@ function checkRendered(files) {
         const gatedLink = tag.toLowerCase() === "a" && /\sdata-parent-gate(?=[\s=]|$)/.test(attrs);
         for (const [, attr, raw] of attrs.matchAll(URL_ATTR)) {
           const value = raw.replaceAll("&amp;", "&");
-          const urls = attr.toLowerCase() === "srcset" ? value.split(",").map((part) => part.trim().split(/\s+/)[0]) : [value];
+          const urls = attr.toLowerCase().endsWith("srcset") ? value.split(",").map((part) => part.trim().split(/\s+/)[0]) : [value];
           for (const url of urls) {
+            if (waveFiles.has(url) && attr.toLowerCase() !== "data-wave-srcset") {
+              problems.push(`${rel}: ${attr}="${url}" loads Rosie's animated wave up front. It belongs only in data-wave-srcset.`);
+            }
             if (url.startsWith("#")) {
               if (url.length > 1 && !ids.has(url.slice(1))) problems.push(`${rel}: ${url} has no matching id`);
             } else if (url.startsWith("mailto:") || (url.startsWith("https://") && !url.startsWith(SITE + "/"))) {
@@ -1504,6 +1556,15 @@ function checkRendered(files) {
       if (note) problems.push(`${rel}: contains internal or placeholder text ("${note[0]}")`);
       // The CSP is style-src 'self': a style attribute or <style> block would be blocked.
       if (/<style\b|\sstyle\s*=/i.test(text)) problems.push(`${rel}: has an inline style, which the CSP blocks. Use a class in site.css.`);
+      // Checked on the final text, so the hash in the CSP always matches the script as written.
+      const csp = (text.match(/<meta http-equiv="Content-Security-Policy" content="([^"]*)"/) || [])[1];
+      if (!csp) problems.push(`${rel}: has no Content-Security-Policy meta tag`);
+      else if (/'unsafe-inline'|'unsafe-eval'/.test(csp)) problems.push(`${rel}: the CSP allows 'unsafe-inline' or 'unsafe-eval'. Allow an inline script by its hash.`);
+      const scriptSources = ((csp || "").match(/(?:^|;)\s*script-src\s([^;]*)/) || [])[1]?.trim().split(/\s+/) || [];
+      for (const [, attrs, body] of text.matchAll(INLINE_SCRIPT)) {
+        if (/\ssrc=|\stype="application\/ld\+json"/.test(attrs)) continue;
+        if (!scriptSources.includes(scriptHash(body))) problems.push(`${rel}: an inline script's hash is not in the CSP script-src, so browsers would block it`);
+      }
     }
     // Absolute URLs in meta tags, JSON-LD, and sitemap.xml.
     for (const [url] of text.matchAll(/https:\/\/pinkrynostudios\.com\/[^"'\s<>\\]*/g)) {

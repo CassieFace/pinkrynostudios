@@ -27,7 +27,7 @@
 <meta name="twitter:description" content="PinkRyno Studios makes calm games for kids ages 3 to 6. Trace a glowing path, meet a friendly star, and play at your child's pace.">
 <meta name="twitter:image" content="https://pinkrynostudios.com/assets/og/og-home.jpg">
 <meta name="twitter:image:alt" content="PinkRyno Studios. A smiling little astronaut waves from a glowing trail among the planets.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-fRxYGdZv0IVoEDL0rwUc1SwIgVKpiVSk0BO0v4wY78M='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <link rel="icon" href="/assets/mascot/head/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/assets/mascot/head/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="apple-touch-icon" href="/assets/mascot/head/apple-touch-icon-180.png" sizes="180x180">
@@ -137,10 +137,7 @@
   </section>
   <section class="section wrap studio-line has-rosie" aria-label="About the studio">
     <div class="studio-rosie">
-      <picture>
-        <source media="(prefers-reduced-motion: reduce)" srcset="/assets/mascot/rosie-wave-260-still.webp">
-        <img src="/assets/mascot/rosie-wave-260.webp" alt="Rosie Ryno, a baby pink rhino, waving hello" width="260" height="337" loading="lazy">
-      </picture>
+      <img src="/assets/mascot/rosie-wave-260-still.webp" srcset="/assets/mascot/rosie-wave-260-still.webp 260w, /assets/mascot/rosie-wave-386-still.webp 386w" sizes="(max-width: 760px) 154px, 185px" data-wave-srcset="/assets/mascot/rosie-wave-260.webp 260w, /assets/mascot/rosie-wave-386.webp 386w" alt="Rosie Ryno, a baby pink rhino, waving hello" width="260" height="337" loading="lazy">
     </div>
     <div>
       <p>PinkRyno Studios is a tiny studio in Florida making calm games for little kids.</p>
@@ -201,5 +198,20 @@
   </div>
 </div>
 <script src="/assets/js/site.js"></script>
+<script>
+addEventListener("load", () => {
+  const motion = matchMedia("(prefers-reduced-motion: reduce)");
+  const img = document.querySelector("img[data-wave-srcset]");
+  if (motion.matches || !img || !("IntersectionObserver" in window)) return;
+  const still = img.srcset;
+  motion.onchange = () => { if (motion.matches) img.srcset = still; };
+  const watch = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    watch.disconnect();
+    if (!motion.matches) img.srcset = img.dataset.waveSrcset;
+  }, { rootMargin: "200px 0px" });
+  watch.observe(img);
+});
+</script>
 </body>
 </html>
