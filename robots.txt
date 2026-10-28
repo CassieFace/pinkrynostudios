@@ -4,5 +4,7 @@
 
 User-agent: *
 Disallow: /games/tiny-trails-beta/
+# The retired browser build at /games/space-maze/ is not linked and is excluded from crawling.
+Disallow: /games/space-maze/
 
 Sitemap: https://pinkrynostudios.com/sitemap.xml
