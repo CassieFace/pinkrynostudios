@@ -27,7 +27,7 @@
 <meta name="twitter:description" content="PinkRyno Studios makes calm games for kids ages 3 to 6. Trace a glowing path, meet a friendly star, and play at your child's pace.">
 <meta name="twitter:image" content="https://pinkrynostudios.com/assets/og/og-home.jpg">
 <meta name="twitter:image:alt" content="PinkRyno Studios. A smiling little astronaut waves from a glowing trail among the planets.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-fRxYGdZv0IVoEDL0rwUc1SwIgVKpiVSk0BO0v4wY78M='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-sQjhyOdcB5ISnW7wBrDQYMNqDUqz+x7B8wQ1qZyzzuQ='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <link rel="icon" href="/assets/mascot/head/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/assets/mascot/head/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="apple-touch-icon" href="/assets/mascot/head/apple-touch-icon-180.png" sizes="180x180">
@@ -135,13 +135,14 @@
       </div>
     </div>
   </section>
-  <section class="section wrap studio-line has-rosie" aria-label="About the studio">
-    <div class="studio-rosie">
-      <img src="/assets/mascot/rosie-wave-260-still.webp" srcset="/assets/mascot/rosie-wave-260-still.webp 260w, /assets/mascot/rosie-wave-386-still.webp 386w" sizes="(max-width: 760px) 154px, 185px" data-wave-srcset="/assets/mascot/rosie-wave-260.webp 260w, /assets/mascot/rosie-wave-386.webp 386w" alt="Rosie Ryno, a baby pink rhino, waving hello" width="260" height="337" loading="lazy">
+  <section class="section wrap meet-rosie" aria-labelledby="meet-rosie-title">
+    <div class="meet-rosie-art">
+      <img src="/assets/mascot/rosie-wave-260-still.webp" srcset="/assets/mascot/rosie-wave-260-still.webp 260w, /assets/mascot/rosie-wave-386-still.webp 386w" sizes="(max-width: 760px) 170px, 232px" data-wave-srcset="/assets/mascot/rosie-wave-260.webp 260w, /assets/mascot/rosie-wave-386.webp 386w" data-wave-phone-srcset="/assets/mascot/rosie-wave-260.webp 260w" alt="Rosie Ryno, a baby pink rhino, waving hello" width="260" height="337" loading="lazy">
     </div>
-    <div>
-      <p>PinkRyno Studios is a tiny studio in Florida making calm games for little kids.</p>
-      <a class="more" href="/about/">Meet the studio</a>
+    <div class="meet-rosie-copy">
+      <h2 id="meet-rosie-title">Meet Rosie</h2>
+      <p class="lede">Rosie Ryno is our baby pink rhino. She waves hello in every PinkRyno game.</p>
+      <p><a class="more" href="/about/">Meet the studio</a></p>
     </div>
   </section>
 </main>
@@ -208,7 +209,9 @@ addEventListener("load", () => {
   const watch = new IntersectionObserver((entries) => {
     if (!entries.some((entry) => entry.isIntersecting)) return;
     watch.disconnect();
-    if (!motion.matches) img.srcset = img.dataset.waveSrcset;
+    if (motion.matches) return;
+    const phone = img.dataset.wavePhoneSrcset;
+    img.srcset = phone && matchMedia("(max-width: 760px)").matches ? phone : img.dataset.waveSrcset;
   }, { rootMargin: "200px 0px" });
   watch.observe(img);
 });

@@ -56,12 +56,12 @@ The current Rosie is a temporary slot fill. The new Rosie, her wave animation, t
 
 Recorded October 28, 2026. The owner wants a new Rosie (static and animated) and all site art redone in a new sticker style, so every picture on the site is now a swappable slot. All image paths live in one art map: `site.json` `art` for site-wide art, and each game's `art` in `games.json`. `render-site.mjs` and `site.css` name no image files.
 
-To swap art: drop the new files in `assets/…`, point the slot's entry at them, and run `node scripts/render-site.mjs`. An empty slot (`null`) is left out cleanly, with no placeholder, box, or gap, and the build prints a warning that lists the empty slots. A slot that points at a missing file stops the build in every mode. The home hero shows `hero` (the Astro art) and no Rosie. Rosie waves in the home studio section below the fold: `rosie.animated` if it is set (its still on first load, the wave once she scrolls into view, never under reduced motion), else `rosie.static`, else the small head. An empty `hero` leaves a text-only navy band with the same text layout and stars. The full table, rules, and formats are in the [README's Art slots section](../../README.md#art-slots-swapping-art).
+To swap art: drop the new files in `assets/…`, point the slot's entry at them, and run `node scripts/render-site.mjs`. An empty slot (`null`) is left out cleanly, with no placeholder, box, or gap, and the build prints a warning that lists the empty slots. A slot that points at a missing file stops the build in every mode. The home hero shows `hero` (the Astro art) and no Rosie. Rosie waves in the home "Meet Rosie" section below the fold: `rosie.animated` if it is set (its still on first load, the wave once she scrolls into view, never under reduced motion), else `rosie.static`, else the head, else the section is text only. An empty `hero` leaves a text-only navy band with the same text layout and stars. The full table, rules, and formats are in the [README's Art slots section](../../README.md#art-slots-swapping-art).
 
 | Slot | Display size | Format | Current file |
 | --- | --- | --- | --- |
-| `rosie.animated` | Home studio section: 240 px tall (200 on phones). Stills on first load, by screen density; the matching wave after scrolling | Animated WebP plus a same-size still WebP; optional smaller pair. Keep both animated files light | **Temporary, pending the new Rosie:** `rosie-wave-386.webp` / `-386-still.webp`, `rosie-wave-260.webp` / `-260-still.webp` |
-| `rosie.static` | About 300 px wide; studio section fallback | Transparent WebP or PNG, 1x plus optional 2x | **Temporary:** `rosie-full.webp` (370×500) |
+| `rosie.animated` | Home "Meet Rosie" section: 300 px tall (220 on phones). Stills on first load, by screen density; after scrolling, the wave by density on desktops and the small wave on phones | Animated WebP plus a same-size still WebP; optional smaller pair. Keep both animated files light | **Temporary, pending the new Rosie:** `rosie-wave-386.webp` / `-386-still.webp`, `rosie-wave-260.webp` / `-260-still.webp` |
+| `rosie.static` | About 300 px wide; Meet Rosie fallback | Transparent WebP or PNG, 1x plus optional 2x | **Temporary:** `rosie-full.webp` (370×500) |
 | `rosie.lost` | 404, 240 px wide | Transparent WebP or PNG, 1x plus optional 2x | **Temporary, pending the new Rosie's 404 pose:** `rosie-full.webp` |
 | `rosie.head` | 44–88 px | Square WebP or PNG at 64, 128, 256 | **Temporary, pending the new Rosie:** `assets/mascot/head/rosie-head-*.webp` |
 | `favicon32`, `favicon48`, `appleTouch`, `logo` | 32, 48, and 180 px; logo at least 112 px | PNG (logo PNG, JPEG, or WebP) | **Temporary:** made from the head export |
@@ -70,6 +70,35 @@ To swap art: drop the new files in `assets/…`, point the slot's entry at them,
 | `aboutScene` | Up to 1120 px wide | WebP, PNG, or JPEG, 1x plus optional 2x | Empty |
 | `stars`, `icons` | Stars 6–78 px; icons 56 px (48 on phones) | An SVG sprite symbol or an SVG, WebP, or PNG file per entry | TWINKLE-SET and ICON-SET sprites |
 | Game `hero`, `card`, `icon`, `og`, `screenshots` | Hero band like the site `hero`, 536 px, 72 px, 1200×630, 400 px wide | See the README | Tiny Trails: Space has `hero` (TT-HERO) and `og` (`og-tiny-trails.jpg`); `card`, `icon`, and `screenshots` are empty |
+
+## Rosie art handoff
+
+Recorded October 28, 2026. Rosie is the mascot for everything, and a new Rosie set is on its way. Every Rosie picture is a slot in `site.json` `art`, so the new set drops in without code changes: `render-site.mjs` and `site.css` name no Rosie files. Every current file is the **temporary, original Rosie**.
+
+| Slot in `site.json` | Part | Required size and format | Where it appears | Current file (temporary, original Rosie) |
+| --- | --- | --- | --- | --- |
+| `art.rosie.animated.still` | Still | WebP, exactly the size of `src`: 386×500 (at least 300 px tall) | Home "Meet Rosie" on first paint, on 2x desktops and phones. The whole picture under reduced motion or without JavaScript | `assets/mascot/rosie-wave-386-still.webp` (386×500, 15 KB) |
+| `art.rosie.animated.stillSmall` | Still | WebP, exactly the size of `srcSmall`: 260×337 (at least 220 px tall), the same shape as `still` | Home "Meet Rosie" on first paint, on 1x desktops | `assets/mascot/rosie-wave-260-still.webp` (260×337, 10 KB) |
+| `art.rosie.static` | Still | Transparent WebP or PNG, at least 300×300 (386×500 fits); optional `src2x` at exactly twice the size | About (300 px wide, about 218 on phones). Home "Meet Rosie" when `animated` is empty | `assets/mascot/rosie-full.webp` (370×500, 72 KB) |
+| `art.rosie.animated.src` | Wave | Animated WebP, 386×500, the same size as `still` | Home "Meet Rosie" after she scrolls near the screen, on 2x desktops | `assets/mascot/rosie-wave-386.webp` (386×500, 430 KB) |
+| `art.rosie.animated.srcSmall` | Wave | Animated WebP, 260×337, the same size as `stillSmall` and the same shape as `src`. **Target under ~150 KB** | Home "Meet Rosie" after she scrolls near the screen, on 1x desktops and on every phone (up to 760 px wide) | `assets/mascot/rosie-wave-260.webp` (260×337, 272 KB, over the target) |
+| `art.rosie.head` `64`, `128`, `256` | Head | Square transparent WebP or PNG, exactly 64×64, 128×128, and 256×256 | Header 48 px (44 on phones), footer 64 px, Support title 88 px (64 on phones). Home "Meet Rosie" at 128 px when `animated` and `static` are both empty | `assets/mascot/head/rosie-head-64.webp`, `rosie-head-128.webp`, `rosie-head-256.webp` |
+| `art.logo` | Head | PNG (JPEG or WebP also work), at least 112×112; 256×256 PNG suggested | Organization logo in the home page's structured data (search results). Not shown on the page | `assets/mascot/head/rosie-head-256.png` |
+| `art.favicon32`, `art.favicon48` | Favicons | PNG, exactly 32×32 and 48×48 | Browser tab, every page | `assets/mascot/head/favicon-32.png`, `favicon-48.png` |
+| `art.appleTouch` | Favicons | PNG, exactly 180×180, opaque (on `#FBF8FF`) | Phone home-screen icon, every page | `assets/mascot/head/apple-touch-icon-180.png` |
+| `art.rosie.lost` | 404 | Transparent WebP or PNG, at least 240 px wide; optional `src2x` at exactly twice the size | The 404 page, above "This page floated off", 240 px wide (56% of the screen on phones) | `assets/mascot/rosie-full.webp`, the same file as `rosie.static`, until the new 404 pose arrives |
+
+The still and wave share `art.rosie.animated.alt`. `rosie.static` and `rosie.lost` have their own `alt`. The heads, favicons, and logo are decorative. No Rosie file may have stars, sparkles, or text baked in.
+
+To swap in the new Rosie:
+
+1. Export the files at the sizes above. Each still is a frame of its wave at exactly the same size, and the small pair is a scaled copy of the large pair with the same shape.
+2. Drop them in `assets/mascot/` under new names (for example `assets/mascot/rosie-v2/` and `assets/mascot/rosie-v2/head/`). Leave the old files in place until the new ones are live.
+3. Edit `site.json` `art`: point each slot above at its new file, update the `alt` text, and update or remove `width`/`height` (when set, they must match the file). A slot whose new art is not ready keeps its current file, or is set to `null` and left out cleanly (the Meet Rosie section then falls back to the next picture, or shows its text alone).
+4. Run `node scripts/render-site.mjs`. It stops and writes nothing if a file is missing, has the wrong format or size, a still does not match its wave, the small pair is not a same-shape smaller copy, or Rosie would be drawn larger than her file at 1x (`src` under 300 px tall or `srcSmall` under 220). It lists any empty slots.
+5. Check Home (desktop and phone, scrolled to Rosie, and with reduced motion), About, Support, the 404 page, and the browser tab icon, then commit the files, `site.json`, and the regenerated pages together.
+
+The wave must stay light. Phones and 1x desktops download `srcSmall`, so it should come in under about 150 KB; keep `src` as light as the loop allows. The wave never loads on first paint: the page loads only the still, the wave files sit only in data attributes, and the home page's one inline script (allowed by a CSP hash that the build computes) swaps the wave in after the page has loaded, when Rosie comes within 200 px of the screen, and never under reduced motion. The build stops if a wave file appears anywhere that would load it up front.
 
 ## Goals
 
@@ -92,7 +121,7 @@ To swap art: drop the new files in `assets/…`, point the slot's entry at them,
 ## Site structure
 
 ```
-/                         Home: hero (Astro art + background stars), the game, parent facts, studio line with Rosie
+/                         Home: hero (Astro art + background stars), the game, parent facts, Meet Rosie
 /games/tiny-trails-space/ Game page: hero art, how it plays, screenshots, free vs unlock, play/store
 /games/                   Kept as a URL (for future themes). Reworked as a gallery; with 1 game it can
                           redirect visually to the game (light list, no placeholder card)
@@ -120,6 +149,7 @@ To swap art: drop the new files in `assets/…`, point the slot's entry at them,
 2. **The game.** No card. The Tiny Trails key art is cut out and sits on the page (once Astro design #2 art arrives). Next to it are the title, tagline, a peach "Coming soon" tag leading "Ages 3–6 · Free to start · $0.99 one-time unlock", a "More about Tiny Trails" link, and "Coming soon to phones and tablets." The Play in browser button shows only while `play_enabled` is `true` (it is `false` today). The "Coming soon" tag is the only tag; age and price stay plain text.
 3. **For grown-ups.** Three short facts in a row with small sticker icons (outlined, no tinted circles): *Free to start* (Sun, Earth, Moon worlds and two explorers), *One payment, no subscription* (unlock all 10 worlds), *Made for small hands* (big targets, no reading needed, no timers). No privacy line here.
 4. **Studio line.** Rosie waving (her still on first load, the wave loop once she scrolls into view, the still only under reduced motion or without JavaScript; the small head when there is no Rosie art) with "PinkRyno Studios is a tiny studio in Florida making calm games for little kids." and a link to About.
+   - *Superseded October 28, 2026:* this is now a "Meet Rosie" section: the heading "Meet Rosie", the line "Rosie Ryno is our baby pink rhino. She waves hello in every PinkRyno game.", and the "Meet the studio" link to About. Rosie stands on the page beside the text (above it, centred, on phones), 300 px tall (220 on phones), with no box, panel, or stars. Her still and wave behave as before, except that phones always get the small wave. See [Rosie art handoff](#rosie-art-handoff).
 5. Footer.
 
 Target: 4 sections, 0 cards, 1 primary button above the fold, ≤ 250 KB.
@@ -208,12 +238,12 @@ Cycle 2 status: ROSIE-HEAD (with the favicons and apple-touch icon), ICON-SET, a
 
 | Metric | Budget | Cycle 1 (live site, home) | Cycle 2 with the first approved art | Cycle 2 with TT-HERO and OG (October 28) |
 | --- | --- | --- | --- | --- |
-| Home page, cold transfer | **≤ 250 KB** | 1.59 MB | ~501 KB desktop, ~350 KB mobile (Rosie's wave loop is 440 / 278 KB of it); ~87 KB with reduced motion | First load, no scrolling: 175 KB desktop 1x, 244 KB desktop 2x, 188 KB phone 2x/3x, the same with reduced motion. That includes Rosie's still (10 KB at 1x, 15 KB at 2x and on phones). Her temporary wave loads only after scrolling to her (+272 KB at 1x, +430 KB at 2x and on phones), never under reduced motion. Before this swap the first load was 438 / 502 / 445 KB: Chrome started the wave despite `loading="lazy"`, because the studio section is within its ~1250 px lazy-load distance |
+| Home page, cold transfer | **≤ 250 KB** | 1.59 MB | ~501 KB desktop, ~350 KB mobile (Rosie's wave loop is 440 / 278 KB of it); ~87 KB with reduced motion | First load, no scrolling: 175 KB desktop 1x, 244 KB desktop 2x, 188 KB phone 2x/3x, the same with reduced motion. That includes Rosie's still (10 KB at 1x, 15 KB at 2x and on phones). Her temporary wave loads only after scrolling to her (+272 KB at 1x and, since the Meet Rosie change, on phones; +430 KB on 2x desktops), never under reduced motion. Before this swap the first load was 438 / 502 / 445 KB: Chrome started the wave despite `loading="lazy"`, because the studio section is within its ~1250 px lazy-load distance |
 | Any content page | ≤ 200 KB | 99–242 KB | 67–146 KB | Tiny Trails 164 KB (1x) / 171 KB (phone) / 228 KB (desktop 2x); games index 151 / 158 / 214 KB; About, Support, Privacy, 404 unchanged |
 | Requests per page | ≤ 12 | 9–11 | 10–12 (home 12) | 10–13 (home 13, Tiny Trails 12) |
-| Largest image | ≤ 80 KB (hero ≤ 60 KB @2×) | 1.35 MB | 440 KB (the wave loop). `rosie-full.webp` on About and 404 is 72 KB. The new art files are 33 KB or less. | First load: the hero art, 50 KB at 1x and on phones, 106 KB at 2x. After scrolling to Rosie on home: her temporary wave, 272 KB (1x) or 430 KB (2x and phones) |
+| Largest image | ≤ 80 KB (hero ≤ 60 KB @2×) | 1.35 MB | 440 KB (the wave loop). `rosie-full.webp` on About and 404 is 72 KB. The new art files are 33 KB or less. | First load: the hero art, 50 KB at 1x and on phones, 106 KB at 2x. After scrolling to Rosie on home: her temporary wave, 272 KB (1x desktops and phones) or 430 KB (2x desktops) |
 | CSS | ≤ 20 KB raw, single file, ≤ 6 KB gzip | 19.4 KB + themes | 22.1 KB raw, 5.9 KB gzip, + themes | 26.2 KB raw, 7.0 KB gzip (23.3 / 6.3 KB before), + themes |
-| JS | ≤ 5 KB, no framework, gate + menu only | 4.4 KB | unchanged | `site.js` unchanged, plus a 605-byte inline script on home only (Rosie's wave swap, allowed by its CSP hash): 4.9 KB |
+| JS | ≤ 5 KB, no framework, gate + menu only | 4.4 KB | unchanged | `site.js` unchanged, plus a 723-byte inline script on home only (Rosie's wave swap, allowed by its CSP hash; 605 bytes before phones got their own small wave): 5,097 bytes, just under 5 KB |
 | Fonts | ≤ 3 woff2, ≤ 55 KB total, `font-display: swap`, only display font preloaded | 51 KB | unchanged | unchanged |
 | LCP (Lighthouse mobile) | ≤ 1.5 s | 1.2 s | not re-measured | not re-measured. The LCP element is the hero art on Home and Tiny Trails (`fetchpriority="high"`) |
 | CLS | 0 | 0 | not re-measured | not re-measured; every picture has width and height |

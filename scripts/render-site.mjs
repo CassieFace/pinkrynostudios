@@ -728,39 +728,55 @@ function samePicture(a, b) {
   return Boolean(a && b && a.src === b.src);
 }
 
-// Rosie's height in the home studio section. Keep in step with .studio-rosie img in site.css.
-const STUDIO_ROSIE_HEIGHT = 240;
-const STUDIO_ROSIE_PHONE_HEIGHT = 200;
+// Rosie's height in the home Meet Rosie section, and the head's size when it stands in
+// for her. Keep in step with .meet-rosie-art img and .meet-rosie-head in site.css.
+const MEET_ROSIE_HEIGHT = 300;
+const MEET_ROSIE_PHONE_HEIGHT = 220;
+const MEET_ROSIE_HEAD = 128;
 
-/* Rosie in the home studio section, below the fold, so she never competes with
-   the hero art: art.rosie.animated, else art.rosie.static, else the small head.
-   The animated slot renders only its stills (srcset of still and stillSmall, so
-   she is sharp at 1x and 2x). That is the first load, and the whole picture
-   without JavaScript or under reduced motion. The wave files sit only in
-   data-wave-srcset, with the same widths, and ROSIE_WAVE_SCRIPT swaps them in
-   when she is about to scroll into view. */
-function studioRosie() {
+// Rosie is never drawn larger than her file at 1x, so a new set that is too small stops the build.
+function coversHeight(height, needed, label) {
+  must(height >= needed, `${label} is ${height} px tall, but the home Meet Rosie section draws it ${needed} px tall. Export it at least ${needed} px tall.`);
+}
+
+/* Rosie in the home Meet Rosie section, below the fold, so she never competes with
+   the hero art: art.rosie.animated, else art.rosie.static, else the head, else
+   nothing (the section is then text only). The animated slot renders only its
+   stills (srcset of still and stillSmall, so she is sharp at 1x and 2x). That is
+   the first load, and the whole picture without JavaScript or under reduced
+   motion. The wave files sit only in data attributes: data-wave-srcset (the same
+   widths as the stills, so desktops pick by density) and, when there is a small
+   pair, data-wave-phone-srcset (only srcSmall, to keep phone data low).
+   ROSIE_WAVE_SCRIPT swaps one in when she is about to scroll into view. */
+function meetRosieArt() {
   const anim = art.rosieAnimated;
   if (anim) {
+    coversHeight(anim.large.height, MEET_ROSIE_HEIGHT, "site.json art.rosie.animated.src");
+    if (anim.small) coversHeight(anim.small.height, MEET_ROSIE_PHONE_HEIGHT, "site.json art.rosie.animated.srcSmall");
     const pairs = [anim.small, anim.large].filter(Boolean);
     const first = pairs[0];
     const at = (height) => Math.round((height * anim.large.width) / anim.large.height);
-    const sizes = `${PHONE} ${at(STUDIO_ROSIE_PHONE_HEIGHT)}px, ${at(STUDIO_ROSIE_HEIGHT)}px`;
-    const set = (key) => pairs.map((pair) => `${esc(pair[key])} ${pair.width}w`).join(", ");
-    return `<div class="studio-rosie">
-      <img src="${esc(first.still)}" srcset="${set("still")}" sizes="${sizes}" data-wave-srcset="${set("anim")}" alt="${esc(anim.alt)}" width="${first.width}" height="${first.height}" loading="lazy">
+    const sizes = `${PHONE} ${at(MEET_ROSIE_PHONE_HEIGHT)}px, ${at(MEET_ROSIE_HEIGHT)}px`;
+    const set = (key, list = pairs) => list.map((pair) => `${esc(pair[key])} ${pair.width}w`).join(", ");
+    const phoneWave = anim.small ? ` data-wave-phone-srcset="${set("anim", [anim.small])}"` : "";
+    return `<div class="meet-rosie-art">
+      <img src="${esc(first.still)}" srcset="${set("still")}" sizes="${sizes}" data-wave-srcset="${set("anim")}"${phoneWave} alt="${esc(anim.alt)}" width="${first.width}" height="${first.height}" loading="lazy">
     </div>`;
   }
-  if (art.rosieStatic) return `<div class="studio-rosie">${rosieImg(art.rosieStatic, "", { lazy: true })}</div>`;
-  return headImg("studio-icon", true, 64);
+  if (art.rosieStatic) {
+    coversHeight(art.rosieStatic.height, MEET_ROSIE_HEIGHT, "site.json art.rosie.static.src");
+    return `<div class="meet-rosie-art">${rosieImg(art.rosieStatic, "", { lazy: true })}</div>`;
+  }
+  return headImg("meet-rosie-head", true, MEET_ROSIE_HEAD);
 }
 
 /* The home page's only inline script, emitted only with art.rosie.animated.
    After the page has loaded, it swaps Rosie's still for her wave the first time
    she comes within 200px of the screen, so the wave is never part of the first
-   load. Under reduced motion it never swaps (and puts the still back if the
-   setting turns on after the swap). Without IntersectionObserver the still stays.
-   The CSP allows it by its sha256 hash, which layout() computes from this text. */
+   load. Phones get data-wave-phone-srcset when it is set, other screens
+   data-wave-srcset. Under reduced motion it never swaps (and puts the still back
+   if the setting turns on after the swap). Without IntersectionObserver the still
+   stays. The CSP allows it by its sha256 hash, which layout() computes from this text. */
 const ROSIE_WAVE_SCRIPT = `
 addEventListener("load", () => {
   const motion = matchMedia("${REDUCE}");
@@ -771,7 +787,9 @@ addEventListener("load", () => {
   const watch = new IntersectionObserver((entries) => {
     if (!entries.some((entry) => entry.isIntersecting)) return;
     watch.disconnect();
-    if (!motion.matches) img.srcset = img.dataset.waveSrcset;
+    if (motion.matches) return;
+    const phone = img.dataset.wavePhoneSrcset;
+    img.srcset = phone && matchMedia("${PHONE}").matches ? phone : img.dataset.waveSrcset;
   }, { rootMargin: "200px 0px" });
   watch.observe(img);
 });
@@ -1113,7 +1131,8 @@ function pageHome(visible) {
   // art.hero is the band's backdrop: Astro on the right, the text on its calm left side
   // (on phones and tablets the art sits above the text). It is the page's largest picture.
   const heroArt = art.hero;
-  const rosie = studioRosie();
+  const rosie = meetRosieArt();
+  const { fullName, name, species, pronouns } = mascot;
   const main = `<section class="hero${heroArt ? " has-art" : ""}" aria-labelledby="hero-title">
     ${heroArt ? scenePicture(heroArt, { cls: "hero-art", sizes: heroSizes(heroArt), priority: true }) : ""}
     ${starField("starfield", "s", HERO_STARS, "    ")}
@@ -1131,11 +1150,12 @@ function pageHome(visible) {
   </section>
   ${feature}
   ${facts}
-  <section class="section wrap studio-line${art.rosieAnimated || art.rosieStatic ? " has-rosie" : ""}" aria-label="About the studio">
+  <section class="section wrap meet-rosie" aria-labelledby="meet-rosie-title">
     ${rosie}
-    <div>
-      <p>PinkRyno Studios is a tiny studio in Florida making calm games for little kids.</p>
-      ${more("/about/", "Meet the studio")}
+    <div class="meet-rosie-copy">
+      <h2 id="meet-rosie-title">Meet ${esc(name)}</h2>
+      <p class="lede">${esc(fullName)} is our baby ${esc(species)}. ${esc(pronouns.subject)} waves hello in every PinkRyno game.</p>
+      <p>${more("/about/", "Meet the studio")}</p>
     </div>
   </section>`;
   return layout({
@@ -1507,7 +1527,8 @@ ${urls}
 /* Output checks --------------------------------------------------------- */
 
 const URL_TAG = /<(a|link|img|source|script|form|iframe|video|audio|use)\b([^>]*)>/gi;
-const URL_ATTR = /\s(href|src|srcset|data-wave-srcset|action|poster)="([^"]*)"/gi;
+const URL_ATTR = /\s(href|src|srcset|data-wave-srcset|data-wave-phone-srcset|action|poster)="([^"]*)"/gi;
+const WAVE_ATTRS = new Set(["data-wave-srcset", "data-wave-phone-srcset"]);
 const INLINE_SCRIPT = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
 
 // Every URL in the rendered files must resolve to a local file (or a file this
@@ -1518,7 +1539,7 @@ function checkRendered(files) {
     const rel = sitePathToRel(path);
     return outputs.has(rel) || existsSync(join(root, rel));
   };
-  // Rosie's wave files may appear only in data-wave-srcset, so they never load up front.
+  // Rosie's wave files may appear only in the data-wave attributes, so they never load up front.
   const anim = art.rosieAnimated;
   const waveFiles = new Set(anim ? [anim.large.anim, anim.small && anim.small.anim].filter(Boolean) : []);
   const problems = [];
@@ -1531,8 +1552,8 @@ function checkRendered(files) {
           const value = raw.replaceAll("&amp;", "&");
           const urls = attr.toLowerCase().endsWith("srcset") ? value.split(",").map((part) => part.trim().split(/\s+/)[0]) : [value];
           for (const url of urls) {
-            if (waveFiles.has(url) && attr.toLowerCase() !== "data-wave-srcset") {
-              problems.push(`${rel}: ${attr}="${url}" loads Rosie's animated wave up front. It belongs only in data-wave-srcset.`);
+            if (waveFiles.has(url) && !WAVE_ATTRS.has(attr.toLowerCase())) {
+              problems.push(`${rel}: ${attr}="${url}" loads Rosie's animated wave up front. It belongs only in data-wave-srcset or data-wave-phone-srcset.`);
             }
             if (url.startsWith("#")) {
               if (url.length > 1 && !ids.has(url.slice(1))) problems.push(`${rel}: ${url} has no matching id`);

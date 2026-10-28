@@ -552,20 +552,22 @@ a:hover { text-decoration-thickness: 2px; }
 
 .fact p { margin: 0; max-width: 34ch; }
 
-.studio-line { display: flex; align-items: center; gap: 18px; }
+/* Meet Rosie: below the fold, away from the hero art. Rosie stands on the page
+   beside her text (above it, centred, on phones), with no box, panel, or stars.
+   Her height and the head size match MEET_ROSIE_* in render-site.mjs. */
+.meet-rosie { display: flex; align-items: center; justify-content: center; gap: 48px; }
 
-.studio-line p { margin: 0; max-width: 60ch; }
+.meet-rosie-art { flex: none; }
 
-.studio-line .more { margin-top: 2px; }
+.meet-rosie-art img { width: auto; height: 300px; }
 
-.studio-icon { width: 64px; height: 64px; flex: none; }
+.meet-rosie-head { width: 128px; height: 128px; flex: none; }
 
-/* Rosie waves beside the studio line, below the fold, away from the hero art. */
-.studio-line.has-rosie { gap: 32px; }
+.meet-rosie-copy h2 { margin-bottom: 0.5rem; }
 
-.studio-rosie { flex: none; }
+.meet-rosie-copy .lede { margin-bottom: 0.4rem; }
 
-.studio-rosie img { width: auto; height: 240px; }
+.meet-rosie-copy p:last-child { margin: 0; }
 
 .plays { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 56px; }
 
@@ -847,11 +849,11 @@ body.gate-open { overflow: hidden; }
 
   .toc ol { columns: 1; }
 
-  .studio-line { align-items: flex-start; }
+  .meet-rosie { flex-direction: column; gap: 8px; text-align: center; }
 
-  .studio-line.has-rosie { flex-direction: column; gap: 8px; }
+  .meet-rosie-art img { height: 220px; }
 
-  .studio-rosie img { height: 200px; }
+  .meet-rosie-copy .lede { margin-inline: auto; }
 
   .footer-rise { height: 24px; }
 }
