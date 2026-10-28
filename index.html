@@ -27,7 +27,7 @@
 <meta name="twitter:description" content="PinkRyno Studios makes calm games for kids ages 3 to 6. Trace a glowing path, meet a friendly star, and play at your child's pace.">
 <meta name="twitter:image" content="https://pinkrynostudios.com/assets/og/og-home.jpg">
 <meta name="twitter:image:alt" content="PinkRyno Studios. A smiling little astronaut waves from a glowing trail among the planets.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-sQjhyOdcB5ISnW7wBrDQYMNqDUqz+x7B8wQ1qZyzzuQ='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9gWKIoqEpSLgl8qMfpr6L2Y1FwpaIOvSSPr72ZRUIsU='; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <link rel="icon" href="/assets/mascot/head/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/assets/mascot/head/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="apple-touch-icon" href="/assets/mascot/head/apple-touch-icon-180.png" sizes="180x180">
@@ -137,7 +137,7 @@
   </section>
   <section class="section wrap meet-rosie" aria-labelledby="meet-rosie-title">
     <div class="meet-rosie-art">
-      <img src="/assets/mascot/rosie-wave-260-still.webp" srcset="/assets/mascot/rosie-wave-260-still.webp 260w, /assets/mascot/rosie-wave-386-still.webp 386w" sizes="(max-width: 760px) 170px, 232px" data-wave-srcset="/assets/mascot/rosie-wave-260.webp 260w, /assets/mascot/rosie-wave-386.webp 386w" data-wave-phone-srcset="/assets/mascot/rosie-wave-260.webp 260w" alt="Rosie Ryno, a baby pink rhino, waving hello" width="260" height="337" loading="lazy">
+      <img src="/assets/mascot/rosie-wave-260-still.webp" srcset="/assets/mascot/rosie-wave-260-still.webp 260w, /assets/mascot/rosie-wave-386-still.webp 386w" sizes="(max-width: 760px) 170px, 232px" data-wave-srcset="/assets/mascot/rosie-wave-260.webp 260w, /assets/mascot/rosie-wave-386.webp 386w" alt="Rosie Ryno, a baby pink rhino, waving hello" width="260" height="337" loading="lazy">
     </div>
     <div class="meet-rosie-copy">
       <h2 id="meet-rosie-title">Meet Rosie</h2>
@@ -199,22 +199,22 @@
   </div>
 </div>
 <script src="/assets/js/site.js"></script>
-<script>
-addEventListener("load", () => {
-  const motion = matchMedia("(prefers-reduced-motion: reduce)");
-  const img = document.querySelector("img[data-wave-srcset]");
-  if (motion.matches || !img || !("IntersectionObserver" in window)) return;
-  const still = img.srcset;
-  motion.onchange = () => { if (motion.matches) img.srcset = still; };
-  const watch = new IntersectionObserver((entries) => {
-    if (!entries.some((entry) => entry.isIntersecting)) return;
-    watch.disconnect();
-    if (motion.matches) return;
-    const phone = img.dataset.wavePhoneSrcset;
-    img.srcset = phone && matchMedia("(max-width: 760px)").matches ? phone : img.dataset.waveSrcset;
-  }, { rootMargin: "200px 0px" });
-  watch.observe(img);
-});
-</script>
+<script>addEventListener("load", () => {
+const motion = matchMedia("(prefers-reduced-motion: reduce)");
+const img = document.querySelector("[data-wave-srcset]");
+if (motion.matches || !img || !window.IntersectionObserver) return;
+const still = img.srcset;
+motion.onchange = () => { if (motion.matches) img.srcset = still; };
+const wave = () => {
+const i = still.split(", ").findIndex((c) => img.currentSrc.endsWith(c.split(" ")[0]));
+if (i >= 0 && !motion.matches) img.srcset = img.dataset.waveSrcset.split(", ")[i];
+};
+const watch = new IntersectionObserver((entries) => {
+if (!entries.some((e) => e.isIntersecting)) return;
+watch.disconnect();
+if (img.complete) wave(); else img.onload = wave;
+}, { rootMargin: "200px" });
+watch.observe(img);
+});</script>
 </body>
 </html>

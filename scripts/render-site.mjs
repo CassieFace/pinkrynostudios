@@ -35,7 +35,7 @@
  */
 
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -60,6 +60,9 @@ let year;
 let retired = new Set();
 // Empty art slots, reported as a warning after a successful build.
 const emptySlots = [];
+// Rosie's wave files over WAVE_BUDGET bytes, reported as a warning after a successful build.
+const WAVE_BUDGET = 102400;
+const heavyWaves = [];
 
 /* Icons and stars are art map entries. "/file.svg#id" points at a <symbol> in a
    sprite and renders as <svg><use href>, so a sprite is one request for the whole
@@ -453,7 +456,9 @@ function picture(entry, label, { alt: needsAlt = true, formats = ["webp", "png",
 }
 
 /* Rosie's wave (art.rosie.animated): an animated WebP with a same-size still for
-   reduced motion, and optionally a smaller pair for phones (srcSmall + stillSmall). */
+   first paint and reduced motion, and optionally a smaller pair (srcSmall + stillSmall).
+   Each wave replaces its own still at the width the browser chose, so the two must
+   be exactly the same size. */
 function animatedPicture(entry, label) {
   if (emptyEntry(entry, label)) return empty(label);
   must(isObject(entry), `${label} must be null or an object like { "src": "/assets/....webp", "still": "/assets/....webp" }`);
@@ -462,8 +467,17 @@ function animatedPicture(entry, label) {
     must(!isEmpty(entry[stillKey]), `${label}.${stillKey} is needed with ${animKey}: a still frame for visitors who turn off motion`);
     const anim = sizedFile(entry[animKey], `${label}.${animKey}`, ["webp"]);
     const still = sizedFile(entry[stillKey], `${label}.${stillKey}`, ["webp"]);
-    must(still[1] === anim[1] && still[2] === anim[2], `${label}.${stillKey} is ${still[1]}x${still[2]}, but ${anim[0]} is ${anim[1]}x${anim[2]}. Export the still at the same size.`);
+    must(still[1] === anim[1] && still[2] === anim[2],
+      `${label}.${animKey} (${anim[0]}) is ${anim[1]}x${anim[2]}, but ${label}.${stillKey} (${still[0]}) is ${still[1]}x${still[2]}. ` +
+      "Rosie's wave replaces her still at the same display size, so each wave must be exactly the size of its still. Export both at the same size.");
+    // The swap script splits srcset lists and matches img.currentSrc by its path's end,
+    // so these paths must need no escaping in a srcset or a URL.
+    for (const [key, file] of [[animKey, anim[0]], [stillKey, still[0]]]) {
+      must(/^[\w/.-]+$/.test(file), `${label}.${key} must use only letters, digits, "-", "_", ".", and "/" in its path: ${file}`);
+    }
     checkStatedSize(entry, widthKey, heightKey, anim, label);
+    const bytes = statSync(join(root, sitePathToRel(anim[0]))).size;
+    if (bytes > WAVE_BUDGET) heavyWaves.push([`${label}.${animKey}`, anim[0], bytes]);
     return { anim: anim[0], still: still[0], width: anim[1], height: anim[2] };
   };
   const large = pair("src", "still", "width", "height");
@@ -475,6 +489,10 @@ function animatedPicture(entry, label) {
     must(Math.abs(small.width / small.height - large.width / large.height) < 0.01,
       `${label}.srcSmall is ${small.width}x${small.height}, a different shape from src (${large.width}x${large.height}). Export a smaller copy of the same picture.`);
   } else must(isEmpty(entry.stillSmall) && entry.widthSmall == null && entry.heightSmall == null, `${label}: stillSmall, widthSmall, and heightSmall go with srcSmall`);
+  // The swap script finds the still on screen by the end of img.currentSrc, so no path may end with another.
+  const files = [large, small].filter(Boolean).flatMap((pair) => [pair.anim, pair.still]);
+  const clash = files.find((file) => files.some((other) => other !== file && file.endsWith(other)));
+  must(!clash, `${label}: ${clash} ends with another of its paths, so the wave swap could pick the wrong file. Give each file its own name.`);
   const alt = textOrNull(entry.alt, label + ".alt");
   must(alt, `${label} needs alt text that describes the picture`);
   return { large, small, alt };
@@ -633,6 +651,16 @@ function reportEmptySlots() {
   console.warn("Warning: empty art slots, left out of the pages:\n" + lines.join("\n"));
 }
 
+// Over budget is a warning, so the temporary wave keeps building until the new one arrives.
+function reportHeavyWaves() {
+  if (!heavyWaves.length) return;
+  const lines = heavyWaves.map(([label, src, bytes]) => `  ${src} (${label}) is ${bytes.toLocaleString("en-US")} bytes (${Math.round(bytes / 1024)} KB)`);
+  console.warn(
+    `Warning: Rosie's wave is over its ${WAVE_BUDGET.toLocaleString("en-US")}-byte (100 KB) budget per file. ` +
+    "Visitors download it when they scroll to her on the home page:\n" + lines.join("\n")
+  );
+}
+
 /* site.json ------------------------------------------------------------- */
 
 function loadSite(file) {
@@ -747,12 +775,12 @@ function coversHeight(height, needed, label) {
 /* Rosie in the home Meet Rosie section, below the fold, so she never competes with
    the hero art: art.rosie.animated, else art.rosie.static, else the head, else
    nothing (the section is then text only). The animated slot renders only its
-   stills (srcset of still and stillSmall, so she is sharp at 1x and 2x). That is
+   stills (srcset of stillSmall and still, so she is sharp at 1x and 2x). That is
    the first load, and the whole picture without JavaScript or under reduced
-   motion. The wave files sit only in data attributes: data-wave-srcset (the same
-   widths as the stills, so desktops pick by density) and, when there is a small
-   pair, data-wave-phone-srcset (only srcSmall, to keep phone data low).
-   ROSIE_WAVE_SCRIPT swaps one in when she is about to scroll into view. */
+   motion. The wave files sit only in data-wave-srcset, which mirrors the still
+   srcset 1:1 (the same widths in the same order, under the same sizes), so the
+   wave is never smaller than the still the browser chose. ROSIE_WAVE_SCRIPT swaps
+   it in when she is about to scroll into view. */
 function meetRosieArt() {
   const anim = art.rosieAnimated;
   if (anim) {
@@ -762,10 +790,9 @@ function meetRosieArt() {
     const first = pairs[0];
     const at = (height) => Math.round((height * anim.large.width) / anim.large.height);
     const sizes = `${PHONE} ${at(MEET_ROSIE_PHONE_HEIGHT)}px, ${at(MEET_ROSIE_HEIGHT)}px`;
-    const set = (key, list = pairs) => list.map((pair) => `${esc(pair[key])} ${pair.width}w`).join(", ");
-    const phoneWave = anim.small ? ` data-wave-phone-srcset="${set("anim", [anim.small])}"` : "";
+    const set = (key) => pairs.map((pair) => `${esc(pair[key])} ${pair.width}w`).join(", ");
     return `<div class="meet-rosie-art">
-      <img src="${esc(first.still)}" srcset="${set("still")}" sizes="${sizes}" data-wave-srcset="${set("anim")}"${phoneWave} alt="${esc(anim.alt)}" width="${first.width}" height="${first.height}" loading="lazy">
+      <img src="${esc(first.still)}" srcset="${set("still")}" sizes="${sizes}" data-wave-srcset="${set("anim")}" alt="${esc(anim.alt)}" width="${first.width}" height="${first.height}" loading="lazy">
     </div>`;
   }
   if (art.rosieStatic) {
@@ -778,27 +805,36 @@ function meetRosieArt() {
 /* The home page's only inline script, emitted only with art.rosie.animated.
    After the page has loaded, it swaps Rosie's still for her wave the first time
    she comes within 200px of the screen, so the wave is never part of the first
-   load. Phones get data-wave-phone-srcset when it is set, other screens
-   data-wave-srcset. Under reduced motion it never swaps (and puts the still back
-   if the setting turns on after the swap). Without IntersectionObserver the still
-   stays. The CSP allows it by its sha256 hash, which layout() computes from this text. */
+   load. Once the still has loaded, wave() finds the still the browser chose
+   (img.currentSrc) in the still srcset and sets srcset to the one wave at the same
+   position, which checkRendered() guarantees has the same width. So the wave is
+   always the same file width as the still on screen, at every density, and never
+   a smaller one. If the shown picture is not one of the stills (for example the
+   wave itself, when its own load event calls wave() again), nothing changes.
+   Under reduced motion it never swaps (and puts the still back if the setting
+   turns on after the swap). Without IntersectionObserver the still stays. The CSP
+   allows it by its sha256 hash, which layout() computes from this text. Keep it
+   small: with assets/js/site.js it counts toward the 5 KB (5,120-byte) JS budget,
+   so the page gets it without its indentation. */
 const ROSIE_WAVE_SCRIPT = `
 addEventListener("load", () => {
   const motion = matchMedia("${REDUCE}");
-  const img = document.querySelector("img[data-wave-srcset]");
-  if (motion.matches || !img || !("IntersectionObserver" in window)) return;
+  const img = document.querySelector("[data-wave-srcset]");
+  if (motion.matches || !img || !window.IntersectionObserver) return;
   const still = img.srcset;
   motion.onchange = () => { if (motion.matches) img.srcset = still; };
+  const wave = () => {
+    const i = still.split(", ").findIndex((c) => img.currentSrc.endsWith(c.split(" ")[0]));
+    if (i >= 0 && !motion.matches) img.srcset = img.dataset.waveSrcset.split(", ")[i];
+  };
   const watch = new IntersectionObserver((entries) => {
-    if (!entries.some((entry) => entry.isIntersecting)) return;
+    if (!entries.some((e) => e.isIntersecting)) return;
     watch.disconnect();
-    if (motion.matches) return;
-    const phone = img.dataset.wavePhoneSrcset;
-    img.srcset = phone && matchMedia("${PHONE}").matches ? phone : img.dataset.waveSrcset;
-  }, { rootMargin: "200px 0px" });
+    if (img.complete) wave(); else img.onload = wave;
+  }, { rootMargin: "200px" });
   watch.observe(img);
 });
-`;
+`.replace(/^ +/gm, "").trim();
 
 // A game's icon (art.icon) above its title. Decorative: the title names the game.
 function gameIcon(game, lazy) {
@@ -1532,9 +1568,28 @@ ${urls}
 /* Output checks --------------------------------------------------------- */
 
 const URL_TAG = /<(a|link|img|source|script|form|iframe|video|audio|use)\b([^>]*)>/gi;
-const URL_ATTR = /\s(href|src|srcset|data-wave-srcset|data-wave-phone-srcset|action|poster)="([^"]*)"/gi;
-const WAVE_ATTRS = new Set(["data-wave-srcset", "data-wave-phone-srcset"]);
+const URL_ATTR = /\s(href|src|srcset|data-wave-srcset|action|poster)="([^"]*)"/gi;
+const WAVE_ATTRS = new Set(["data-wave-srcset"]);
 const INLINE_SCRIPT = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+
+/* Rosie's data-wave-srcset must mirror her still srcset 1:1: the same widths in the
+   same order, each wave in its own still's place. The <img> has one sizes attribute,
+   so the swap keeps the width the browser chose for the still and never lowers
+   her resolution. Returns a problem, or "" when the two lists mirror. */
+function waveMirrorProblem(rel, attrs) {
+  const anim = art.rosieAnimated;
+  if (!anim) return `${rel}: has data-wave-srcset, but site.json art.rosie.animated is empty`;
+  const waveOf = new Map([anim.small, anim.large].filter(Boolean).map((pair) => [pair.still, pair.anim]));
+  const list = (name) => ((attrs.match(new RegExp(`\\s${name}="([^"]*)"`)) || [])[1] || "")
+    .replaceAll("&amp;", "&").split(",").map((part) => part.trim().split(/\s+/));
+  const stills = list("srcset");
+  const waves = list("data-wave-srcset");
+  const mirrors = stills.length === waves.length &&
+    stills.every(([url, width], index) => waves[index][1] === width && waveOf.get(url) === waves[index][0]);
+  if (mirrors) return "";
+  const show = (items) => items.map((item) => item.join(" ")).join(", ");
+  return `${rel}: Rosie's data-wave-srcset (${show(waves)}) must mirror her still srcset (${show(stills)}) 1:1, with each wave at its own still's width, so the swap never lowers her resolution.`;
+}
 
 // Every URL in the rendered files must resolve to a local file (or a file this
 // build writes), use an absolute path, and leave the site only through a gated <a>.
@@ -1553,12 +1608,16 @@ function checkRendered(files) {
       const ids = new Set([...text.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]));
       for (const [, tag, attrs] of text.matchAll(URL_TAG)) {
         const gatedLink = tag.toLowerCase() === "a" && /\sdata-parent-gate(?=[\s=]|$)/.test(attrs);
+        if (/\sdata-wave-srcset="/.test(attrs)) {
+          const mirror = waveMirrorProblem(rel, attrs);
+          if (mirror) problems.push(mirror);
+        }
         for (const [, attr, raw] of attrs.matchAll(URL_ATTR)) {
           const value = raw.replaceAll("&amp;", "&");
           const urls = attr.toLowerCase().endsWith("srcset") ? value.split(",").map((part) => part.trim().split(/\s+/)[0]) : [value];
           for (const url of urls) {
             if (waveFiles.has(url) && !WAVE_ATTRS.has(attr.toLowerCase())) {
-              problems.push(`${rel}: ${attr}="${url}" loads Rosie's animated wave up front. It belongs only in data-wave-srcset or data-wave-phone-srcset.`);
+              problems.push(`${rel}: ${attr}="${url}" loads Rosie's animated wave up front. It belongs only in data-wave-srcset.`);
             }
             if (url.startsWith("#")) {
               if (url.length > 1 && !ids.has(url.slice(1))) problems.push(`${rel}: ${url} has no matching id`);
@@ -1676,6 +1735,7 @@ function main() {
     console.log("Left out until set in site.json: " + omitted.map((key) => "studio." + key).join(", ") + ". Run with --release for the store launch.");
   }
   reportEmptySlots();
+  reportHeavyWaves();
 }
 
 try {
