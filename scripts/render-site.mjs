@@ -655,7 +655,7 @@ function pageAbout() {
 function pagePrivacy() {
   const main = `<article class="section wrap prose">
     <h1>Privacy policy</h1>
-    <p>Effective October 22, 2026. This policy covers the PinkRyno Studios website and our games played in the web browser on this site. We will update it before any of our games launch as apps.</p>
+    <p>Effective October 27, 2026. This policy covers the PinkRyno Studios website and our games played in the web browser on this site. We will update it before any of our games launch as apps.</p>
     <div class="short-version" id="short">
       <h2>The short version</h2>
       <p><strong>PinkRyno Studios does not collect personal data.</strong> Our games and this website have no ads, no tracking, and no third-party advertising, analytics, or social SDKs.</p>
@@ -691,7 +691,7 @@ function pagePrivacy() {
     <h2 id="purchases">Purchases</h2>
     <p>There is nothing to buy on this website, and the games here are free to play. We do not collect payment information.</p>
     <h2 id="cookies">Cookies and device storage</h2>
-    <p>This website does not set cookies. The game saves progress (stars, unlocks, and settings) on your device, in the browser's storage. That progress is not sent to us or to anyone else, and there are no accounts, ads, or trackers. Clearing this site's data in your browser erases it. The parental gate does not save its answer.</p>
+    <p>This website does not set cookies. The game saves progress (stars, progress, and settings) on your device, in the browser's storage. That progress is not sent to us or to anyone else, and there are no accounts, ads, or trackers. Clearing this site's data in your browser erases it. The parental gate does not save its answer.</p>
     <h2 id="children">Children</h2>
     <p>Our games and this website are directed to children under 13, and parents use them too. We follow the Children's Online Privacy Protection Act by not collecting personal information from children. Because we do not collect it, we do not ask for verifiable parental consent to collect it.</p>
     <p>We do not knowingly receive personal information from a child. If you believe we have, email us and we will delete it.</p>
@@ -734,7 +734,7 @@ function pageSupport(visible) {
       <div class="prose">
         <p class="eyebrow">Support</p>
         <h1>${esc(mascot.name)} is here to help</h1>
-        <p>A grown-up can write to us about a purchase, a device, or anything that felt off in a game. This page is the support contact for our website and for our App Store and Google Play listings.</p>
+        <p>A grown-up can write to us about a device, a browser, or anything that felt off in a game. Store details will be added here when our games launch as apps.</p>
         <p>Email ${mailLink()}. The link asks a short multiplication question first, so a small child does not open the mail app. The address is ${esc(SUPPORT_EMAIL)}.</p>
       </div>
     </div>
@@ -743,29 +743,24 @@ function pageSupport(visible) {
     </div>
     <div class="faq">
       <details>
-        <summary>Restore purchases</summary>
-        <p>Open the game and go to the Grown-ups area. Choose Restore Purchases. Sign in with the same Apple ID or Google account that bought the unlock. The purchase lives on that store account. We do not have an account for your child, so there is nothing to sign in to on our side.</p>
-        <p>If the unlock does not come back, email us and tell us which store you used. Please do not include a child's name.</p>
-      </details>
-      <details>
         <summary>The parental gate</summary>
-        <p>Links that leave this website ask a grown-up to answer a short multiplication question first. That includes app stores and email.${playStaysHere}</p>
+        <p>Links that leave this website ask a grown-up to answer a short multiplication question first. That includes email.${playStaysHere}</p>
         <p>The question is a speed bump so a small child does not wander off to another site. It is not an account, and we do not save the answer.</p>
       </details>
       <details>
         <summary>Deleting data</summary>
-        <p>We do not collect personal data, so there is no profile to delete. To remove a game, uninstall it. To leave the website, close the tab. Purchases stay with Apple or Google. You manage or refund those in the store account.</p>
+        <p>We do not collect personal data, so there is no profile to delete. Game progress is saved only in your browser, and clearing this site's data erases it.</p>
         <p>The full explanation is in the <a href="/privacy/">privacy policy</a>.</p>
       </details>${playFaq}
       <details>
         <summary>Something went wrong</summary>
-        <p>Email ${mailLink()} and tell us the game, the device (iPhone, iPad, Android, or a browser), and what happened. Please do not send a child's name, photo, or precise location. A grown-up's first name and the store they used is enough.</p>
+        <p>Email ${mailLink()} and tell us the game, the device and browser, and what happened. Please do not send a child's name, photo, or precise location. A grown-up's first name is enough.</p>
       </details>
     </div>
   </article>`;
   return layout({
     title: "Support · PinkRyno Studios",
-    description: "Contact PinkRyno Studios for help with restore purchases, the parental gate, and our games for ages 3 to 6.",
+    description: "Contact PinkRyno Studios for help with the parental gate and our games for ages 3 to 6.",
     path: "/support/",
     current: "support",
     main,
