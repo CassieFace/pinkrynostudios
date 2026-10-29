@@ -1392,7 +1392,7 @@ function pageHome(visible) {
     ${meetRosieArt()}
     <div class="meet-rosie-copy">
       <h2 id="meet-rosie-title">Meet ${esc(name)}</h2>
-      <p class="lede">${esc(fullName)} is our baby ${esc(species)}. ${esc(pronouns.subject)} is the friendly face of PinkRyno Studios, and ${esc(pronouns.subject.toLowerCase())} walks the path with you into every game.</p>
+      <p class="lede">${esc(fullName)} is our baby ${esc(species)}. ${esc(pronouns.subject)} is the friendly face of PinkRyno Studios, and ${esc(pronouns.subject.toLowerCase())} waves hello at the start of every game.</p>
       <p class="rosie-says">“Hello! Shall we take a little walk?”</p>
       <p class="link-row">${more("/about/", "Meet the studio")}</p>
     </div>
