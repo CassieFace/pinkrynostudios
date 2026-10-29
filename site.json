@@ -49,12 +49,22 @@
       }
     },
     "headerLogo": {
-      "src": "/assets/brand/pinkryno-header-96h.png",
-      "src2x": "/assets/brand/pinkryno-header-192h.png",
-      "width": 206,
-      "height": 96,
-      "alt": "PinkRyno Studios",
-      "displayHeight": 60
+      "desktop": {
+        "src": "/assets/brand/pinkryno-sticker-header-80h.png",
+        "src2x": "/assets/brand/pinkryno-sticker-header-160h.png",
+        "width": 207,
+        "height": 80,
+        "alt": "PinkRyno Studios",
+        "displayHeight": 80
+      },
+      "small": {
+        "src": "/assets/brand/pinkryno-flat-header-small-48h.png",
+        "src2x": "/assets/brand/pinkryno-flat-header-small-96h.png",
+        "width": 152,
+        "height": 48,
+        "alt": "PinkRyno Studios",
+        "displayHeight": 48
+      }
     },
     "faviconIco": "/favicon.ico",
     "favicon32": "/favicon-32.png",
@@ -65,7 +75,7 @@
         "src": "/assets/og/og-studio.jpg",
         "width": 1200,
         "height": 630,
-        "alt": "PinkRyno Studios logo: Rosie Ryno, a baby pink rhino, waves from a little green path beside the PinkRyno Studios wordmark."
+        "alt": "PinkRyno Studios logo: Rosie Ryno, a baby pink rhino, waves from a little sage path beside the pink PinkRyno Studios sticker wordmark."
       }
     },
     "aboutScene": null,

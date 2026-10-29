@@ -6,9 +6,9 @@
    No third-party requests.
 
    The brand tokens below are a verbatim copy of the rules in
-   assets/brand/tokens.css (the brand file with its self-referencing aliases
-   fixed), so pages load this one stylesheet. scripts/render-site.mjs checks
-   that the copy matches. */
+   assets/brand/tokens.css (an unmodified copy of the brand's tokens.css), so
+   pages load this one stylesheet. scripts/render-site.mjs checks that the
+   copy matches. */
 
 :root {
   /* palette */
@@ -68,7 +68,6 @@
   /* type scale (desktop) */
   --font-size-display: 62px;
   --line-height-display: 1.04;
-  --font-weight-display: 600;
   --font-size-h1: 48px;
   --line-height-h1: 1.1;
   --font-weight-h1: 600;
@@ -83,7 +82,6 @@
   --font-weight-body-lg: 400;
   --font-size-body: 18px;
   --line-height-body: 1.5;
-  --font-weight-body: 400;
   --font-size-small: 16px;
   --line-height-small: 1.4;
   --font-weight-small: 400;
@@ -381,33 +379,51 @@ strong { font-weight: var(--font-weight-bold); }
 
 .site-header { position: relative; z-index: 40; }
 
-.header-inner { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 88px; }
+/* The 12px padding keeps a clear band above and below the logo, so a taller
+   displayHeight grows the header instead of overflowing it: 80 + 24 = 104px. */
+.header-inner { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 104px; padding-block: 12px; }
 
 .brand { display: inline-flex; align-items: center; min-height: 48px; color: var(--color-text); text-decoration: none; }
 
-/* The studio logo (site.json art.headerLogo) in the header and the footer. The build
-   adds the .logo-h-<N> class for art.headerLogo.displayHeight (default 60): --logo-h is
-   its height on wider screens and in the footer, --logo-h-phone in the phone header
-   (80%). render-site.mjs reads these rules, so a new height is one more line here.
-   Only the height is set: the width follows the file's own shape (its width and
-   height attributes), so a wider or narrower lockup needs no CSS change. A lockup
-   wider than max-width keeps its shape (object-fit) and draws smaller. Keep the
-   360px and the phone header's 136px in step with LOGO_MAX_WIDTH and
-   PHONE_HEADER_SPARE in render-site.mjs. */
-.logo-h-40 { --logo-h: 40px; --logo-h-phone: 32px; }
-.logo-h-44 { --logo-h: 44px; --logo-h-phone: 35px; }
-.logo-h-48 { --logo-h: 48px; --logo-h-phone: 38px; }
-.logo-h-52 { --logo-h: 52px; --logo-h-phone: 42px; }
-.logo-h-56 { --logo-h: 56px; --logo-h-phone: 45px; }
-.logo-h-60 { --logo-h: 60px; --logo-h-phone: 48px; }
-.logo-h-64 { --logo-h: 64px; --logo-h-phone: 51px; }
-.logo-h-68 { --logo-h: 68px; --logo-h-phone: 54px; }
-.logo-h-72 { --logo-h: 72px; --logo-h-phone: 58px; }
-.logo-h-76 { --logo-h: 76px; --logo-h-phone: 61px; }
-.logo-h-80 { --logo-h: 80px; --logo-h-phone: 64px; }
+/* The studio logo (site.json art.headerLogo). Each variant is drawn at its own
+   displayHeight. The header's <picture> shows the desktop variant above the phone
+   breakpoint and the small one at 760px and below, so its <img> carries two classes
+   the build adds: .logo-h-<N> (the desktop displayHeight) and .logo-small-h-<N> (the
+   small displayHeight). The footer <img> carries .logo-h-<N> for the footer variant
+   (the small one by default). render-site.mjs reads these rules, so a new height is
+   one more line here. Only the height is set: the width follows the file's own shape
+   (its width and height attributes), so a wider or narrower lockup needs no CSS
+   change. A lockup wider than max-width keeps its shape (object-fit) and draws
+   smaller. Keep the 360px and the phone header's 136px in step with LOGO_MAX_WIDTH
+   and PHONE_HEADER_SPARE in render-site.mjs. */
+.logo-h-40 { --logo-h: 40px; }
+.logo-h-44 { --logo-h: 44px; }
+.logo-h-48 { --logo-h: 48px; }
+.logo-h-52 { --logo-h: 52px; }
+.logo-h-56 { --logo-h: 56px; }
+.logo-h-60 { --logo-h: 60px; }
+.logo-h-64 { --logo-h: 64px; }
+.logo-h-68 { --logo-h: 68px; }
+.logo-h-72 { --logo-h: 72px; }
+.logo-h-76 { --logo-h: 76px; }
+.logo-h-80 { --logo-h: 80px; }
+.logo-h-84 { --logo-h: 84px; }
+.logo-h-88 { --logo-h: 88px; }
+.logo-h-92 { --logo-h: 92px; }
+.logo-h-96 { --logo-h: 96px; }
 
+.logo-small-h-40 { --logo-small-h: 40px; }
+.logo-small-h-44 { --logo-small-h: 44px; }
+.logo-small-h-48 { --logo-small-h: 48px; }
+.logo-small-h-52 { --logo-small-h: 52px; }
+.logo-small-h-56 { --logo-small-h: 56px; }
+.logo-small-h-60 { --logo-small-h: 60px; }
+.logo-small-h-64 { --logo-small-h: 64px; }
+
+/* display: block, so the <img> inside the header's <picture> sits on no text line and
+   the picture is exactly as tall as the logo (centred with the nav and Menu button). */
 .brand-logo,
-.footer-logo { width: auto; height: var(--logo-h); max-width: 360px; object-fit: contain; object-position: left center; }
+.footer-logo { display: block; width: auto; height: var(--logo-h); max-width: 360px; object-fit: contain; object-position: left center; }
 
 .brand-name { font-family: var(--font-display); font-weight: var(--font-weight-display); font-size: 24px; line-height: 1; }
 
@@ -949,8 +965,9 @@ body.gate-open { overflow: hidden; }
 
   .header-inner { min-height: 72px; }
 
-  /* Beside the Menu button: 136px is the side margins (32), the button (88), and the gap (16). */
-  .brand-logo { height: var(--logo-h-phone); max-width: calc(100vw - 136px); }
+  /* The header's <picture> shows the small variant here, drawn at its own displayHeight.
+     Beside the Menu button: 136px is the side margins (32), the button (88), and the gap (16). */
+  .brand-logo { height: var(--logo-small-h); max-width: calc(100vw - 136px); }
 
   .nav-toggle { display: inline-flex; }
 

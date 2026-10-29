@@ -21,8 +21,9 @@
  * play button; play_enabled true without a play_url stops the build.
  *
  * Brand: Meadow Path (Oct 28 2026). Every page shares the studio frame: the studio
- * logo (site.json art.headerLogo) and nav, the trust strip, and the sage hill footer
- * with the same logo.
+ * logo (site.json art.headerLogo: the desktop variant, and the small one on phones)
+ * and nav, the trust strip, and the sage hill footer with the logo's footer variant
+ * (the small one unless art.headerLogo.footer is set).
  * Studio pages are cream, sage, and sky with no space imagery. A game page brings
  * its own world (games.json "world", a .world-<name> rule in site.css) inside its
  * hero only, and the rest of the page is the studio look again.
@@ -626,31 +627,44 @@ function artRefs(value, label, names) {
 
 const ART_KEYS = ["rosie", "headerLogo", "faviconIco", "favicon32", "appleTouch", "logo", "og", "aboutScene", "icons", "retired"];
 
-/* The studio logo's display height: site.json art.headerLogo.displayHeight, or this
-   default. The header (on wider screens) and the footer draw it that tall, and the
-   phone header a little smaller. Its 1x file must be at least that tall, so the
-   logo is never drawn larger than its pixels. */
-const LOGO_DEFAULT_HEIGHT = 60;
-// The heights site.css can draw: one rule per height, like
-// .logo-h-60 { --logo-h: 60px; --logo-h-phone: 48px; }. The build adds that class to the logo.
-const LOGO_HEIGHT_RULE = /\.logo-h-(\d+)\s*\{\s*--logo-h:\s*(\d+)px;\s*--logo-h-phone:\s*(\d+)px;\s*\}/g;
+/* The studio logo's variants (site.json art.headerLogo): "desktop" in the header above
+   the phone breakpoint (PHONE), "small" in the phone header, and "footer" in the footer
+   (optional; when left out the footer uses "small"). Each is drawn at its own
+   displayHeight, through a class the build adds: .logo-h-<N> on the header and footer
+   <img>, and .logo-small-h-<N> on the header <img> for the phone header. */
+const LOGO_VARIANTS = ["desktop", "small", "footer"];
+const LOGO_KEYS = ["src", "src2x", "width", "height", "alt", "displayHeight"];
+// The class prefix (and custom property) each place reads. site.css has one rule per
+// height, like .logo-h-80 { --logo-h: 80px; } and .logo-small-h-48 { --logo-small-h: 48px; }.
+const LOGO_HEIGHT_CLASS = "logo-h";
+const LOGO_SMALL_HEIGHT_CLASS = "logo-small-h";
 // The logo's widest drawing (max-width on .brand-logo and .footer-logo), and the room the
 // phone header keeps for the side margins, the Menu button, and the gap (.brand-logo's
 // phone max-width, calc(100vw - 136px)). Keep in step with site.css. Used for the build's
 // size report only.
 const LOGO_MAX_WIDTH = 360;
 const PHONE_HEADER_SPARE = 136;
+// The narrowest phone the site lays out for.
+const NARROWEST_PHONE = 320;
 
-// Map of display height -> phone header height, read from the .logo-h-<N> rules in site.css.
-function logoHeights() {
-  const heights = new Map();
-  for (const [, name, height, phone] of siteCss().matchAll(LOGO_HEIGHT_RULE)) {
-    must(name === height, `assets/css/site.css: .logo-h-${name} sets --logo-h: ${height}px. Each .logo-h-<N> rule must draw the logo N px tall.`);
-    must(Number(phone) <= Number(height), `assets/css/site.css: .logo-h-${name} draws the phone header logo taller (${phone}px) than the wide one (${height}px)`);
-    heights.set(Number(name), Number(phone));
+// The heights site.css can draw for one class prefix, read from its .<prefix>-<N> rules.
+function logoHeights(prefix) {
+  const rule = new RegExp(`\\.${prefix}-(\\d+)\\s*\\{\\s*--${prefix}:\\s*(\\d+)px;\\s*\\}`, "g");
+  const heights = new Set();
+  for (const [, name, height] of siteCss().matchAll(rule)) {
+    must(name === height, `assets/css/site.css: .${prefix}-${name} sets --${prefix}: ${height}px. Each .${prefix}-<N> rule must draw the logo N px tall.`);
+    heights.add(Number(name));
   }
-  must(heights.has(LOGO_DEFAULT_HEIGHT), `assets/css/site.css needs a .logo-h-${LOGO_DEFAULT_HEIGHT} rule (the studio logo's default height), like .logo-h-60 { --logo-h: 60px; --logo-h-phone: 48px; }`);
+  must(heights.size, `assets/css/site.css has no .${prefix}-<N> rules, like .${prefix}-48 { --${prefix}: 48px; }. The studio logo's heights come from them.`);
   return heights;
+}
+
+// Stops unless site.css has a .<prefix>-<N> rule for this variant's displayHeight.
+function needLogoRule(variant, prefix, where) {
+  const heights = logoHeights(prefix);
+  must(heights.has(variant.display),
+    `${variant.label}.displayHeight is ${variant.display}, but assets/css/site.css has no .${prefix}-${variant.display} rule, so ${where} could not draw it. ` +
+    `Use one of ${[...heights].sort((a, b) => a - b).join(", ")}, or add .${prefix}-${variant.display} { --${prefix}: ${variant.display}px; } to site.css.`);
 }
 
 // site.json "art": every site-wide picture. See "Art slots" in README.md.
@@ -674,7 +688,7 @@ function loadArt(map) {
     rosieAnimated: animatedPicture(rosie.animated, "site.json art.rosie.animated"),
     head: sizedSet(rosie.head, "site.json art.rosie.head", ["webp", "png"]),
     rosieLost: picture(rosie.lost, "site.json art.rosie.lost", { formats: ["webp", "png"] }),
-    headerLogo: headerLogoPicture(map.headerLogo, "site.json art.headerLogo"),
+    headerLogo: headerLogoSet(map.headerLogo, "site.json art.headerLogo"),
     faviconIco: icoFile(map.faviconIco, "site.json art.faviconIco"),
     favicon32: squareFile(map.favicon32, "site.json art.favicon32", 32, ["png"]),
     appleTouch: squareFile(map.appleTouch, "site.json art.appleTouch", 180, ["png"]),
@@ -685,48 +699,94 @@ function loadArt(map) {
   };
 }
 
-/* The studio logo, the one entry for every place the lockup shows (the header's home
-   link and the footer): a PNG or WebP at 1x with src2x for HiDPI screens, never the
-   heavy outlined SVG. width and height are required and must be the 1x file's real
-   size; the pages take the logo's shape from them, so a wider or narrower lockup
-   needs no code or CSS change. alt names the studio, because the logo is the home
-   link and the footer's studio name. displayHeight (optional) picks a .logo-h-<N>
-   rule in site.css. */
-function headerLogoPicture(entry, label) {
+/* One logo variant: { src, src2x, width, height, alt, displayHeight }, every key
+   required. src and src2x are PNG or WebP, never the heavy outlined SVG. width and
+   height are the 1x file's real size; the pages take the logo's shape from them, so a
+   wider or narrower lockup needs no code or CSS change. src2x is exactly twice the 1x
+   file: its height exactly, its width within 1 px (rounding the same shape). The 1x
+   file is at least displayHeight tall, so the logo is never drawn larger than its
+   pixels. alt names the studio, because the logo is the home link and the footer's
+   studio name. */
+function logoVariant(entry, label) {
+  must(isObject(entry),
+    `${label} must be an object like { "src": "/assets/brand/logo-80h.png", "src2x": "/assets/brand/logo-160h.png", "width": 207, "height": 80, "alt": "PinkRyno Studios", "displayHeight": 80 }`);
+  must(!isEmpty(entry.src), `${label}.src is empty. Set ${LOGO_KEYS.join(", ")}, or set site.json art.headerLogo to null for the text studio name.`);
+  for (const key of ["src", "src2x"]) {
+    must(typeof entry[key] !== "string" || !/\.svg$/i.test(entry[key].split(/[?#]/)[0]),
+      `${label}.${key} is an SVG (${entry[key]}). The outlined logo SVGs embed base64 rasters (600 KB and more), which would break the 250 KB home first-load budget. Use the PNG (or WebP) exports at 1x and 2x.`);
+  }
   const pic = picture(entry, label, { formats: ["png", "webp"], keys: ["displayHeight"], size: "required" });
-  if (!pic) return null;
-  must(pic.src2x, `${label} needs src2x, a 2x copy for HiDPI screens: ${pic.width * 2}x${pic.height * 2}, twice ${pic.src}`);
-  const heights = logoHeights();
-  const display = entry.displayHeight ?? LOGO_DEFAULT_HEIGHT;
-  must(heights.has(display),
-    `${label}.displayHeight is ${JSON.stringify(entry.displayHeight)}. Use one of ${[...heights.keys()].join(", ")} ` +
-    `(CSS px, the .logo-h-<N> rules in assets/css/site.css), or leave it out for ${LOGO_DEFAULT_HEIGHT}.`);
+  must(pic.src2x, `${label} needs src2x, a 2x copy for HiDPI screens: ${2 * pic.width}x${2 * pic.height}, twice ${pic.src} (${pic.width}x${pic.height}).`);
+  const [width2x, height2x] = imageSize(pic.src2x);
+  must(height2x === 2 * pic.height && Math.abs(width2x - 2 * pic.width) <= 1,
+    `${label}.src2x (${pic.src2x}) is ${width2x}x${height2x}, but it must be exactly twice ${pic.src} (${pic.width}x${pic.height}): ` +
+    `${2 * pic.height} px tall and ${2 * pic.width} px wide (±1 px for rounding).`);
+  const display = entry.displayHeight;
+  must(Number.isInteger(display) && display > 0,
+    `${label} needs "displayHeight", the CSS px height it is drawn at, as a whole number (for example ${pic.height}). It is ${JSON.stringify(display)}.`);
   must(pic.height >= display,
-    `${label}.src (${pic.src}) is ${pic.height} px tall, but the header and footer draw it ${display} px tall` +
-    `${entry.displayHeight == null ? " (the default displayHeight)" : " (displayHeight)"}. ` +
-    `Export the 1x file at least ${display} px tall, with src2x at twice its size, or lower displayHeight.`);
-  return { ...pic, display, phone: heights.get(display), heightClass: `logo-h-${display}` };
+    `${label}.src (${pic.src}) is ${pic.height} px tall, but displayHeight draws it ${display} px tall. ` +
+    `Export the 1x file at least ${display} px tall (and src2x at twice that), or lower displayHeight.`);
+  const bytes = [pic.src, pic.src2x].map((src) => statSync(join(root, sitePathToRel(src))).size);
+  return { ...pic, width2x, height2x, display, bytes, label };
 }
 
-// After a build: how big the studio logo is drawn, and a warning when it is too wide to
-// draw at full height (it then keeps its shape and draws smaller).
+/* The studio logo: { desktop, small, footer } (see LOGO_VARIANTS). desktop and small are
+   required; null (or no variant at all) leaves the slot empty, and the header and
+   footer show the studio name as text. footer is optional and defaults to small. */
+function headerLogoSet(entry, label) {
+  if (isEmpty(entry)) return empty(label);
+  must(isObject(entry), `${label} must be null or an object like { "desktop": { ... }, "small": { ... } }`);
+  must(!LOGO_KEYS.some((key) => key in entry),
+    `${label} now holds one entry per variant: { "desktop": { ${LOGO_KEYS.join(", ")} }, "small": { the same keys }, "footer": optional, the same keys (left out, the footer uses "small") }. ` +
+    `Move the logo's keys into "desktop" and add "small". See "Swapping the studio logo" in README.md.`);
+  onlyKeys(entry, LOGO_VARIANTS, label);
+  if (LOGO_VARIANTS.every((key) => isEmpty(entry[key]))) return empty(label);
+  must(!isEmpty(entry.desktop) && !isEmpty(entry.small),
+    `${label} needs both "desktop" (the header wider than ${PHONE_MAX_WIDTH}px) and "small" (the phone header, ${PHONE_MAX_WIDTH}px and narrower, and the footer unless "footer" is set). ` +
+    `Set both, or set ${label} to null for the text studio name.`);
+  const desktop = logoVariant(entry.desktop, `${label}.desktop`);
+  const small = logoVariant(entry.small, `${label}.small`);
+  const footer = isEmpty(entry.footer) ? small : logoVariant(entry.footer, `${label}.footer`);
+  must(small.alt === desktop.alt,
+    `${label}.small.alt ("${small.alt}") must match ${label}.desktop.alt ("${desktop.alt}"): the header's <picture> shows either file under its <img>'s one alt.`);
+  // site.css and this script switch at the same width and read the same height classes.
+  must(siteCss().includes(`@media ${PHONE}`),
+    `assets/css/site.css has no @media ${PHONE} rule, so the header's <source media="${PHONE}"> and the stylesheet would switch at different widths. Keep PHONE_MAX_WIDTH in render-site.mjs in step with site.css.`);
+  for (const prefix of [LOGO_HEIGHT_CLASS, LOGO_SMALL_HEIGHT_CLASS]) {
+    must(siteCss().includes(`var(--${prefix})`), `assets/css/site.css never uses var(--${prefix}), so the .${prefix}-<N> classes would not size the studio logo.`);
+  }
+  needLogoRule(desktop, LOGO_HEIGHT_CLASS, "the header");
+  needLogoRule(small, LOGO_SMALL_HEIGHT_CLASS, "the phone header");
+  needLogoRule(footer, LOGO_HEIGHT_CLASS, footer === small ? `the footer (it uses "small" because "footer" is left out)` : "the footer");
+  return { desktop, small, footer, footerIsSmall: footer === small };
+}
+
+// After a build: each logo variant's files and drawn size, and a warning when one is too
+// wide to draw at full height (it then keeps its shape and draws smaller).
 function reportLogo() {
   const logo = art.headerLogo;
   if (!logo) return;
-  const wide = (height) => Math.round((height * logo.width) / logo.height);
-  const fullFrom = wide(logo.phone) + PHONE_HEADER_SPARE;
-  console.log(
-    `Studio logo (site.json art.headerLogo): ${logo.src} ${logo.width}x${logo.height}, drawn ${wide(logo.display)}x${logo.display} ` +
-    `in the header and footer, ${wide(logo.phone)}x${logo.phone} in the phone header (full size beside the Menu button on phones ${fullFrom} px wide and up).`
-  );
+  const { desktop, small, footer } = logo;
+  const wide = (variant, height = variant.display) => Math.round((height * variant.width) / variant.height);
+  const kb = (bytes) => `${(bytes / 1024).toFixed(1)} KB`;
+  const files = (v) => `${v.src} ${v.width}x${v.height} (${kb(v.bytes[0])}), 2x ${v.src2x} ${v.width2x}x${v.height2x} (${kb(v.bytes[1])})`;
+  const fullFrom = wide(small) + PHONE_HEADER_SPARE;
+  console.log([
+    `Studio logo (site.json art.headerLogo), phone breakpoint ${PHONE}:`,
+    `  desktop header (wider than ${PHONE_MAX_WIDTH}px): drawn ${wide(desktop)}x${desktop.display}. ${files(desktop)}`,
+    `  phone header (${PHONE_MAX_WIDTH}px and narrower): drawn ${wide(small)}x${small.display}, full size beside the Menu button on phones ${fullFrom} px wide and up. ${files(small)}`,
+    `  footer: drawn ${wide(footer)}x${footer.display}. ${logo.footerIsSmall ? "The small variant (art.headerLogo.footer is left out)." : files(footer)}`
+  ].join("\n"));
   const problems = [];
-  if (wide(logo.display) > LOGO_MAX_WIDTH) {
-    problems.push(`It is ${wide(logo.display)} px wide at ${logo.display} px tall, over the ${LOGO_MAX_WIDTH} px limit, so it draws ${LOGO_MAX_WIDTH} px wide and about ${Math.floor((LOGO_MAX_WIDTH * logo.height) / logo.width)} px tall.`);
+  for (const [variant, where] of [[desktop, "the header"], ...(logo.footerIsSmall ? [] : [[footer, "the footer"]])]) {
+    if (wide(variant) > LOGO_MAX_WIDTH) {
+      problems.push(`${variant.label} is ${wide(variant)} px wide at ${variant.display} px tall, over the ${LOGO_MAX_WIDTH} px limit, so ${where} draws it ${LOGO_MAX_WIDTH} px wide and about ${Math.floor((LOGO_MAX_WIDTH * variant.height) / variant.width)} px tall.`);
+    }
   }
-  // 360 px is the narrowest common phone.
-  if (fullFrom > 360) {
-    const room = 360 - PHONE_HEADER_SPARE;
-    problems.push(`In the phone header it is ${wide(logo.phone)} px wide at ${logo.phone} px tall, so phones narrower than ${fullFrom} px draw it smaller to fit beside the Menu button (a 360 px phone: ${room} px wide, about ${Math.floor((room * logo.height) / logo.width)} px tall).`);
+  if (fullFrom > NARROWEST_PHONE) {
+    const room = NARROWEST_PHONE - PHONE_HEADER_SPARE;
+    problems.push(`${small.label} is ${wide(small)} px wide at ${small.display} px tall, so phones narrower than ${fullFrom} px draw it smaller to fit beside the Menu button (a ${NARROWEST_PHONE} px phone: ${room} px wide, about ${Math.floor((room * small.height) / small.width)} px tall).`);
   }
   if (problems.length) console.warn(`Warning: the studio logo is very wide. ${problems.join(" ")} A lower displayHeight or a less wide lockup keeps it full size.`);
 }
@@ -828,6 +888,18 @@ function imgTag(pic, { cls = "", alt = "", lazy = false, priority = false } = {}
   return `<img${className} src="${esc(pic.src)}"${srcset} alt="${esc(alt)}" width="${pic.width}" height="${pic.height}"${loading}${fetch}>`;
 }
 
+/* The studio logo in the header's home link. The <source> gives phones (PHONE) the
+   small variant, with its own size; the <img> gives wider screens the desktop one.
+   So a phone downloads only the small file and a desktop only the desktop file. The
+   <img> carries both height classes, because the file it shows changes with the width. */
+function headerLogoTag({ desktop, small }) {
+  const cls = `brand-logo ${LOGO_HEIGHT_CLASS}-${desktop.display} ${LOGO_SMALL_HEIGHT_CLASS}-${small.display}`;
+  return `<picture>
+      <source media="${PHONE}" srcset="${esc(small.src)} 1x, ${esc(small.src2x)} 2x" width="${small.width}" height="${small.height}">
+      ${imgTag(desktop, { cls, alt: desktop.alt })}
+    </picture>`;
+}
+
 // A small decorative Rosie head (art.rosie.head), or nothing when that slot is empty.
 // size is the CSS display size, and phoneSize the size site.css gives it on phones,
 // when that differs. The srcset offers only the smallest files that cover 1x and 2x
@@ -849,9 +921,11 @@ function rosieImg(pic, className, { lazy = false, priority = false } = {}) {
   return pic ? imgTag(pic, { cls: className, alt: pic.alt, lazy, priority }) : "";
 }
 
-// Phone layout below this width, and the stacked hero layout below TABLET.
+// Phone layout at this width and below (and the phone header's small studio logo),
+// and the stacked hero layout below TABLET.
 // Keep in step with the 760px and 960px breakpoints in site.css.
-const PHONE = "(max-width: 760px)";
+const PHONE_MAX_WIDTH = 760;
+const PHONE = `(max-width: ${PHONE_MAX_WIDTH}px)`;
 const TABLET = "(max-width: 960px)";
 const REDUCE = "(prefers-reduced-motion: reduce)";
 
@@ -1214,13 +1288,11 @@ function layout({ title, description, path, current, robots, main, structured, i
     return `<a href="${href}"${here}>${label}</a>`;
   }).join("\n      ");
   const logo = art.headerLogo;
-  // The studio logo is the header's home link and the footer's studio name, one entry
-  // for both. Without it, the studio name stands in as text in both places.
-  const brand = logo
-    ? imgTag(logo, { cls: `brand-logo ${logo.heightClass}`, alt: logo.alt })
-    : `<span class="brand-name">PinkRyno Studios</span>`;
+  // The studio logo is the header's home link and the footer's studio name. Without
+  // it, the studio name stands in as text in both places.
+  const brand = logo ? headerLogoTag(logo) : `<span class="brand-name">PinkRyno Studios</span>`;
   const footerBrand = logo
-    ? imgTag(logo, { cls: `footer-logo ${logo.heightClass}`, alt: logo.alt })
+    ? imgTag(logo.footer, { cls: `footer-logo ${LOGO_HEIGHT_CLASS}-${logo.footer.display}`, alt: logo.footer.alt, lazy: true })
     : `<p class="footer-name">PinkRyno Studios</p>`;
   const ld = structured ? jsonLd(structured) + "\n" : "";
   const strip = trust ? `<div class="wrap trust-row">${trustStrip()}</div>\n` : "";
