@@ -119,17 +119,22 @@ function icon(name) {
    of the content, never a parent, so nothing behind Rosie is a box around her. */
 const MEADOW = `<div class="meadow" aria-hidden="true"><svg class="hills" viewBox="0 0 1440 220" preserveAspectRatio="none" focusable="false"><path class="hill-mist" d="M0 96C200 58 420 50 640 78s420 40 620 6c80-14 140-18 180-14v150H0Z"/><path class="hill-light" d="M0 150c240-34 470-40 700-16s420 22 740-16v102H0Z"/><path class="hill-sage" d="M720 220c160-50 360-72 540-64 80 4 140 12 180 20v44Z"/><path class="hill-edge" d="M0 220v-14c420-14 1020-14 1440 0v14Z"/></svg></div>`;
 
-/* The trail: a sand band with a dashed cream centre line (round caps). It starts
-   under Rosie's feet and winds gently left through the hills toward the hero's
-   buttons, staying below the text. The wide path spans the content column (the
-   grid that places Rosie), the narrow one the stacked phone layout. Strokes do
-   not scale, so the band stays 26px and the dashes 11/11 at every width. */
+/* The trail, the site's one trail, drawn only in the home hero: a sand band with a
+   dashed cream centre line. It comes in off the hero's left edge, winds through
+   the hills below the text, passes just behind Rosie's feet (she stands on the
+   meadow in front of it), and runs on off the right edge, so it reads as a path
+   that keeps going. The viewBox is the content column (the grid that places
+   Rosie), so the trail stays behind her feet at every width. The path runs far
+   past both ends of the viewBox, and the hero clips it at its edges. The wide
+   path is for the side-by-side layout, the narrow one for the stacked layout
+   (960px and narrower). Strokes do not scale, so the band stays 26px and the
+   dashes 11/11 at every width. */
 function trailSvg(cls, viewBox, d) {
   return `<svg class="trail ${cls}" viewBox="${viewBox}" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="trail-band" d="${d}"/><path class="trail-dash" d="${d}"/></svg>`;
 }
 const TRAIL = [
-  trailSvg("trail-wide", "0 0 1120 200", "M905 140C800 166 680 170 560 156S330 112 210 108C150 107 105 98 70 86"),
-  trailSvg("trail-narrow", "0 0 360 150", "M262 100C218 116 166 118 118 106S46 80 14 74")
+  trailSvg("trail-wide", "0 0 1120 200", "M-2400 148C-1680 147-1120 150-400 146C-249 145-131 144 20 136C110 131 180 108 270 110C375 112 455 142 560 146C647 149 714 134 800 129C858 126 902 129 960 125C1047 120 1113 108 1200 104C1329 99 1430 100 1560 100C2294 99 2866 100 3600 100"),
+  trailSvg("trail-narrow", "0 0 360 150", "M-600 98C-395 98-235 104-30 98C1 97 24 80 55 80C83 80 102 99 130 100C156 101 174 86 200 83C236 79 264 82 300 79C333 76 357 69 390 68C574 63 716 64 900 62")
 ].join("\n      ");
 
 /* The sage hill band behind the footer: two soft hills along its top edge, then
@@ -889,10 +894,10 @@ function coversHeight(height, needed, label, where) {
   must(height >= needed, `${label} is ${height} px tall, but the home ${where} draws it ${needed} px tall. Export it at least ${needed} px tall.`);
 }
 
-/* Rosie in the home hero: the studio guide, standing on the meadow at the start
-   of the trail. She shows the wave's still frames (stillSmall and still), the
-   same files the Meet Rosie section shows first, so the browser fetches them
-   once. The wave itself never loads here. She is the hero's picture, so she
+/* Rosie in the home hero: the studio guide, standing on the meadow just in front
+   of the trail, which passes behind her feet. She shows the wave's still frames
+   (stillSmall and still), the same files the Meet Rosie section shows first, so
+   the browser fetches them once. The wave itself never loads here. She is the hero's picture, so she
    loads first (fetchpriority). Without the animated slot, art.rosie.static
    stands in; without either, the hero is text, meadow, and trail. */
 function heroRosieArt() {
@@ -912,10 +917,6 @@ function heroRosieArt() {
   }
   return "";
 }
-
-// The small sage path Rosie stands on in the Meet Rosie section, as in the logo
-// (the trail's small size: a 12px sage band with a 3px dashed cream line).
-const ROSIE_PATH = `<svg class="rosie-path" viewBox="0 0 240 24" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="path-band" d="M10 14c44-8 88-9 128-3s64 5 92-1"/><path class="path-dash" d="M10 14c44-8 88-9 128-3s64 5 92-1"/></svg>`;
 
 /* Rosie in the home Meet Rosie section, below the fold: art.rosie.animated, else
    art.rosie.static, else the head, else nothing (the section is then text only).
@@ -937,7 +938,6 @@ function meetRosieArt() {
     const sizes = `${PHONE} ${at(MEET_ROSIE_PHONE_HEIGHT)}px, ${at(MEET_ROSIE_HEIGHT)}px`;
     const set = (key) => pairs.map((pair) => `${esc(pair[key])} ${pair.width}w`).join(", ");
     return `<div class="meet-rosie-art">
-      ${ROSIE_PATH}
       <img src="${esc(first.still)}" srcset="${set("still")}" sizes="${sizes}" data-wave-srcset="${set("anim")}" alt="${esc(anim.alt)}" width="${first.width}" height="${first.height}" loading="lazy">
     </div>`;
   }
@@ -1326,15 +1326,14 @@ function organization() {
 
 /* Pages ----------------------------------------------------------------- */
 
-/* The opening band of the home and 404 pages: the Morning Meadow (MEADOW) with
-   the trail (TRAIL) winding from Rosie's feet toward the buttons. The copy sits
-   on the left, Rosie on the right (below the copy on phones and tablets). The
-   copy holds the trust strip, so these pages pass trust: false to layout(). */
-function meadowHero({ cls, labelledBy, copy, rosie }) {
+/* The opening band of the home and 404 pages: the Morning Meadow (MEADOW). The
+   copy sits on the left, Rosie on the right (below the copy on phones and
+   tablets). trail: true adds the trail (TRAIL), which only the home page has.
+   The copy holds the trust strip, so these pages pass trust: false to layout(). */
+function meadowHero({ cls, labelledBy, copy, rosie, trail = false }) {
   return `<section class="meadow-hero ${cls}" aria-labelledby="${labelledBy}">
     ${MEADOW}
-    <div class="wrap hero-grid">
-      ${TRAIL}
+    <div class="wrap hero-grid">${trail ? `\n      ${TRAIL}` : ""}
       <div class="hero-copy">
         ${copy}
         ${trustStrip()}
@@ -1355,7 +1354,8 @@ function pageHome(visible) {
           <a class="btn" href="/games/">See our games</a>
           <a class="btn btn-secondary" href="${featured ? "#grown-ups" : "/support/"}">For grown-ups</a>
         </div>`,
-    rosie: heroRosieArt()
+    rosie: heroRosieArt(),
+    trail: true
   });
   const games = visible.length
     ? `<section class="section wrap our-games" aria-labelledby="games-title">
@@ -1710,8 +1710,8 @@ function pageSupport(visible) {
   });
 }
 
-// The 404 page: a studio page, so Rosie's puzzled pose stands on the meadow, with
-// the way back home at the end of the trail.
+// The 404 page: a studio page, so Rosie's puzzled pose stands on the meadow beside
+// the way back home. It has no trail (the home hero has the site's one trail).
 function pageNotFound() {
   const main = meadowHero({
     cls: "lost",

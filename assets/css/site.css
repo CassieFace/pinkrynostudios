@@ -1,6 +1,7 @@
 /* PinkRyno Studios, brand Direction A "Meadow Path" (Oct 28 2026).
    Oat Cream page, Deep Moss text, Berry links, Moss Button buttons; sage hills,
-   the sand trail, and Sky Wash bands. Rosie Pink is never text. Navy and stars
+   the home hero's sand trail (the site's one trail), and Sky Wash bands. Rosie
+   Pink is never text. Navy and stars
    live only inside a game page hero (.world-space). Fonts are self-hosted.
    No third-party requests.
 
@@ -453,7 +454,7 @@ strong { font-weight: var(--font-weight-bold); }
 
 .nav-check:focus-visible + .nav-toggle { outline: 3px solid var(--color-focus-ring); outline-offset: 3px; }
 
-/* Meadow hero (home and 404): Morning Meadow, hills, the trail, Rosie ---- */
+/* Meadow hero (home and 404): Morning Meadow, hills, Rosie; home: the trail */
 
 /* .meadow, .hills, and .trail are siblings of the copy and of Rosie, so no
    element that holds Rosie has a background, border, or shadow. */
@@ -492,12 +493,14 @@ strong { font-weight: var(--font-weight-bold); }
 
 .hero-scene { position: relative; z-index: 1; display: flex; justify-content: center; padding-bottom: 46px; }
 
-/* Rosie stands on the meadow at the start of the trail, at her own shape
-   (HERO_ROSIE_* in render-site.mjs). */
+/* Rosie stands on the meadow at her own shape (HERO_ROSIE_* in render-site.mjs).
+   On home the trail passes just behind her feet. */
 .hero-rosie { width: auto; height: 330px; }
 
-/* The trail: a 26px sand band with a dashed cream centre line. The strokes do not
-   scale with the drawing, so they stay the brand's size at every width. */
+/* The trail (home only): a 26px sand band with a dashed cream centre line. It is
+   drawn on the content column and overflows it on both sides, so .meadow-hero
+   (overflow: hidden) cuts it off at the hero's edges. The strokes do not scale
+   with the drawing, so they stay the brand's size at every width. */
 .trail { position: absolute; left: 0; bottom: 0; width: 100%; height: var(--hills-h); overflow: visible; }
 
 .trail path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: var(--trail-linecap); stroke-linejoin: round; }
@@ -581,22 +584,14 @@ strong { font-weight: var(--font-weight-bold); }
 
 .fact p { margin: 0; max-width: 34ch; }
 
-/* Meet Rosie: below the fold, the page's one waving Rosie, standing on her small
-   sage path beside her text (above it, centred, on phones). Her height and the
-   head size match MEET_ROSIE_* in render-site.mjs. */
+/* Meet Rosie: below the fold, the page's one waving Rosie, standing on the cream
+   page beside her text (above it, centred, on phones), with nothing under her.
+   Her height and the head size match MEET_ROSIE_* in render-site.mjs. */
 .meet-rosie { display: flex; align-items: center; justify-content: center; gap: 56px; }
 
-.meet-rosie-art { position: relative; flex: none; }
+.meet-rosie-art { flex: none; }
 
-.meet-rosie-art img { position: relative; width: auto; height: 300px; }
-
-.rosie-path { position: absolute; left: -24px; right: -24px; bottom: -4px; width: calc(100% + 48px); height: 24px; overflow: visible; }
-
-.rosie-path path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
-
-.path-band { stroke: var(--trail-band-color-small); stroke-width: var(--trail-band-width-small); }
-
-.path-dash { stroke: var(--trail-dash-color); stroke-width: var(--trail-dash-width-small); stroke-dasharray: var(--trail-dash-array-small); }
+.meet-rosie-art img { width: auto; height: 300px; }
 
 .meet-rosie-head { width: 128px; height: 128px; flex: none; }
 
