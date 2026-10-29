@@ -53,7 +53,8 @@
       "src2x": "/assets/brand/pinkryno-header-192h.png",
       "width": 206,
       "height": 96,
-      "alt": "PinkRyno Studios"
+      "alt": "PinkRyno Studios",
+      "displayHeight": 60
     },
     "faviconIco": "/favicon.ico",
     "favicon32": "/favicon-32.png",

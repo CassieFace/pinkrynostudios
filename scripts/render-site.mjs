@@ -20,14 +20,15 @@
  * play_enabled is true and play_url is set. A game with no play_url renders no
  * play button; play_enabled true without a play_url stops the build.
  *
- * Brand: Meadow Path (Oct 28 2026). Every page shares the studio frame: the header
- * lockup and nav, the trust strip, and the sage hill footer with Rosie's head.
+ * Brand: Meadow Path (Oct 28 2026). Every page shares the studio frame: the studio
+ * logo (site.json art.headerLogo) and nav, the trust strip, and the sage hill footer
+ * with the same logo.
  * Studio pages are cream, sage, and sky with no space imagery. A game page brings
  * its own world (games.json "world", a .world-<name> rule in site.css) inside its
  * hero only, and the rest of the page is the studio look again.
  *
  * Every picture comes from an art map: site.json "art" for site-wide art (Rosie,
- * the header logo, favicons, logo, share image, icons) and each game's "art" in
+ * the studio logo, favicons, logo, share image, icons) and each game's "art" in
  * games.json. This script holds no image paths. An art entry that is null (or
  * left out) is an empty slot: the element or section is left out, with no
  * placeholder and no gap, and the build lists the empty slots as a warning.
@@ -133,7 +134,7 @@ const TRAIL = [
 
 /* The sage hill band behind the footer: two soft hills along its top edge, then
    sage to the bottom (.footer-land::after). Another sibling layer, so the footer
-   and its Rosie head stay free of backgrounds. */
+   and its logo stay free of backgrounds. */
 const FOOTER_LAND = `<div class="footer-land" aria-hidden="true"><svg class="footer-hill" viewBox="0 0 1440 56" preserveAspectRatio="none" focusable="false"><path class="hill-light" d="M0 56V30C240 6 560 0 820 14s420 26 620 4v38Z"/><path class="hill-sage" d="M0 56V40c300-24 700-28 1000-12s300 18 440 6v22Z"/></svg></div>`;
 
 // The foot of a game world's hero: a cream curve back into the studio page.
@@ -449,22 +450,28 @@ function sizedFile(src, label, formats) {
   return [src, ...imageSize(src)];
 }
 
-// width and height in an entry are optional. When set, they must match the file.
-function checkStatedSize(entry, widthKey, heightKey, [src, width, height], label) {
-  if (entry[widthKey] == null && entry[heightKey] == null) return;
+// width and height in an entry are optional unless required is true. When set, they must match the file.
+function checkStatedSize(entry, widthKey, heightKey, [src, width, height], label, required = false) {
+  const fix = `set "${widthKey}": ${width} and "${heightKey}": ${height}`;
+  if (required) {
+    must(entry[widthKey] != null && entry[heightKey] != null,
+      `${label} needs "${widthKey}" and "${heightKey}", the pixel size of ${src}. That file is ${width}x${height}, so ${fix}.`);
+  } else if (entry[widthKey] == null && entry[heightKey] == null) return;
   must(entry[widthKey] === width && entry[heightKey] === height,
-    `${label} says ${widthKey} ${entry[widthKey]} and ${heightKey} ${entry[heightKey]}, but ${src} is ${width}x${height}. Fix the numbers or remove them.`);
+    `${label} says ${widthKey} ${JSON.stringify(entry[widthKey])} and ${heightKey} ${JSON.stringify(entry[heightKey])}, but ${src} is ${width}x${height}. ` +
+    (required ? `Export the size you meant, or ${fix}.` : "Fix the numbers or remove them."));
 }
 
 /* One picture: null (an empty slot) or { src, src2x, width, height, alt }. src2x,
    when set, must be twice the size of src. alt is required unless the picture is
-   decorative. Extra keys (like srcSmall) are checked by the caller. */
-function picture(entry, label, { alt: needsAlt = true, formats = ["webp", "png", "jpg"], retina = true, keys = [] } = {}) {
+   decorative. size: "required" makes width and height required. Extra keys (like
+   srcSmall) are checked by the caller. */
+function picture(entry, label, { alt: needsAlt = true, formats = ["webp", "png", "jpg"], retina = true, keys = [], size = "optional" } = {}) {
   if (emptyEntry(entry, label)) return empty(label);
   must(isObject(entry), `${label} must be null or an object like { "src": "/assets/..." }`);
   onlyKeys(entry, ["src", ...(retina ? ["src2x"] : []), "width", "height", "alt", ...keys], label);
   const file = sizedFile(entry.src, label + ".src", formats);
-  checkStatedSize(entry, "width", "height", file, label);
+  checkStatedSize(entry, "width", "height", file, label, size === "required");
   const [src, width, height] = file;
   let src2x = null;
   if (!isEmpty(entry.src2x)) {
@@ -614,10 +621,32 @@ function artRefs(value, label, names) {
 
 const ART_KEYS = ["rosie", "headerLogo", "faviconIco", "favicon32", "appleTouch", "logo", "og", "aboutScene", "icons", "retired"];
 
-// The header lockup's display height on wider screens (48px on phones). Keep in step
-// with .brand-logo in site.css. Its 1x file must be at least that tall, so the logo is
-// never drawn larger than its pixels.
-const HEADER_LOGO_HEIGHT = 60;
+/* The studio logo's display height: site.json art.headerLogo.displayHeight, or this
+   default. The header (on wider screens) and the footer draw it that tall, and the
+   phone header a little smaller. Its 1x file must be at least that tall, so the
+   logo is never drawn larger than its pixels. */
+const LOGO_DEFAULT_HEIGHT = 60;
+// The heights site.css can draw: one rule per height, like
+// .logo-h-60 { --logo-h: 60px; --logo-h-phone: 48px; }. The build adds that class to the logo.
+const LOGO_HEIGHT_RULE = /\.logo-h-(\d+)\s*\{\s*--logo-h:\s*(\d+)px;\s*--logo-h-phone:\s*(\d+)px;\s*\}/g;
+// The logo's widest drawing (max-width on .brand-logo and .footer-logo), and the room the
+// phone header keeps for the side margins, the Menu button, and the gap (.brand-logo's
+// phone max-width, calc(100vw - 136px)). Keep in step with site.css. Used for the build's
+// size report only.
+const LOGO_MAX_WIDTH = 360;
+const PHONE_HEADER_SPARE = 136;
+
+// Map of display height -> phone header height, read from the .logo-h-<N> rules in site.css.
+function logoHeights() {
+  const heights = new Map();
+  for (const [, name, height, phone] of siteCss().matchAll(LOGO_HEIGHT_RULE)) {
+    must(name === height, `assets/css/site.css: .logo-h-${name} sets --logo-h: ${height}px. Each .logo-h-<N> rule must draw the logo N px tall.`);
+    must(Number(phone) <= Number(height), `assets/css/site.css: .logo-h-${name} draws the phone header logo taller (${phone}px) than the wide one (${height}px)`);
+    heights.set(Number(name), Number(phone));
+  }
+  must(heights.has(LOGO_DEFAULT_HEIGHT), `assets/css/site.css needs a .logo-h-${LOGO_DEFAULT_HEIGHT} rule (the studio logo's default height), like .logo-h-60 { --logo-h: 60px; --logo-h-phone: 48px; }`);
+  return heights;
+}
 
 // site.json "art": every site-wide picture. See "Art slots" in README.md.
 function loadArt(map) {
@@ -651,15 +680,50 @@ function loadArt(map) {
   };
 }
 
-// The approved header lockup (PinkRyno with Rosie on her path): a PNG or WebP at 1x
-// with src2x for HiDPI screens, never the heavy outlined SVG. alt names the studio,
-// because the logo is the home link.
+/* The studio logo, the one entry for every place the lockup shows (the header's home
+   link and the footer): a PNG or WebP at 1x with src2x for HiDPI screens, never the
+   heavy outlined SVG. width and height are required and must be the 1x file's real
+   size; the pages take the logo's shape from them, so a wider or narrower lockup
+   needs no code or CSS change. alt names the studio, because the logo is the home
+   link and the footer's studio name. displayHeight (optional) picks a .logo-h-<N>
+   rule in site.css. */
 function headerLogoPicture(entry, label) {
-  const pic = picture(entry, label, { formats: ["png", "webp"] });
+  const pic = picture(entry, label, { formats: ["png", "webp"], keys: ["displayHeight"], size: "required" });
   if (!pic) return null;
-  must(pic.height >= HEADER_LOGO_HEIGHT, `${label}.src is ${pic.height} px tall, but the header draws it ${HEADER_LOGO_HEIGHT} px tall. Export it at least that tall.`);
-  must(pic.src2x, `${label} needs src2x, a 2x copy for HiDPI screens`);
-  return pic;
+  must(pic.src2x, `${label} needs src2x, a 2x copy for HiDPI screens: ${pic.width * 2}x${pic.height * 2}, twice ${pic.src}`);
+  const heights = logoHeights();
+  const display = entry.displayHeight ?? LOGO_DEFAULT_HEIGHT;
+  must(heights.has(display),
+    `${label}.displayHeight is ${JSON.stringify(entry.displayHeight)}. Use one of ${[...heights.keys()].join(", ")} ` +
+    `(CSS px, the .logo-h-<N> rules in assets/css/site.css), or leave it out for ${LOGO_DEFAULT_HEIGHT}.`);
+  must(pic.height >= display,
+    `${label}.src (${pic.src}) is ${pic.height} px tall, but the header and footer draw it ${display} px tall` +
+    `${entry.displayHeight == null ? " (the default displayHeight)" : " (displayHeight)"}. ` +
+    `Export the 1x file at least ${display} px tall, with src2x at twice its size, or lower displayHeight.`);
+  return { ...pic, display, phone: heights.get(display), heightClass: `logo-h-${display}` };
+}
+
+// After a build: how big the studio logo is drawn, and a warning when it is too wide to
+// draw at full height (it then keeps its shape and draws smaller).
+function reportLogo() {
+  const logo = art.headerLogo;
+  if (!logo) return;
+  const wide = (height) => Math.round((height * logo.width) / logo.height);
+  const fullFrom = wide(logo.phone) + PHONE_HEADER_SPARE;
+  console.log(
+    `Studio logo (site.json art.headerLogo): ${logo.src} ${logo.width}x${logo.height}, drawn ${wide(logo.display)}x${logo.display} ` +
+    `in the header and footer, ${wide(logo.phone)}x${logo.phone} in the phone header (full size beside the Menu button on phones ${fullFrom} px wide and up).`
+  );
+  const problems = [];
+  if (wide(logo.display) > LOGO_MAX_WIDTH) {
+    problems.push(`It is ${wide(logo.display)} px wide at ${logo.display} px tall, over the ${LOGO_MAX_WIDTH} px limit, so it draws ${LOGO_MAX_WIDTH} px wide and about ${Math.floor((LOGO_MAX_WIDTH * logo.height) / logo.width)} px tall.`);
+  }
+  // 360 px is the narrowest common phone.
+  if (fullFrom > 360) {
+    const room = 360 - PHONE_HEADER_SPARE;
+    problems.push(`In the phone header it is ${wide(logo.phone)} px wide at ${logo.phone} px tall, so phones narrower than ${fullFrom} px draw it smaller to fit beside the Menu button (a 360 px phone: ${room} px wide, about ${Math.floor((room * logo.height) / logo.width)} px tall).`);
+  }
+  if (problems.length) console.warn(`Warning: the studio logo is very wide. ${problems.join(" ")} A lower displayHeight or a less wide lockup keeps it full size.`);
 }
 
 const GAME_ART_KEYS = ["hero", "title", "wordmark", "card", "icon", "og", "screenshots"];
@@ -1150,10 +1214,14 @@ function layout({ title, description, path, current, robots, main, structured, i
     return `<a href="${href}"${here}>${label}</a>`;
   }).join("\n      ");
   const logo = art.headerLogo;
-  // The header lockup is the home link. Without it, the studio name stands in as text.
+  // The studio logo is the header's home link and the footer's studio name, one entry
+  // for both. Without it, the studio name stands in as text in both places.
   const brand = logo
-    ? imgTag(logo, { cls: "brand-logo", alt: logo.alt })
+    ? imgTag(logo, { cls: `brand-logo ${logo.heightClass}`, alt: logo.alt })
     : `<span class="brand-name">PinkRyno Studios</span>`;
+  const footerBrand = logo
+    ? imgTag(logo, { cls: `footer-logo ${logo.heightClass}`, alt: logo.alt })
+    : `<p class="footer-name">PinkRyno Studios</p>`;
   const ld = structured ? jsonLd(structured) + "\n" : "";
   const strip = trust ? `<div class="wrap trust-row">${trustStrip()}</div>\n` : "";
   const mail = studio.supportEmail ? `\n      <p class="footer-mail">Questions? ${mailLink()}</p>` : "";
@@ -1201,11 +1269,8 @@ ${strip}${main}
   <div class="footer-inner wrap">
     <div class="footer-top">
       <div class="footer-brand">
-        ${headImg("footer-icon", true, 64)}
-        <div>
-          <p class="footer-name">PinkRyno Studios</p>
-          <p class="footer-tagline">Calm little games for ages 3–6.</p>
-        </div>
+        ${footerBrand}
+        <p class="footer-tagline">Calm little games for ages 3–6.</p>
       </div>
       <nav aria-label="Footer">
         <ul class="footer-links">
@@ -1916,6 +1981,7 @@ function main() {
   if (omitted.length) {
     console.log("Left out until set in site.json: " + omitted.map((key) => "studio." + key).join(", ") + ". Run with --release for the store launch.");
   }
+  reportLogo();
   reportEmptySlots();
   reportHeavyWaves();
 }
