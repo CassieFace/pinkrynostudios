@@ -5,6 +5,7 @@
     "short_title": "Tiny Trails",
     "tagline": "Trace a twinkly trail from planet to planet.",
     "summary": "A calm tracing game. Follow a glowing path across little planets and meet a friendly star at the end.",
+    "studio_summary": "A calm tracing game. Little fingers follow a gentle trail, one small world at a time.",
     "description": "Tiny Trails: Space is a calm tracing game for ages 3 to 6. Follow a glowing trail across little planets and meet a friendly star at the end.",
     "status": "live",
     "ages": "3–6",
@@ -28,6 +29,16 @@
         "height": 1350,
         "alt": "A smiling little astronaut in a bubble helmet waves from a glowing trail that loops past little planets."
       },
+      "title": {
+        "src": "/assets/games/tiny-trails-space/tiny-trails-space-lockup.svg",
+        "width": 818,
+        "height": 387
+      },
+      "wordmark": {
+        "src": "/assets/games/tiny-trails-space/tiny-trails-wordmark.svg",
+        "width": 800,
+        "height": 220
+      },
       "card": null,
       "icon": null,
       "og": {
@@ -38,7 +49,7 @@
       },
       "screenshots": []
     },
-    "accent": "#8B7CFF",
+    "world": "space",
     "order": 1,
     "highlights": [
       { "icon": "trace", "text": "Trace the path with a finger. The trail lights up as the explorer moves." },

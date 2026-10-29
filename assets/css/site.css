@@ -1,32 +1,163 @@
-/* PinkRyno Studios
-   Deep-space bands, a light page, and one sticker-style button.
-   Fonts are self-hosted. No third-party requests. */
+/* PinkRyno Studios, brand Direction A "Meadow Path" (Oct 28 2026).
+   Oat Cream page, Deep Moss text, Berry links, Moss Button buttons; sage hills,
+   the sand trail, and Sky Wash bands. Rosie Pink is never text. Navy and stars
+   live only inside a game page hero (.world-space). Fonts are self-hosted.
+   No third-party requests.
+
+   The brand tokens below are a verbatim copy of the rules in
+   assets/brand/tokens.css (the brand file with its self-referencing aliases
+   fixed), so pages load this one stylesheet. scripts/render-site.mjs checks
+   that the copy matches. */
 
 :root {
-  --ink: #2b1e4a;
-  --muted: #54487a;
-  --space: #241b45;
-  --page: #fbf8ff;
-  --band: #efe9ff;
-  --lavender: #e4dbff;
-  --butter: #ffe7a3;
-  --peach: #ffd0be;
-  --berry: #b5176a;
-  --link: #4c3fb8;
-  --on-space: #e9e3ff;
-  --wrap: 1120px;
-  --measure: 66ch;
-  --display: "Baloo 2", "Trebuchet MS", "Verdana", sans-serif;
-  --body: "Nunito", "Segoe UI", system-ui, sans-serif;
+  /* palette */
+  --color-oat-cream: #FFF9EE;
+  --color-deep-moss: #2F4A3A;
+  --color-moss-button: #2F6B4F;
+  --color-sage: #A8C8A0;
+  --color-sky-wash: #D6ECF5;
+  --color-butter: #FFD978;
+  --color-rosie-pink: #F48FAA;
+  --color-berry: #A8345F;
+  /* supporting (from the approved Direction A sheet) */
+  --color-surface: #FFFDF8;
+  --color-text-muted: #4A6355;
+  --color-chip: #EAF2E4;
+  --color-button-shadow: #24543E;
+  --color-trail-sand: #EDE4C8;
+  --color-hill-light: #C9DEC1;
+  --color-hill-mist: #D3E4CB;
+  --color-hill-pale: #E4EEDC;
+  /* Tiny Trails game title (game level only) */
+  --color-tt-tiny-top: #FFE08A;
+  --color-tt-tiny-bottom: #F6C35A;
+  --color-tt-trails-top: #B9D9A8;
+  --color-tt-trails-bottom: #7FB08A;
+  --color-tt-outline: #2F4A3A;
+  /* studio intro end card (Morning Meadow) */
+  --color-intro-centre: #FFF9EE;
+  --color-intro-edge: #E4F0DE;
+  --color-intro-sky-wash: #EAF5FA;
+  --color-intro-hill: #CFE2C6;
+  /* semantic aliases */
+  --color-bg: var(--color-oat-cream);
+  --color-text: var(--color-deep-moss);
+  --color-heading: var(--color-deep-moss);
+  --color-link: var(--color-berry);
+  --color-link-hover: var(--color-deep-moss);
+  --color-button-bg: var(--color-moss-button);
+  --color-button-text: var(--color-oat-cream);
+  --color-button-secondary-border: var(--color-deep-moss);
+  --color-button-secondary-text: var(--color-deep-moss);
+  --color-band: var(--color-sky-wash);
+  --color-highlight: var(--color-butter);
+  --color-accent: var(--color-rosie-pink);
+  --color-field: var(--color-sage);
+  --color-footer-bg: var(--color-sage);
+  --color-focus-ring: var(--color-moss-button);
+  /* fonts */
+  --font-display: 'Fredoka', 'Nunito', ui-rounded, 'Arial Rounded MT Bold', system-ui, sans-serif;
+  --font-body: 'Nunito', ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-game-title: 'Baloo 2', 'Fredoka', system-ui, sans-serif;
+  --font-weight-display: 600;
+  --font-weight-body: 400;
+  --font-weight-bold: 700;
+  --font-weight-ui: 800;
+  --font-weight-game-title: 800;
+  /* type scale (desktop) */
+  --font-size-display: 62px;
+  --line-height-display: 1.04;
+  --font-weight-display: 600;
+  --font-size-h1: 48px;
+  --line-height-h1: 1.1;
+  --font-weight-h1: 600;
+  --font-size-h2: 36px;
+  --line-height-h2: 1.15;
+  --font-weight-h2: 600;
+  --font-size-h3: 28px;
+  --line-height-h3: 1.2;
+  --font-weight-h3: 600;
+  --font-size-body-lg: 22px;
+  --line-height-body-lg: 1.45;
+  --font-weight-body-lg: 400;
+  --font-size-body: 18px;
+  --line-height-body: 1.5;
+  --font-weight-body: 400;
+  --font-size-small: 16px;
+  --line-height-small: 1.4;
+  --font-weight-small: 400;
+  --font-size-button: 20px;
+  --line-height-button: 1.0;
+  --font-weight-button: 800;
+  --font-size-label: 16px;
+  --line-height-label: 1.2;
+  --font-weight-label: 800;
+  /* radii */
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+  /* spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  /* shadows (box-shadow) and drop shadows (use with filter:) */
+  --shadow-card: 0 1px 0 rgba(47, 74, 58, .04), 0 18px 36px -22px rgba(47, 74, 58, .40);
+  --shadow-button: 0 5px 0 #24543E;
+  --shadow-rosie: drop-shadow(0 8px 8px rgba(40, 40, 30, .18));
+  --shadow-game-title: drop-shadow(0 .05em .07em rgba(47, 74, 58, .25));
+  /* trail motif */
+  --trail-band-color: var(--color-trail-sand);
+  --trail-band-width: 26px;
+  --trail-dash-color: var(--color-oat-cream);
+  --trail-dash-width: 4px;
+  --trail-dash-array: 11 11;
+  --trail-linecap: round;
+  --trail-band-color-small: var(--color-sage);
+  --trail-band-width-small: 12px;
+  --trail-dash-width-small: 3px;
+  --trail-dash-array-small: 8 8;
 }
 
+/* phones: smaller type scale */
+@media (max-width: 640px) {
+  :root {
+    --font-size-display: 36px;
+    --font-size-h1: 32px;
+    --font-size-h2: 28px;
+    --font-size-h3: 22px;
+    --font-size-body-lg: 18px;
+    --font-size-body: 17px;
+    --font-size-button: 19px;
+    --font-size-label: 15px;
+  }
+}
+
+/* Site values that are not brand tokens. The navy night sky belongs to Tiny Trails:
+   Space and appears only inside its game page hero (.world-space). */
+:root {
+  --wrap: 1120px;
+  --measure: 66ch;
+  --world-space-top: #201742;
+  --world-space-bottom: #2A2563;
+  --butter-shadow: #D9AE45;
+}
+
+/* Fredoka 600 (display) and Nunito 800 (UI) are latin subsets made with fontTools;
+   Nunito 400 and 700 are the Fontsource latin subsets. See assets/fonts/NOTICE.txt. */
 @font-face {
-  font-family: "Baloo 2";
+  font-family: "Fredoka";
   font-style: normal;
-  font-weight: 800;
+  font-weight: 600;
   font-display: swap;
-  src: url("/assets/fonts/baloo-2-latin-800.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url("/assets/fonts/fredoka-latin-600.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -47,17 +178,30 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("/assets/fonts/nunito-latin-800.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+/* The page colour sits on html (the canvas), so no element around Rosie carries a background. */
+html {
+  background: var(--color-bg);
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  font-synthesis: none;
+}
 
 body {
   margin: 0;
-  background: var(--page);
-  color: var(--ink);
-  font-family: var(--body);
-  font-size: 1.0625rem;
-  line-height: 1.6;
+  color: var(--color-text);
+  font: var(--font-weight-body) var(--font-size-body)/var(--line-height-body) var(--font-body);
   overflow-x: clip;
 }
 
@@ -66,46 +210,50 @@ img, svg { display: block; max-width: 100%; height: auto; }
 p, ul, ol { margin: 0 0 1rem; }
 
 h1, h2, h3 {
-  font-family: var(--display);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.015em;
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-display);
+  color: var(--color-heading);
   text-wrap: balance;
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.5em;
 }
 
-h1 { font-size: clamp(2.4rem, 3.6vw + 1rem, 4.1rem); }
-h2 { font-size: clamp(1.75rem, 1.8vw + 1rem, 2.5rem); }
-h3 { font-size: 1.35rem; margin-bottom: 0.35rem; }
+h1 { font-size: var(--font-size-h1); line-height: var(--line-height-h1); }
+h2 { font-size: var(--font-size-h2); line-height: var(--line-height-h2); }
+h3 { font-size: var(--font-size-h3); line-height: var(--line-height-h3); margin-bottom: 0.4em; }
+
+.display { font-size: var(--font-size-display); line-height: var(--line-height-display); }
+
+h1 a, h2 a, h3 a { font-weight: inherit; }
 
 a {
-  color: var(--link);
-  font-weight: 700;
+  color: var(--color-link);
+  font-weight: var(--font-weight-bold);
+  text-decoration-thickness: 1.5px;
   text-underline-offset: 0.18em;
 }
 
-a:hover { text-decoration-thickness: 2px; }
+a:hover { color: var(--color-link-hover); text-decoration-thickness: 2px; }
+
+strong { font-weight: var(--font-weight-bold); }
 
 :focus { outline: none; }
 
-:focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
+:focus-visible { outline: 3px solid var(--color-focus-ring); outline-offset: 3px; }
 
 .wrap { width: min(var(--wrap), calc(100% - 32px)); margin-inline: auto; }
 
-.section { margin-top: 4.5rem; }
+.section { margin-top: 88px; }
 
-.page-top { margin-top: 2.5rem; }
+.page-top { margin-top: 32px; }
 
-.lede { font-size: 1.2rem; max-width: 40ch; }
+.lede { font-size: var(--font-size-body-lg); line-height: var(--line-height-body-lg); max-width: 40ch; }
 
 .prose { max-width: var(--measure); }
 
 .visually-hidden,
 .nav-check { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+.nowrap { white-space: nowrap; }
 
 .skip {
   position: absolute;
@@ -114,11 +262,10 @@ a:hover { text-decoration-thickness: 2px; }
   z-index: 100;
   transform: translateY(-140%);
   padding: 12px 18px;
-  background: var(--butter);
-  color: var(--ink);
-  border: 3px solid var(--ink);
-  border-radius: 0 0 16px 16px;
-  font-family: var(--display);
+  background: var(--color-butter);
+  color: var(--color-text);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  font-weight: var(--font-weight-ui);
   text-decoration: none;
 }
 
@@ -128,42 +275,52 @@ a:hover { text-decoration-thickness: 2px; }
 
 /* Buttons and text links ------------------------------------------------ */
 
-.cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; margin: 1.4rem 0 0; }
+.cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin: 28px 0 0; }
 
+/* Moss Button: Oat Cream text (6.00:1) and the brand's flat button shadow. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 54px;
-  padding: 12px 28px;
-  border: 3px solid var(--ink);
-  border-radius: 999px;
-  background: var(--berry);
-  color: #fff;
-  box-shadow: 4px 5px 0 var(--ink);
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: 1.2rem;
-  line-height: 1.1;
+  min-height: 56px;
+  padding: 14px 30px;
+  border: 2px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--color-button-bg);
+  color: var(--color-button-text);
+  box-shadow: var(--shadow-button);
+  font: var(--font-weight-button) var(--font-size-button)/var(--line-height-button) var(--font-body);
   text-align: center;
   text-decoration: none;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.btn:hover { transform: translate(-1px, -2px); box-shadow: 5px 7px 0 var(--ink); }
+.btn:hover { color: var(--color-button-text); transform: translateY(-1px); box-shadow: 0 6px 0 var(--color-button-shadow); }
 
-.btn:active { transform: translate(3px, 4px); box-shadow: 1px 1px 0 var(--ink); }
+.btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--color-button-shadow); }
 
-.btn-mail { font-size: 1.1rem; overflow-wrap: anywhere; }
+/* Secondary: outlined in Deep Moss on the page. */
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:active {
+  background: transparent;
+  color: var(--color-button-secondary-text);
+  border-color: var(--color-button-secondary-border);
+  box-shadow: none;
+}
 
-.more { display: inline-flex; align-items: center; gap: 0.5em; min-height: 44px; font-weight: 800; }
+.btn-secondary:hover { background: var(--color-chip); }
 
-/* A link on its own row under a paragraph. Links stay out of running text so
-   every tap target is at least 44 px tall without stretching the lines. */
-.link-row { margin-top: -0.5rem; }
+.btn-mail { overflow-wrap: anywhere; }
 
-.link-row a { display: inline-flex; align-items: center; min-height: 44px; }
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 44px;
+  font-weight: var(--font-weight-ui);
+}
 
 .more::after {
   content: "";
@@ -174,45 +331,75 @@ a:hover { text-decoration-thickness: 2px; }
   transform: rotate(45deg);
 }
 
-.more-down::after { transform: translateY(-0.15em) rotate(135deg); }
+/* A link on its own row under a paragraph. Links stay out of running text so
+   every tap target is at least 44 px tall without stretching the lines. */
+.link-row { margin-top: -0.5rem; }
+
+.link-row a { display: inline-flex; align-items: center; min-height: 44px; }
 
 .btn-text {
   min-height: 48px;
   padding: 0 10px;
   border: 0;
   background: none;
-  color: var(--link);
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: 1.15rem;
+  color: var(--color-link);
+  font: var(--font-weight-ui) var(--font-size-button)/1 var(--font-body);
   text-decoration: underline;
   text-underline-offset: 0.18em;
   cursor: pointer;
 }
 
-/* Header ---------------------------------------------------------------- */
+.btn-text:hover { color: var(--color-link-hover); }
 
-.site-header { position: relative; z-index: 40; background: var(--page); }
+/* Trust strip: one Sky Wash pill, the page's one privacy line. ----------- */
 
-.header-inner { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 76px; }
-
-.brand { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; color: var(--ink); text-decoration: none; }
-
-.brand-icon { width: 48px; height: 48px; }
-
-.brand-name {
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: 1.45rem;
-  line-height: 1;
-  letter-spacing: -0.02em;
+.trust {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  margin: 0;
+  padding: 9px 18px 9px 12px;
+  border-radius: 24px;
+  background: var(--color-sky-wash);
+  color: var(--color-text);
+  font: var(--font-weight-label) var(--font-size-label)/var(--line-height-label) var(--font-body);
 }
 
-.brand-pink { color: var(--berry); }
+.sprig { flex: none; width: 18px; height: 18px; }
 
-.nav-links { display: flex; align-items: center; gap: 6px; }
+.sprig-stem { fill: none; stroke: var(--color-moss-button); stroke-width: 2; stroke-linecap: round; }
 
-.nav-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; color: var(--ink); font-weight: 700; text-decoration: none; }
+.sprig-leaf { fill: var(--color-moss-button); }
+
+.trust-row { padding-top: 12px; }
+
+.meadow-hero .trust { margin-top: 28px; }
+
+/* Header: the approved lockup and the nav on Oat Cream ------------------- */
+
+.site-header { position: relative; z-index: 40; }
+
+.header-inner { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 88px; }
+
+.brand { display: inline-flex; align-items: center; min-height: 48px; color: var(--color-text); text-decoration: none; }
+
+/* 60px tall on wider screens, 48px on phones (HEADER_LOGO_HEIGHT in render-site.mjs). */
+.brand-logo { width: auto; height: 60px; }
+
+.brand-name { font-family: var(--font-display); font-weight: var(--font-weight-display); font-size: 24px; line-height: 1; }
+
+.nav-links { display: flex; align-items: center; gap: 4px; }
+
+.nav-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  color: var(--color-text);
+  font: var(--font-weight-ui) var(--font-size-button)/1 var(--font-body);
+  text-decoration: none;
+}
 
 .nav-links a:hover,
 .nav-links a[aria-current="page"] {
@@ -221,19 +408,19 @@ a:hover { text-decoration-thickness: 2px; }
   text-underline-offset: 0.45em;
 }
 
-.nav-links a[aria-current="page"] { text-decoration-color: var(--berry); }
+.nav-links a[aria-current="page"] { text-decoration-color: var(--color-berry); }
 
 .nav-toggle {
   display: none;
   align-items: center;
   justify-content: center;
-  min-width: 64px;
+  min-width: 88px;
   min-height: 48px;
-  padding: 0 8px;
-  color: var(--ink);
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: 1.15rem;
+  padding: 0 18px;
+  border: 2px solid var(--color-deep-moss);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font: var(--font-weight-ui) 18px/1 var(--font-body);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -243,168 +430,239 @@ a:hover { text-decoration-thickness: 2px; }
 
 .nav-check:checked + .nav-toggle .when-open { display: inline; }
 
-.nav-check:focus-visible + .nav-toggle { outline: 3px solid var(--ink); outline-offset: 2px; border-radius: 4px; }
+.nav-check:focus-visible + .nav-toggle { outline: 3px solid var(--color-focus-ring); outline-offset: 3px; }
 
-/* Home hero: deep-space band with a drifting star field ----------------- */
+/* Meadow hero (home and 404): Morning Meadow, hills, the trail, Rosie ---- */
 
-.hero { position: relative; overflow: hidden; isolation: isolate; background: var(--space); color: var(--page); }
+/* .meadow, .hills, and .trail are siblings of the copy and of Rosie, so no
+   element that holds Rosie has a background, border, or shadow. */
+.meadow-hero { position: relative; isolation: isolate; overflow: hidden; --hills-h: 200px; }
 
-/* TWINKLE-SET stars. Each drifts out and back (alternate), so it never jumps;
-   near ones take 60 s, far ones 120 s. The .s and .f rules place them. */
-.starfield,
-.footer-stars { position: absolute; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; }
-
-.star {
+.meadow {
   position: absolute;
-  max-width: none;
-  will-change: transform;
-  animation: star-drift var(--drift, 90s) ease-in-out infinite alternate;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, var(--color-intro-sky-wash), rgba(234, 245, 250, 0) 44%),
+    radial-gradient(ellipse 78% 72% at 40% 52%, var(--color-intro-centre) 0%, var(--color-intro-centre) 34%, var(--color-intro-edge) 100%);
 }
 
-.star.far { --drift: 120s; opacity: 0.7; }
+.hills { position: absolute; left: 0; bottom: 0; width: 100%; height: var(--hills-h); }
 
-.star.near { --drift: 60s; }
+.hill-mist { fill: var(--color-hill-mist); }
+.hill-light { fill: var(--color-hill-light); }
+.hill-sage { fill: var(--color-sage); }
+.hill-edge { fill: var(--color-bg); }
 
-.star:nth-child(3n) { animation-delay: -40s; }
-
-.star:nth-child(3n + 1) { animation-delay: -75s; }
-
-@keyframes star-drift {
-  from { transform: translate3d(0, 0, 0) rotate(0deg); }
-  to { transform: translate3d(-36px, 18px, 0) rotate(12deg); }
+.hero-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 0 32px;
+  align-items: end;
+  padding-top: 56px;
 }
 
-/* Hero stars sit clear of the text and the art, over their whole drift (36px
-   left, 18px down). Wide screens: offsets from the centre line, which the text
-   column follows. */
-.s1 { left: calc(50% - 700px); top: 7%; }
-.s2 { left: calc(50% - 400px); top: 3%; }
-.s3 { left: calc(50% - 90px); top: 9%; }
-.s4 { left: calc(50% - 240px); top: 2.5%; }
-.s5 { left: calc(50% - 600px); top: 34%; }
-.s6 { left: calc(50% - 40px); top: 38%; }
-.s7 { left: calc(50% - 610px); top: 64%; }
-.s8 { left: calc(50% + 10px); top: 60%; }
-.s9 { left: calc(50% - 60px); top: 80%; }
-.s10 { left: calc(50% - 640px); top: 84%; }
-.s11 { left: calc(50% - 380px); top: 82%; }
-.s12 { left: calc(50% - 160px); top: 1.5%; }
-.s13 { left: calc(50% - 650px); top: 46%; }
-.s14 { left: 50%; top: 18%; }
-.s15 { left: calc(50% - 520px); top: 2.5%; }
-.s16 { left: calc(50% - 660px); top: 56%; }
-.s17 { left: 97%; top: 30%; }
+.meadow-hero .hero-copy { position: relative; z-index: 1; align-self: center; padding-bottom: 150px; }
 
-/* Narrower margins: no room for the glow stars. */
-@media (max-width: 1359px) {
-  .s1, .s16 { display: none; }
-}
+.meadow-hero h1 { max-width: 12ch; margin-bottom: 20px; }
 
-@media (max-width: 1599px) {
-  .s17 { display: none; }
-}
+.meadow-hero .lede { max-width: 34ch; margin: 0; }
 
-/* 540px band: the headline starts higher and the art is closer. */
-@media (max-width: 1199px) {
-  .s8, .s12 { display: none; }
-}
+.hero-scene { position: relative; z-index: 1; display: flex; justify-content: center; padding-bottom: 46px; }
 
-@media (max-width: 1023px) {
-  .s14 { display: none; }
-}
+/* Rosie stands on the meadow at the start of the trail, at her own shape
+   (HERO_ROSIE_* in render-site.mjs). */
+.hero-rosie { width: auto; height: 330px; }
 
-/* Up to 960px the star layer covers only the centred copy. Headline stars
-   count from its top, button stars from its foot. */
+/* The trail: a 26px sand band with a dashed cream centre line. The strokes do not
+   scale with the drawing, so they stay the brand's size at every width. */
+.trail { position: absolute; left: 0; bottom: 0; width: 100%; height: var(--hills-h); overflow: visible; }
+
+.trail path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: var(--trail-linecap); stroke-linejoin: round; }
+
+.trail-band { stroke: var(--trail-band-color); stroke-width: var(--trail-band-width); }
+
+.trail-dash { stroke: var(--trail-dash-color); stroke-width: var(--trail-dash-width); stroke-dasharray: var(--trail-dash-array); }
+
+.trail-narrow { display: none; }
+
+/* Up to 960px the copy comes first and Rosie stands on the hills below it. */
 @media (max-width: 960px) {
-  .hero .star { display: none; }
+  .meadow-hero { --hills-h: 150px; }
 
-  .hero .s2,
-  .hero .s3,
-  .hero .s4,
-  .hero .s6,
-  .hero .s7,
-  .hero .s9,
-  .hero .s10 { display: block; }
+  .hero-grid { grid-template-columns: minmax(0, 1fr); padding-top: 32px; }
 
-  .hero .s3 { left: calc(50% - 200px); top: 30px; }
-  .hero .s4 { left: calc(50% + 200px); top: 60px; }
-  .hero .s2 { left: calc(50% - 200px); top: 150px; }
-  .hero .s6 { left: calc(50% + 250px); top: 175px; }
-  .hero .s7 { left: calc(50% - 260px); top: 200px; }
-  .hero .s9 { left: calc(50% + 256px); top: auto; bottom: 110px; }
-  .hero .s10 { left: calc(50% - 280px); top: auto; bottom: 100px; }
+  .meadow-hero .hero-copy { align-self: auto; padding-bottom: 0; }
+
+  .hero-scene { justify-content: flex-end; padding: 16px 14% 44px 0; }
+
+  .hero-rosie { height: 240px; }
+
+  .trail-wide { display: none; }
+
+  .trail-narrow { display: block; }
 }
 
-/* Phones: the buttons stack. */
-@media (max-width: 430px) {
-  .hero .s6,
-  .hero .s9 { display: none; }
+/* Studio games (home "Our games", the games index) ---------------------- */
 
-  .hero .s5,
-  .hero .s13,
-  .hero .s15 { display: block; }
+.studio-games { display: grid; gap: 48px; margin-top: 28px; }
 
-  .hero .s3 { left: calc(50% - 175px); top: 20px; }
-  .hero .s4 { left: calc(50% + 150px); top: 50px; }
-  .hero .s2 { left: calc(50% - 150px); top: 105px; }
-  .hero .s7 { left: calc(50% + 150px); top: 95px; }
-  .hero .s10 { left: calc(50% - 170px); bottom: 142px; }
-  .hero .s13 { left: calc(50% + 166px); top: auto; bottom: 150px; }
-  .hero .s5 { left: calc(50% + 110px); top: auto; bottom: 68px; }
-  .hero .s15 { left: calc(50% - 115px); top: auto; bottom: 62px; }
+.studio-game.has-art {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 24px 56px;
+  align-items: center;
 }
 
-/* Footer stars: the layer covers only empty space (lower right; on phones the
-   bottom padding), so it never sits under footer text or near the Rosie head. */
-.footer-stars { inset: auto 0 0 auto; width: 32%; height: 55%; }
+.studio-game-art { display: block; }
 
-.footer-stars .star { opacity: 0.45; }
+.studio-game-art img { width: min(100%, 440px); }
 
-.f1 { left: 12%; top: 35%; }
-.f2 { left: 50%; top: 50%; }
-.f3 { left: 81%; top: 27%; }
-.f4 { left: 31%; top: 76%; }
-.f5 { left: 84%; top: 75%; }
+.studio-game-title a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-heading); text-decoration: none; }
 
-@media (max-width: 760px) {
-  .footer-stars { width: 55%; height: 40px; }
+.studio-game-title a:hover { text-decoration: underline; text-decoration-thickness: 3px; }
 
-  .f2, .f5 { display: none; }
+.studio-game-summary { font-size: var(--font-size-body-lg); line-height: var(--line-height-body-lg); max-width: 38ch; }
 
-  .f1 { left: 20%; top: 25%; }
-  .f3 { left: 56%; top: 10%; }
-  .f4 { left: 86%; top: 40%; }
+.studio-game-text > p:last-child { margin-bottom: 0; }
+
+.meta { margin: 0; color: var(--color-text-muted); font-weight: var(--font-weight-ui); }
+
+/* The one status tag: a live game with nothing to play yet. Deep Moss on Butter (7.15:1). */
+.status-soon {
+  display: inline-block;
+  margin-right: 0.35em;
+  padding: 0.1em 0.7em;
+  border-radius: var(--radius-pill);
+  background: var(--color-butter);
+  color: var(--color-text);
+  font-weight: var(--font-weight-ui);
+  white-space: nowrap;
 }
 
-.hero-inner { padding-top: 40px; }
+.size-note, .store-line { margin: 0.75rem 0 0; color: var(--color-text-muted); }
 
-.hero-copy { padding-bottom: 96px; }
+.studio-game-text .link-row { margin-top: 0.5rem; }
 
-.hero h1 { max-width: 12ch; margin-bottom: 1rem; }
+/* For grown-ups: three open columns on cream, each opened by a short sage dash. */
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 48px; margin-top: 28px; }
 
-.hero .lede { color: var(--on-space); max-width: 34ch; }
+.fact::before {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 8px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  background: var(--color-sage);
+}
 
-.hero .btn { box-shadow: 4px 5px 0 #8b7cff; }
+.fact p { margin: 0; max-width: 34ch; }
 
-.hero .btn:hover { box-shadow: 5px 7px 0 #8b7cff; }
+/* Meet Rosie: below the fold, the page's one waving Rosie, standing on her small
+   sage path beside her text (above it, centred, on phones). Her height and the
+   head size match MEET_ROSIE_* in render-site.mjs. */
+.meet-rosie { display: flex; align-items: center; justify-content: center; gap: 56px; }
 
-.hero .btn:active { box-shadow: 1px 1px 0 #8b7cff; }
+.meet-rosie-art { position: relative; flex: none; }
 
-.hero .more { color: var(--butter); }
+.meet-rosie-art img { position: relative; width: auto; height: 300px; }
 
-.hero :focus-visible { outline-color: var(--butter); }
+.rosie-path { position: absolute; left: -24px; right: -24px; bottom: -4px; width: calc(100% + 48px); height: 24px; overflow: visible; }
 
-/* Hero art: the subject on the right, a calm left side for the text. Wider
-   than 960px it is as tall as the band, right-aligned in a centred 1440px frame;
-   a narrower band crops its left side. It fades in at its edges (no seam) and
-   sits 24/90 of the horizon's height up, the horizon's lowest edge, so the
-   horizon clears the subject. heroSizes() in render-site.mjs follows --hero-h. */
-.hero { --hero-h: 540px; --horizon-h: clamp(36px, 6.5vw, 96px); display: flex; flex-direction: column; justify-content: center; min-height: var(--hero-h); }
+.rosie-path path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
 
+.path-band { stroke: var(--trail-band-color-small); stroke-width: var(--trail-band-width-small); }
+
+.path-dash { stroke: var(--trail-dash-color); stroke-width: var(--trail-dash-width-small); stroke-dasharray: var(--trail-dash-array-small); }
+
+.meet-rosie-head { width: 128px; height: 128px; flex: none; }
+
+.meet-rosie-copy h2 { margin-bottom: 0.4em; }
+
+.meet-rosie-copy .lede { margin-bottom: 1rem; }
+
+/* Rosie's line, on a Sky Wash speech bubble. */
+.rosie-says {
+  display: inline-block;
+  margin: 0 0 1rem;
+  padding: 10px 18px;
+  border-radius: var(--radius-md) var(--radius-md) var(--radius-md) 4px;
+  background: var(--color-sky-wash);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-display);
+  font-size: 22px;
+  line-height: 1.3;
+}
+
+.meet-rosie-copy .link-row { margin: 0; }
+
+/* Game page hero: the game's own world, inside the hero only ------------ */
+
+.game-hero {
+  --hero-h: 540px;
+  --edge-h: clamp(28px, 4vw, 56px);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: var(--hero-h);
+}
+
+/* Tiny Trails: Space: a navy night sky (Oat Cream text 13:1 and up). The art
+   brings its own stars; stars appear nowhere else on the site. */
+.world-space {
+  background: linear-gradient(180deg, var(--world-space-top), var(--world-space-bottom));
+  color: var(--color-oat-cream);
+}
+
+.world-space .crumbs { color: var(--color-oat-cream); }
+
+.world-space .crumbs a,
+.world-space .crumbs a:hover { color: var(--color-oat-cream); }
+
+.world-space .feature-tagline { color: var(--color-oat-cream); }
+
+/* Buttons on navy: Butter with Deep Moss text (7.15:1). */
+.world-space .btn,
+.world-space .btn:hover { background: var(--color-butter); color: var(--color-deep-moss); }
+
+.world-space .btn { box-shadow: 0 5px 0 var(--butter-shadow); }
+
+.world-space .btn:hover { box-shadow: 0 6px 0 var(--butter-shadow); }
+
+.world-space .btn:active { box-shadow: 0 1px 0 var(--butter-shadow); }
+
+.world-space :focus-visible { outline-color: var(--color-butter); }
+
+@media (min-width: 1200px) {
+  .game-hero { --hero-h: 620px; }
+}
+
+.game-hero .crumbs-row { position: relative; }
+
+.game-hero .crumbs { margin: 0; padding-top: 12px; }
+
+.game-hero .hero-inner { margin-block: auto; padding: 8px 0 calc(var(--edge-h) + 48px); }
+
+.game-title { margin: 0 0 12px; }
+
+.title-art { width: min(100%, 460px); height: auto; }
+
+.feature-tagline { font-family: var(--font-display); font-weight: var(--font-weight-display); font-size: 24px; line-height: 1.3; max-width: 24ch; margin: 0; }
+
+.game-hero .cta-row { margin-top: 24px; }
+
+/* The hero art: the subject on the right and a calm left side for the text.
+   Wider than 960px it is as tall as the band, right-aligned in a centred 1440px
+   frame, and fades in from the left. heroSizes() in render-site.mjs follows --hero-h. */
 .hero-art {
   position: absolute;
-  z-index: -2;
-  bottom: calc(var(--horizon-h) * 24 / 90);
+  z-index: -1;
+  top: 0;
   right: max(0px, calc(50% - 720px));
   width: auto;
   max-width: none;
@@ -415,11 +673,6 @@ a:hover { text-decoration-thickness: 2px; }
   mask-image: linear-gradient(90deg, transparent, #000 18%);
 }
 
-@media (min-width: 1200px) {
-  .hero { --hero-h: 620px; }
-}
-
-/* Past 1440px the band also runs on past the art's right edge. */
 @media (min-width: 1441px) {
   .hero-art {
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 96%, transparent);
@@ -427,149 +680,61 @@ a:hover { text-decoration-thickness: 2px; }
   }
 }
 
-/* Up to 960px the art sits above the centred text and fades into the band.
-   A band without art keeps the same text layout, so the stars fit both. */
+.world-edge { position: absolute; z-index: 0; left: 0; bottom: -1px; width: 100%; height: var(--edge-h); fill: var(--color-bg); }
+
+/* Up to 960px the art sits above the centred text and fades into the sky. */
 @media (max-width: 960px) {
-  .hero { display: block; min-height: 0; }
+  .game-hero { display: block; min-height: 0; }
 
-  .hero-inner { padding-top: 20px; text-align: center; }
+  .game-hero .hero-inner { padding-top: 4px; text-align: center; }
 
-  .hero h1,
-  .hero .lede,
-  .hero .feature-tagline,
-  .hero .accent-title::after { margin-inline: auto; }
+  .game-hero .title-art,
+  .game-hero .feature-tagline { margin-inline: auto; }
 
-  .hero .cta-row { justify-content: center; }
+  .game-hero .cta-row { justify-content: center; }
 
   .hero-art {
     position: relative;
-    bottom: auto;
+    top: auto;
     right: auto;
     width: 100%;
     height: min(75vw, 560px);
     -webkit-mask-image: linear-gradient(180deg, #000 80%, transparent);
     mask-image: linear-gradient(180deg, #000 80%, transparent);
   }
-
-  .hero.has-art .starfield { top: min(75vw, 560px); }
-
-  .hero.has-art .hero-inner { padding-top: 4px; }
 }
 
-/* Game page hero band: breadcrumb on top, title and tagline beside the art. */
-.game-hero .crumbs-row { position: relative; }
+/* Game page body: the studio look again ---------------------------------- */
 
-.game-hero .crumbs { margin: 0; padding-top: 12px; color: var(--on-space); }
+.feature-after-hero { padding-top: 24px; }
 
-.game-hero .crumbs a { color: #fff; }
+.feature-after-hero .feature-body,
+.feature-body { max-width: var(--measure); }
 
-.game-hero .hero-inner { margin-block: auto; padding-top: 12px; }
+.feature-body > p:first-child { font-size: var(--font-size-body-lg); line-height: var(--line-height-body-lg); }
 
-.game-hero h1 { max-width: 12ch; margin-bottom: 0.9rem; }
-
-.game-hero .feature-tagline { color: var(--on-space); }
-
-.feature-after-hero { padding: 4px 0 64px; }
-
-.feature-after-hero .feature-body { max-width: var(--measure); }
-
-.horizon { position: absolute; z-index: 0; left: 0; bottom: -1px; width: 100%; height: var(--horizon-h, clamp(36px, 6.5vw, 96px)); color: var(--band); }
-
-/* Game feature: text-led, on the soft planet band ----------------------- */
-
-.feature { background: var(--band); padding: 28px 0 72px; }
+.feature-page { padding-top: 24px; }
 
 .feature-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 24px 64px;
   align-items: center;
 }
 
-.feature-art { width: min(100%, 460px); margin-bottom: 20px; }
-
 /* A game icon (games.json art.icon) above the game title. */
 .game-icon { width: 72px; margin-bottom: 16px; }
 
-.feature-title { font-size: clamp(2.6rem, 3.8vw + 1rem, 4.4rem); margin-bottom: 0.9rem; }
-
-.feature-title a { color: var(--ink); text-decoration: none; }
-
-.feature-title a:hover { text-decoration: underline; text-decoration-thickness: 3px; }
-
-.accent-title::after {
-  content: "";
-  display: block;
-  width: 88px;
-  height: 6px;
-  margin-top: 14px;
-  border-radius: 3px;
-  background: var(--accent, var(--lavender));
-}
-
-.feature-tagline { font-family: var(--display); font-weight: 800; font-size: 1.45rem; line-height: 1.3; max-width: 24ch; margin: 0; }
-
-.feature-body > p:first-child { font-size: 1.15rem; }
-
-.meta { font-weight: 700; color: var(--muted); margin: 0; }
-
-/* The one status tag: a live game with nothing to play yet (no play_url, no store link). */
-.status-soon {
-  display: inline-block;
-  margin-right: 0.35em;
-  padding: 0.1em 0.7em;
-  border-radius: 999px;
-  background: var(--peach);
-  color: var(--ink);
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.size-note, .store-line { margin: 1rem 0 0; color: var(--muted); }
-
-.feature .cta-row + .size-note { margin-top: 1.1rem; }
-
-.feature-page { padding-top: 12px; }
-
-.crumbs { margin: 0 0 28px; font-size: 0.95rem; color: var(--muted); }
+.crumbs { margin: 0 0 24px; font-size: var(--font-size-small); color: var(--color-text-muted); }
 
 .crumbs a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; }
 
 .store-link { display: inline-flex; align-items: center; min-height: 44px; }
 
-/* Facts, lists, columns ------------------------------------------------- */
-
-/* ICON-SET sticker icons sit beside their text, unboxed. */
+/* ICON-SET sticker icons (game art) sit beside their text, unboxed. */
 .icon { width: 56px; height: 56px; flex: none; }
 
-.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 40px; margin-top: 2rem; }
-
-.fact,
-.split-item { display: flex; align-items: flex-start; gap: 16px; }
-
-/* Centre the first line of the heading on the icon. With no icon, there is no offset. */
-.fact .icon + div h3 { margin-top: 13px; }
-
-.fact p { margin: 0; max-width: 34ch; }
-
-/* Meet Rosie: below the fold, away from the hero art. Rosie stands on the page
-   beside her text (above it, centred, on phones), with no box, panel, or stars.
-   Her height and the head size match MEET_ROSIE_* in render-site.mjs. */
-.meet-rosie { display: flex; align-items: center; justify-content: center; gap: 48px; }
-
-.meet-rosie-art { flex: none; }
-
-.meet-rosie-art img { width: auto; height: 300px; }
-
-.meet-rosie-head { width: 128px; height: 128px; flex: none; }
-
-.meet-rosie-copy h2 { margin-bottom: 0.5rem; }
-
-.meet-rosie-copy .lede { margin-bottom: 0.4rem; }
-
-.meet-rosie-copy p:last-child { margin: 0; }
-
-.plays { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 56px; }
+.plays { list-style: none; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 56px; }
 
 .plays li { display: flex; align-items: flex-start; gap: 16px; max-width: 46ch; }
 
@@ -577,16 +742,16 @@ a:hover { text-decoration-thickness: 2px; }
 
 .split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 64px; }
 
-.split-item { max-width: 52ch; }
+.split-item { display: flex; align-items: flex-start; gap: 16px; max-width: 52ch; }
 
-.split h2 { font-size: clamp(1.6rem, 1.2vw + 1rem, 2.1rem); }
+.split h2 { font-size: var(--font-size-h3); line-height: var(--line-height-h3); }
 
-.split .icon + div h2 { margin-top: 10px; }
+.split .icon + div h2 { margin-top: 12px; }
 
 .screens {
   list-style: none;
   padding: 0 0 8px;
-  margin: 1.5rem 0 0;
+  margin: 24px 0 0;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: min(82%, 400px);
@@ -597,36 +762,19 @@ a:hover { text-decoration-thickness: 2px; }
 
 .screens li { scroll-snap-align: start; }
 
-.screens img { width: 100%; border: 3px solid var(--ink); border-radius: 22px; }
+.screens img { width: 100%; border-radius: var(--radius-md); box-shadow: var(--shadow-card); }
 
-/* Games index ----------------------------------------------------------- */
+/* Games index ------------------------------------------------------------ */
 
-.game-rows { margin-top: 2.5rem; border-top: 2px solid var(--lavender); }
+.game-rows { margin-top: 40px; }
 
-.game-row { padding: 36px 0; border-bottom: 2px solid var(--lavender); }
-
-.game-row.has-art { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 48px; align-items: center; }
-
-.game-row-art img { width: 100%; }
-
-/* A hero scene in a games index row, cropped to 4:3 around its subject. */
-.game-row-art.scene img { aspect-ratio: 4 / 3; object-fit: cover; object-position: 100% 50%; border: 3px solid var(--ink); border-radius: 22px; }
-
-.game-row h2 a { color: var(--ink); text-decoration: none; }
-
-.game-row h2 a:hover { text-decoration: underline; }
-
-.game-row .feature-tagline { margin-bottom: 0.6rem; }
-
-.game-row-text > p:last-child { margin: 0.4rem 0 0; }
-
-/* About, support, privacy, 404 ------------------------------------------ */
+/* About, support, privacy ------------------------------------------------ */
 
 .about { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 32px 64px; align-items: center; }
 
 .about-rosie img { width: min(300px, 60vw); }
 
-.about-scene { width: 100%; }
+.about-scene { width: 100%; border-radius: var(--radius-lg); }
 
 .title-row { display: flex; align-items: center; gap: 16px; margin-bottom: 1rem; }
 
@@ -638,11 +786,11 @@ a:hover { text-decoration-thickness: 2px; }
 
 .support .contact .btn { margin-top: 0.2rem; }
 
-.faq-title { margin-top: 3.5rem; }
+.faq-title { margin-top: 56px; }
 
-.faq { max-width: var(--measure); margin-top: 1rem; border-top: 2px solid var(--lavender); }
+.faq { max-width: var(--measure); margin-top: 16px; border-top: 2px solid var(--color-hill-light); }
 
-.faq details { border-bottom: 2px solid var(--lavender); }
+.faq details { border-bottom: 2px solid var(--color-hill-light); }
 
 .faq summary {
   position: relative;
@@ -651,9 +799,9 @@ a:hover { text-decoration-thickness: 2px; }
   min-height: 60px;
   padding: 12px 44px 12px 0;
   list-style: none;
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: 1.25rem;
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-display);
+  font-size: 22px;
   line-height: 1.25;
   cursor: pointer;
 }
@@ -667,8 +815,8 @@ a:hover { text-decoration-thickness: 2px; }
   top: 50%;
   width: 0.5em;
   height: 0.5em;
-  border-right: 3px solid var(--berry);
-  border-bottom: 3px solid var(--berry);
+  border-right: 3px solid var(--color-berry);
+  border-bottom: 3px solid var(--color-berry);
   transform: translateY(-70%) rotate(45deg);
   transition: transform 0.2s ease;
 }
@@ -679,13 +827,13 @@ a:hover { text-decoration-thickness: 2px; }
 
 .faq details p:last-child { margin-bottom: 1.4rem; }
 
-.effective { color: var(--muted); }
+.effective { color: var(--color-text-muted); }
 
-.intro { font-size: 1.2rem; }
+.intro { font-size: var(--font-size-body-lg); line-height: var(--line-height-body-lg); }
 
-.toc { margin: 2rem 0 0.5rem; }
+.toc { margin: 32px 0 8px; }
 
-.toc h2 { font-size: 1.35rem; }
+.toc h2 { font-size: var(--font-size-h3); line-height: var(--line-height-h3); }
 
 .toc ol { margin: 0; padding-left: 1.7em; columns: 2; column-gap: 48px; }
 
@@ -693,63 +841,62 @@ a:hover { text-decoration-thickness: 2px; }
 
 .toc a { display: flex; align-items: center; min-height: 44px; padding: 4px 0; line-height: 1.3; }
 
-.prose h2 { margin-top: 2.4rem; }
+.prose h2 { margin-top: 40px; }
 
-.lost { text-align: center; }
-
-.lost-rosie { width: min(240px, 56vw); margin: 0 auto 1rem; }
-
-.lost .lede { margin-inline: auto; }
-
-.lost-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 32px; }
-
-/* Parental gate --------------------------------------------------------- */
+/* Parental gate: brand colours only ------------------------------------- */
 
 .gate[hidden] { display: none !important; }
 
 .gate { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 20px; }
 
-.gate-backdrop { position: absolute; inset: 0; background: rgba(36, 27, 69, 0.62); }
+.gate-backdrop { position: absolute; inset: 0; background: rgba(47, 74, 58, 0.55); }
 
 .gate-panel {
   position: relative;
   width: min(100%, 440px);
   max-height: calc(100vh - 40px);
   overflow: auto;
-  padding: 24px 22px 22px;
-  background: #fff;
-  border: 3px solid var(--ink);
-  border-radius: 28px;
+  padding: 28px 24px 24px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card), 0 24px 48px -16px rgba(47, 74, 58, 0.45);
 }
 
-.gate-title { font-family: var(--display); font-weight: 800; font-size: 1.7rem; line-height: 1.15; margin: 0 0 0.5rem; }
+.gate-title { font-family: var(--font-display); font-weight: var(--font-weight-display); font-size: var(--font-size-h3); line-height: var(--line-height-h3); margin: 0 0 0.5rem; }
 
-.gate-form label { display: flex; align-items: center; min-height: 44px; margin-bottom: 4px; font-family: var(--display); font-weight: 800; font-size: 1.3rem; line-height: 1.2; }
+.gate-form label { display: flex; align-items: center; min-height: 44px; margin-bottom: 4px; font-family: var(--font-display); font-weight: var(--font-weight-display); font-size: 22px; line-height: 1.2; }
 
 .gate-form input {
   width: 100%;
   min-height: 52px;
   padding: 8px 14px;
-  border: 3px solid var(--ink);
-  border-radius: 14px;
-  background: var(--page);
-  color: var(--ink);
+  border: 2px solid var(--color-deep-moss);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
   font: inherit;
 }
 
-.gate-error { margin: 8px 0 0; color: var(--berry); font-weight: 700; }
+.gate-error { margin: 8px 0 0; color: var(--color-berry); font-weight: var(--font-weight-bold); }
 
-.gate-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 18px; }
+.gate-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 20px; }
 
 body.gate-open { overflow: hidden; }
 
-/* Footer ---------------------------------------------------------------- */
+/* Footer: the sage hill band with Rosie ---------------------------------- */
 
-.site-footer { position: relative; isolation: isolate; margin-top: 7rem; background: var(--space); color: var(--page); }
+/* .footer-land draws the band behind the footer as a sibling layer, so the
+   footer and the elements around Rosie's head carry no background. Deep Moss
+   on sage is 5.29:1. */
+.site-footer { position: relative; isolation: isolate; margin-top: 96px; color: var(--color-text); }
 
-.footer-rise { position: absolute; left: 0; bottom: calc(100% - 1px); width: 100%; height: 40px; color: var(--space); }
+.footer-land { position: absolute; inset: 0; z-index: -1; display: flex; flex-direction: column; }
 
-.footer-inner { display: grid; gap: 22px; padding: 36px 0 44px; }
+.footer-hill { flex: none; width: 100%; height: 56px; }
+
+.footer-land::after { content: ""; flex: 1; margin-top: -1px; background: var(--color-footer-bg); }
+
+.footer-inner { display: grid; gap: 18px; padding: 76px 0 36px; }
 
 .footer-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; }
 
@@ -757,40 +904,34 @@ body.gate-open { overflow: hidden; }
 
 .footer-icon { width: 64px; height: 64px; }
 
-.footer-name { margin: 0; font-family: var(--display); font-weight: 800; font-size: 1.5rem; line-height: 1.1; color: var(--butter); }
+.footer-name { margin: 0; font-family: var(--font-display); font-weight: var(--font-weight-display); font-size: 24px; line-height: 1.15; }
 
-.footer-tagline { margin: 0; color: var(--on-space); }
+.footer-tagline { margin: 0; }
 
-.footer-links { display: flex; flex-wrap: wrap; gap: 0 6px; margin: 0; padding: 0; list-style: none; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 0 4px; margin: 0; padding: 0; list-style: none; }
 
 .footer-links a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0 10px; }
 
-.site-footer a { color: #fff; }
+.site-footer a { color: var(--color-text); font-weight: var(--font-weight-ui); }
 
-.site-footer :focus-visible { outline-color: var(--butter); }
+.site-footer a:hover { color: var(--color-text); }
 
-.footer-notes { display: grid; gap: 4px; padding-top: 18px; border-top: 1px solid rgba(228, 219, 255, 0.22); }
+.footer-notes { display: grid; gap: 2px; padding-top: 14px; border-top: 1px solid rgba(47, 74, 58, 0.22); }
 
 .footer-notes p { margin: 0; }
 
-.footer-notes a { display: inline-flex; align-items: center; min-height: 44px; }
+.footer-notes a { display: inline-flex; align-items: center; min-height: 44px; overflow-wrap: anywhere; }
 
-.footer-privacy { font-weight: 700; }
+.fine { font-size: var(--font-size-small); line-height: var(--line-height-small); }
 
-.nowrap { white-space: nowrap; }
-
-.fine { font-size: 0.95rem; color: var(--on-space); }
-
-/* Phones ---------------------------------------------------------------- */
+/* Phones ----------------------------------------------------------------- */
 
 @media (max-width: 760px) {
-  .section { margin-top: 3.5rem; }
+  .section { margin-top: 64px; }
 
-  .header-inner { min-height: 68px; }
+  .header-inner { min-height: 72px; }
 
-  .brand-icon { width: 44px; height: 44px; }
-
-  .brand-name { font-size: 1.3rem; }
+  .brand-logo { height: 48px; }
 
   .nav-toggle { display: inline-flex; }
 
@@ -804,44 +945,42 @@ body.gate-open { overflow: hidden; }
     align-items: stretch;
     gap: 0;
     padding: 4px 16px 16px;
-    background: var(--page);
-    box-shadow: 0 18px 24px rgba(43, 30, 74, 0.12);
+    background: var(--color-surface);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    box-shadow: var(--shadow-card);
   }
 
   .nav-check:checked ~ .nav-links { display: flex; }
 
-  .nav-links a { min-height: 52px; padding: 0 4px; font-size: 1.15rem; }
+  .nav-links a { min-height: 52px; padding: 0 4px; }
 
-  .hero-copy { padding-bottom: 64px; }
+  .hero-rosie { height: 180px; }
 
-  .feature { padding: 16px 0 56px; }
-
-  .feature-page { padding-top: 4px; }
+  .hero-scene { padding-right: 12%; }
 
   .feature-grid,
   .facts,
   .plays,
   .split,
-  .game-row.has-art,
+  .studio-game.has-art,
   .about { grid-template-columns: minmax(0, 1fr); }
 
-  .feature-grid { gap: 20px; }
+  .studio-game-art img { width: min(100%, 320px); }
 
-  .feature-tagline { font-size: 1.3rem; }
+  .title-art { width: min(100%, 300px); }
+
+  .feature-tagline { font-size: 22px; }
 
   .facts { gap: 28px; }
 
   .icon { width: 48px; height: 48px; }
 
-  .fact,
   .split-item,
   .plays li { gap: 14px; }
 
-  .fact .icon + div h3 { margin-top: 10px; }
-
   .plays .icon + span { padding-top: 9px; }
 
-  .split .icon + div h2 { margin-top: 6px; }
+  .split .icon + div h2 { margin-top: 8px; }
 
   .about-rosie img { width: min(220px, 56vw); margin-inline: auto; }
 
@@ -849,28 +988,32 @@ body.gate-open { overflow: hidden; }
 
   .toc ol { columns: 1; }
 
-  .meet-rosie { flex-direction: column; gap: 8px; text-align: center; }
+  .meet-rosie { flex-direction: column; gap: 16px; text-align: center; }
 
   .meet-rosie-art img { height: 220px; }
 
   .meet-rosie-copy .lede { margin-inline: auto; }
 
-  .footer-rise { height: 24px; }
+  .footer-inner { padding-top: 64px; }
+
+  .footer-hill { height: 40px; }
+}
+
+/* Small phones: the hero buttons stack full width, as on the brand's phone mock. */
+@media (max-width: 560px) {
+  .hero-copy .cta-row .btn { flex: 1 1 100%; }
 }
 
 @media (min-width: 761px) {
   /* The menu checkbox only works with its phone-only label; keep it out of the tab order here. */
   .nav-check { display: none; }
 
-  body { font-size: 1.125rem; }
-
   .wrap { width: min(var(--wrap), calc(100% - 64px)); }
 }
 
+/* The site's only decorative motion is the button press and the FAQ chevron. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-
-  .star { animation: none; }
 
   .btn,
   .faq summary::after { transition: none; }
@@ -882,13 +1025,13 @@ body.gate-open { overflow: hidden; }
 @media (forced-colors: active) {
   .btn { border-color: ButtonText; box-shadow: none; }
 
-  .accent-title::after { background: CanvasText; }
+  .trust { border: 1px solid CanvasText; }
 }
 
 @media print {
-  .site-header, .skip, .gate, .hero-art, .starfield, .footer-stars, .horizon, .footer-rise { display: none !important; }
+  .site-header, .skip, .gate, .meadow, .trail, .hero-art, .world-edge, .footer-land { display: none !important; }
 
-  .hero, .site-footer { background: #fff; color: #000; }
+  .world-space { background: #fff; color: #000; }
 
   .btn { box-shadow: none; }
 }

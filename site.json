@@ -4,7 +4,7 @@
     "address": null,
     "supportEmail": "support@pinkrynostudios.com"
   },
-  "privacyLine": "No ads. No tracking. No accounts.",
+  "privacyLine": "No ads · No tracking · No accounts",
   "mascot": {
     "name": "Rosie",
     "fullName": "Rosie Ryno",
@@ -48,44 +48,33 @@
         "alt": "Rosie Ryno looking puzzled"
       }
     },
+    "headerLogo": {
+      "src": "/assets/brand/pinkryno-header-96h.png",
+      "src2x": "/assets/brand/pinkryno-header-192h.png",
+      "width": 206,
+      "height": 96,
+      "alt": "PinkRyno Studios"
+    },
     "faviconIco": "/favicon.ico",
-    "favicon32": "/assets/mascot/head/favicon-32.png",
-    "favicon48": "/assets/mascot/head/favicon-48.png",
-    "appleTouch": "/assets/mascot/head/apple-touch-icon-180.png",
+    "favicon32": "/favicon-32.png",
+    "appleTouch": "/apple-touch-icon-180.png",
     "logo": "/assets/mascot/head/rosie-head-256.png",
     "og": {
       "default": {
-        "src": "/assets/og/og-home.jpg",
+        "src": "/assets/og/og-studio.jpg",
         "width": 1200,
         "height": 630,
-        "alt": "PinkRyno Studios. Rosie Ryno, a baby pink rhino, waves beside a smiling little astronaut on a glowing trail among the planets."
+        "alt": "PinkRyno Studios logo: Rosie Ryno, a baby pink rhino, waves from a little green path beside the PinkRyno Studios wordmark."
       }
     },
-    "hero": {
-      "src": "/assets/games/tiny-trails-space/astro-hero.webp",
-      "srcSmall": "/assets/games/tiny-trails-space/astro-hero-1200.webp",
-      "width": 2400,
-      "height": 1350
-    },
     "aboutScene": null,
-    "stars": {
-      "twinkle-4pt-md": "/assets/twinkle/twinkle-sprite.svg#twinkle-4pt-md",
-      "twinkle-4pt-sm": "/assets/twinkle/twinkle-sprite.svg#twinkle-4pt-sm",
-      "dot-lg": "/assets/twinkle/twinkle-sprite.svg#dot-lg",
-      "dot-md": "/assets/twinkle/twinkle-sprite.svg#dot-md",
-      "dot-sm": "/assets/twinkle/twinkle-sprite.svg#dot-sm",
-      "twinkle-4pt-lg-glow": "/assets/twinkle/twinkle-sprite.svg#twinkle-4pt-lg-glow",
-      "twinkle-4pt-md-glow": "/assets/twinkle/twinkle-sprite.svg#twinkle-4pt-md-glow",
-      "dot-lg-glow": "/assets/twinkle/twinkle-sprite.svg#dot-lg-glow"
-    },
     "icons": {
       "trace": "/assets/icons/icons-sprite.svg#icon-trace",
       "planet": "/assets/icons/icons-sprite.svg#icon-planet",
       "helmet": "/assets/icons/icons-sprite.svg#icon-helmet",
       "replay": "/assets/icons/icons-sprite.svg#icon-replay",
       "gift": "/assets/icons/icons-sprite.svg#icon-gift",
-      "key": "/assets/icons/icons-sprite.svg#icon-key",
-      "hand": "/assets/icons/icons-sprite.svg#icon-hand"
+      "key": "/assets/icons/icons-sprite.svg#icon-key"
     },
     "retired": [
       "/assets/games/tiny-trails-space/hero.webp",
