@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
 		<!-- Tiny Trails: Godot 4.7.2 platform/web/misc/dist/html/full-size.html (sha256 3a5f265e788646513c32494fc0faead64c6b7f92ef005bf475da0c622bd481f4) with one change: viewport-fit=cover in this static viewport meta (QA M1b-04). tools/tests/test_check_release_policy.py pins it. -->
-		<title>Tiny Trails: Space</title>
+		<title>[BETA] Tiny Trails: Space</title>
 		<style>
 html, body, #canvas {
 	margin: 0;
@@ -91,6 +91,61 @@ body {
 	z-index: 1;
 }
 		</style>
+		<style>
+/* Tiny Trails loading page (tools/web_page.gd): the splash colour from the first byte, the loading screen at once, the progress bar in the loading image's bottom band. */
+body {
+	background-color: #48426e;
+}
+
+#status {
+	visibility: visible;
+	container-type: size;
+}
+
+#status-progress {
+	appearance: none;
+	-webkit-appearance: none;
+	box-sizing: border-box;
+	border: solid #1e1b46;
+	border-radius: 9999px;
+	background: rgba(255, 249, 238, 0.250);
+	color: #9ee6cf;
+	box-shadow: none;
+	overflow: hidden;
+	width: calc(min(100vw, 100vh * 1.6000) * 0.300);
+	height: max(8px, calc(min(100vh, 100vw * 0.6250) * 0.015));
+	border-width: max(2px, calc(min(100vh, 100vw * 0.6250) * 0.0025));
+	border-width: max(2px, round(calc(min(100vh, 100vw * 0.6250) * 0.0025), 1px));
+	bottom: max(calc((100vh - min(100vh, 100vw * 0.6250)) / 2 + min(100vh, 100vw * 0.6250) * 0.0400 - max(8px, calc(min(100vh, 100vw * 0.6250) * 0.015)) / 2), env(safe-area-inset-bottom, 0px));
+	width: calc(min(100cqw, 100cqh * 1.6000) * 0.300);
+	height: max(8px, calc(min(100cqh, 100cqw * 0.6250) * 0.015));
+	border-width: max(2px, calc(min(100cqh, 100cqw * 0.6250) * 0.0025));
+	border-width: max(2px, round(calc(min(100cqh, 100cqw * 0.6250) * 0.0025), 1px));
+	bottom: max(calc((100cqh - min(100cqh, 100cqw * 0.6250)) / 2 + min(100cqh, 100cqw * 0.6250) * 0.0400 - max(8px, calc(min(100cqh, 100cqw * 0.6250) * 0.015)) / 2), env(safe-area-inset-bottom, 0px));
+}
+
+#status-progress::-webkit-progress-bar {
+	background: transparent;
+}
+
+#status-progress::-webkit-progress-value {
+	background: #9ee6cf;
+	border-radius: 9999px;
+}
+
+#status-progress::-moz-progress-bar {
+	background: #9ee6cf;
+	border-radius: 9999px;
+}
+
+#status-progress:indeterminate::-webkit-progress-value {
+	background: transparent;
+}
+
+#status-progress:indeterminate::-moz-progress-bar {
+	background: transparent;
+}
+</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
 <meta name="robots" content="noindex, nofollow">
@@ -106,14 +161,14 @@ body {
 		</noscript>
 
 		<div id="status">
-			<img id="status-splash" class="show-image--true fullsize--true use-filter--true" src="index.png" alt="">
+			<img id="status-splash" class="show-image--true fullsize--true use-filter--true" src="index.loading.webp" width="1280" height="800" alt="">
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":1439460,"index.wasm":15264601},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":1340048,"index.wasm":15264601},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 

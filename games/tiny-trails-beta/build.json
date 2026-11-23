@@ -1,0 +1,99 @@
+{
+  "_comment": "Written by tools/staging_deploy.py: what this staging folder holds. The deploy itself (a commit to the website repository under D2) is manual.",
+  "schema": 1,
+  "pack": "space",
+  "channel": "staging",
+  "template": "custom",
+  "commit": "9d3eb8f2b13dcee842cfbe5846996f1cdb844135",
+  "dirty": true,
+  "built_utc": "2026-11-23T00:47:52Z",
+  "site_path": "games/tiny-trails-beta",
+  "first_load_gzip_bytes": 5816563,
+  "files": [
+    {
+      "name": "hazard-kit-extras.pck",
+      "bytes": 18240,
+      "sha256": "0729a503f39293e10950d74354c7a20b4b612f2c6c7a3883457f05c83341f1bb"
+    },
+    {
+      "name": "index.apple-touch-icon.png",
+      "bytes": 41367,
+      "sha256": "db640d1969ca8a5ecfdac43e51e5d0ef481c1a9a1d1f7bbb290064f362184737"
+    },
+    {
+      "name": "index.audio.position.worklet.js",
+      "bytes": 2973,
+      "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8"
+    },
+    {
+      "name": "index.audio.worklet.js",
+      "bytes": 7298,
+      "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3"
+    },
+    {
+      "name": "index.html",
+      "bytes": 7824,
+      "sha256": "872bedf7c7148341e28c3578f3622b876c35214b782cc19a501846f0468a961c"
+    },
+    {
+      "name": "index.icon.png",
+      "bytes": 2882,
+      "sha256": "a3c6b0ac01d2e95843d291e9aaf605a93d5365ecb9b35198c88f59c47e345f1e"
+    },
+    {
+      "name": "index.js",
+      "bytes": 244310,
+      "sha256": "ddc7cb7613985d63c7372007ab40dd0ed07e014bd8e784c7207c3c46838eb987"
+    },
+    {
+      "name": "index.loading.webp",
+      "bytes": 24812,
+      "sha256": "09c9ea222e8c8eb7af1b4ea9faf6f31d0a8397c86c3a54bf48a30c5a5b864f96"
+    },
+    {
+      "name": "index.pck",
+      "bytes": 1340048,
+      "sha256": "edb1fd4b269417e1feacc2c63ba6983d788f4d00f2b15320eabdfaba9d9f8328"
+    },
+    {
+      "name": "index.wasm",
+      "bytes": 15264601,
+      "sha256": "e3f2c4a493fadddc0a5f815a9b1818c3d2c718886cc5d985bf9d3f4e5891dd54"
+    },
+    {
+      "name": "music-earth.pck",
+      "bytes": 319880,
+      "sha256": "765c87e317b2f65e66cd2057393690b086da38c063278033f775a879dad661b9"
+    },
+    {
+      "name": "music-menu.pck",
+      "bytes": 238660,
+      "sha256": "8d6f80678b6aa224cd909b739a3d00374a59791d93faa252d3480621db684596"
+    },
+    {
+      "name": "music-moon.pck",
+      "bytes": 242884,
+      "sha256": "d34b60e542f4dc51a73fda9456b98847a33c99ed9407623abac3b9dc38914fc5"
+    },
+    {
+      "name": "music-sun.pck",
+      "bytes": 254212,
+      "sha256": "f42a808da140b8a4370ccb26b136fb28a8ea986a8672b2721c0176612b6636cd"
+    },
+    {
+      "name": "world-earth.pck",
+      "bytes": 219260,
+      "sha256": "05963c63ab6c7fe422629907b7a697f5d9f2ce0642ae8840424351493b43eecf"
+    },
+    {
+      "name": "world-moon.pck",
+      "bytes": 181796,
+      "sha256": "6cdf129c1f467675b11c14361a9413f71a5fbb7771038bf9049cbdb4f919ac35"
+    },
+    {
+      "name": "world-sun-extras.pck",
+      "bytes": 45336,
+      "sha256": "203101708276232c947ee726e1ec79e76af0d5fc3ff21d3c4e9aa1c376811473"
+    }
+  ]
+}
