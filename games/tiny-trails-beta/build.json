@@ -4,11 +4,11 @@
   "pack": "space",
   "channel": "staging",
   "template": "custom",
-  "commit": "9d3eb8f2b13dcee842cfbe5846996f1cdb844135",
-  "dirty": true,
-  "built_utc": "2026-11-23T00:47:52Z",
+  "commit": "cbff528f5728abd206ed8a1d8c2d2cb1a057f1a2",
+  "dirty": false,
+  "built_utc": "2026-11-23T02:33:14Z",
   "site_path": "games/tiny-trails-beta",
-  "first_load_gzip_bytes": 5816563,
+  "first_load_gzip_bytes": 5822101,
   "files": [
     {
       "name": "hazard-kit-extras.pck",
@@ -33,7 +33,7 @@
     {
       "name": "index.html",
       "bytes": 7824,
-      "sha256": "872bedf7c7148341e28c3578f3622b876c35214b782cc19a501846f0468a961c"
+      "sha256": "b19331191ec00bbac6ea33004ee51270519519effa6752df4abe46e1fedbee22"
     },
     {
       "name": "index.icon.png",
@@ -52,8 +52,8 @@
     },
     {
       "name": "index.pck",
-      "bytes": 1340048,
-      "sha256": "edb1fd4b269417e1feacc2c63ba6983d788f4d00f2b15320eabdfaba9d9f8328"
+      "bytes": 1345108,
+      "sha256": "893604b017a9ea4632fff20148d74e5818ca6f2c6eda9b0b001a0e1b312eb20e"
     },
     {
       "name": "index.wasm",
